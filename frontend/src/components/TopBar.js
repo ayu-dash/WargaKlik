@@ -27,7 +27,7 @@ export default function TopBar({ setIsSidebarOpen }) {
   }, [user]);
 
   return (
-    <header className="h-20 bg-white/80 backdrop-blur-md border-b border-slate-200 flex items-center justify-between px-6 lg:px-10 sticky top-0 z-30 shadow-sm shadow-slate-100/50">
+    <header className="h-20 bg-white/80 backdrop-blur-md border-b border-slate-200 flex items-center justify-between px-6 lg:px-10 fixed top-0 right-0 w-full lg:w-[calc(100%-16rem)] z-30 shadow-sm shadow-slate-100/50">
       <div className="flex items-center gap-4">
         <button 
           onClick={() => setIsSidebarOpen(true)}

@@ -131,6 +131,15 @@ export default function TagihanList() {
     .filter(t => selectedIds.includes(t.id))
     .reduce((sum, t) => sum + parseFloat(t.total_nominal), 0);
 
+  const handleSelectAll = () => {
+    const unpaidIds = tagihan.filter(t => t.status !== 'lunas').map(t => t.id);
+    if (selectedIds.length === unpaidIds.length && unpaidIds.length > 0) {
+      setSelectedIds([]);
+    } else {
+      setSelectedIds(unpaidIds);
+    }
+  };
+
   return (
     <div className="space-y-6 md:space-y-10 animate-fade-in relative pb-20 font-sans max-w-5xl mx-auto px-4 sm:px-0">
       <div className="fixed inset-0 community-grid opacity-20 pointer-events-none -z-10" />
@@ -169,6 +178,15 @@ export default function TagihanList() {
               <option value="lunas">Sudah Lunas</option>
             </select>
           </div>
+          
+          {tagihan.filter(t => t.status !== 'lunas').length > 0 && (
+            <button 
+              onClick={handleSelectAll}
+              className="w-full sm:w-auto bg-emerald-50 text-primary border border-emerald-100 px-5 py-3 md:px-6 md:py-4 rounded-xl md:rounded-[1.2rem] font-black text-sm md:text-base hover:bg-emerald-100 transition-all shadow-sm whitespace-nowrap"
+            >
+              {selectedIds.length === tagihan.filter(t => t.status !== 'lunas').length ? 'Batalkan Semua' : 'Pilih Semua'}
+            </button>
+          )}
         </div>
       </div>
 

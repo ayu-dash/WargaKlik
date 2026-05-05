@@ -1,13 +1,13 @@
 'use client';
 
 import Link from 'next/link';
-import { 
-  Receipt, 
-  ShieldCheck, 
-  Zap, 
-  BarChart3, 
-  Users, 
-  ArrowRight, 
+import {
+  Receipt,
+  ShieldCheck,
+  Zap,
+  BarChart3,
+  Users,
+  ArrowRight,
   CheckCircle2,
   Lock,
   Smartphone,
@@ -21,24 +21,19 @@ export default function LandingPage() {
   return (
     <div className="min-h-screen bg-bg text-text selection:bg-primary/20 selection:text-primary overflow-x-hidden font-sans">
       <div className="fixed inset-0 community-grid opacity-40 pointer-events-none -z-10" />
-      
+
       {/* Navbar */}
       <nav className="fixed top-0 w-full z-50 bg-white/80 backdrop-blur-md border-b border-border">
         <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-primary flex items-center justify-center rounded-xl shadow-sm">
-              <Receipt className="w-6 h-6 text-white" />
-            </div>
-            <span className="font-bold text-xl tracking-tight text-slate-900">
-              Warga<span className="text-primary">Klik</span>
-            </span>
+          <div className="flex items-center">
+            <img src="/logo.png" alt="WargaKlik Logo" className="h-20 w-auto" />
           </div>
-          
+
           <div className="hidden md:flex items-center gap-8">
             <a href="#fitur" className="text-sm font-semibold text-text-muted hover:text-primary transition-colors">Cara Kerja</a>
             <a href="#transparansi" className="text-sm font-semibold text-text-muted hover:text-primary transition-colors">Keamanan</a>
-            <Link 
-              href="/login" 
+            <Link
+              href="/login"
               className="px-6 py-2.5 bg-primary text-white text-sm font-bold rounded-xl hover:bg-primary-hover transition-all shadow-md shadow-primary/20"
             >
               Masuk ke Akun
@@ -52,27 +47,27 @@ export default function LandingPage() {
         <div className="max-w-5xl mx-auto text-center space-y-10 animate-fade-in">
           <div className="inline-flex items-center gap-2 px-4 py-2 bg-emerald-50 border border-emerald-100 rounded-full text-sm font-bold text-primary">
             <Heart className="w-4 h-4 fill-primary" />
-              Portal Iuran Warga Digital
+            Portal Iuran Warga Digital
           </div>
-          
+
           <h1 className="text-5xl md:text-7xl font-extrabold text-slate-900 leading-[1.1] tracking-tight">
             Kelola Iuran RT Jadi <br />
             <span className="text-primary">Lebih Mudah & Jujur</span>
           </h1>
-          
+
           <p className="text-text-muted text-xl max-w-2xl mx-auto leading-relaxed">
-            Membantu pengurus RT mengelola keuangan secara transparan, 
+            Membantu pengurus RT mengelola keuangan secara transparan,
             dan memudahkan warga membayar iuran tanpa harus keluar rumah.
           </p>
-          
+
           <div className="flex flex-col sm:flex-row justify-center gap-4 pt-4">
-            <Link 
-              href="/login" 
+            <Link
+              href="/login"
               className="group bg-primary text-white px-10 py-5 rounded-2xl font-bold text-lg shadow-xl shadow-primary/20 hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-3"
             >
               Mulai Gunakan Sekarang <ArrowRight className="w-6 h-6 group-hover:translate-x-1 transition-transform" />
             </Link>
-            <a 
+            <a
               href="#fitur"
               className="px-10 py-5 bg-white border border-border text-slate-700 font-bold text-lg rounded-2xl hover:bg-slate-50 transition-all text-center"
             >
@@ -152,7 +147,7 @@ export default function LandingPage() {
               Dan <span className="text-primary">Kenyamanan Bersama</span>
             </h2>
             <p className="text-lg text-text-muted leading-relaxed">
-              Kami memahami bahwa kepercayaan adalah hal terpenting dalam bertetangga. 
+              Kami memahami bahwa kepercayaan adalah hal terpenting dalam bertetangga.
               Sistem ini menjamin setiap rupiah iuran warga tercatat dan terkelola dengan baik.
             </p>
             <div className="grid gap-4">
@@ -200,17 +195,14 @@ export default function LandingPage() {
       <footer className="py-20 px-6 bg-slate-900 text-white">
         <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-12 text-center md:text-left">
           <div className="space-y-4">
-            <div className="flex items-center justify-center md:justify-start gap-3">
-              <div className="w-10 h-10 bg-primary rounded-xl flex items-center justify-center text-white">
-                <Receipt className="w-6 h-6" />
-              </div>
-              <span className="font-bold tracking-tight text-2xl">WargaKlik</span>
+            <div className="flex items-center justify-center md:justify-start">
+              <img src="/logo.png" alt="WargaKlik Logo" className="h-12 w-auto brightness-0 invert" />
             </div>
             <p className="text-slate-400 max-w-xs leading-relaxed">
               Solusi digital untuk manajemen lingkungan yang lebih modern dan harmonis.
             </p>
           </div>
-          
+
           <div className="flex flex-col md:flex-row items-center gap-12">
             <div className="space-y-4">
               <div className="text-sm font-bold uppercase tracking-widest text-slate-500">Akses Cepat</div>

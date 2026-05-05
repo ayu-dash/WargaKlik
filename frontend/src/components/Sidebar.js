@@ -3,15 +3,15 @@
 import { useAuth } from '@/contexts/AuthContext';
 import { useRouter, usePathname } from 'next/navigation';
 import Link from 'next/link';
-import { 
-  LayoutDashboard, 
-  Receipt, 
-  History, 
-  Bell, 
-  Megaphone, 
-  Users, 
-  WalletCards, 
-  FileText, 
+import {
+  LayoutDashboard,
+  Receipt,
+  History,
+  Bell,
+  Megaphone,
+  Users,
+  WalletCards,
+  FileText,
   Settings,
   LogOut,
   User as UserIcon,
@@ -71,7 +71,7 @@ export default function Sidebar({ isOpen, setIsOpen }) {
     <>
       {/* Mobile overlay */}
       {isOpen && (
-        <div 
+        <div
           className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-40 lg:hidden"
           onClick={() => setIsOpen(false)}
         />
@@ -84,11 +84,8 @@ export default function Sidebar({ isOpen, setIsOpen }) {
         ${isOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
       `}>
         <div className="flex items-center justify-between p-6 mb-2">
-          <Link href="/dashboard" className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center shadow-md shadow-primary/20">
-              <Receipt className="w-6 h-6 text-white" />
-            </div>
-            <span className="text-xl font-bold text-slate-900 tracking-tight">WargaKlik</span>
+          <Link href="/dashboard" className="block">
+            <img src="/logo.png" alt="WargaKlik Logo" className="h-20 w-auto" />
           </Link>
           <button onClick={() => setIsOpen(false)} className="lg:hidden text-slate-400 hover:text-slate-900">
             <X className="w-6 h-6" />
@@ -110,13 +107,13 @@ export default function Sidebar({ isOpen, setIsOpen }) {
                     const Icon = item.icon;
                     const active = isActive(item.path, item.exact);
                     return (
-                      <Link 
-                        key={item.path} 
+                      <Link
+                        key={item.path}
                         href={item.path}
                         className={`
                           flex items-center justify-between group px-4 py-3.5 rounded-2xl transition-all duration-200
-                          ${active 
-                            ? 'bg-emerald-50 text-primary font-bold shadow-sm' 
+                          ${active
+                            ? 'bg-emerald-50 text-primary font-bold shadow-sm'
                             : 'text-slate-500 hover:text-slate-900 hover:bg-slate-50'}
                         `}
                       >
@@ -144,7 +141,7 @@ export default function Sidebar({ isOpen, setIsOpen }) {
               <p className="text-[10px] font-black text-primary uppercase tracking-widest mt-0.5">{user.role}</p>
             </div>
           </div>
-          <button 
+          <button
             onClick={logout}
             className="w-full flex items-center justify-center gap-3 px-4 py-3.5 rounded-2xl text-slate-500 font-bold bg-white border border-slate-200 hover:text-red-600 hover:border-red-200 hover:bg-red-50 transition-all text-sm"
           >

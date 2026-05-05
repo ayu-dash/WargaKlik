@@ -93,7 +93,7 @@ const getTagihanById = async (req, res) => {
  */
 const generateTagihan = async (req, res) => {
   try {
-    const { bulan, tahun } = req.body;
+    const { bulan, tahun, warga_id } = req.body;
     if (!bulan || !tahun) return error(res, 'Bulan dan tahun wajib diisi', 400);
 
     const { IuranMaster } = require('../models');
@@ -101,7 +101,11 @@ const generateTagihan = async (req, res) => {
     const iuranList = await IuranMaster.findAll({ where: { is_active: true } });
     if (iuranList.length === 0) return error(res, 'Tidak ada iuran aktif', 400);
 
-    const wargaList = await Warga.findAll({ where: { is_active: true } });
+    let whereClause = { is_active: true };
+    if (warga_id) {
+      whereClause.id = warga_id;
+    }
+    const wargaList = await Warga.findAll({ where: whereClause });
     
     let created = 0;
     let skipped = 0;

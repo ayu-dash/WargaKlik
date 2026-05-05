@@ -81,12 +81,15 @@ const createWarga = async (req, res) => {
     const existingUser = await User.findOne({ where: { email } });
     if (existingUser) return error(res, 'Email sudah terdaftar', 400);
 
-    // 2. Create User
-    const defaultPassword = await bcrypt.hash('password123', 10);
+    // 2. Create User with a random unguessable password
+    // Users MUST activate their account to set their real password
+    const crypto = require('crypto');
+    const randomPassword = crypto.randomBytes(32).toString('hex');
+    const hashedPassword = await bcrypt.hash(randomPassword, 10);
     const user = await User.create({
       name,
       email,
-      password: defaultPassword,
+      password: hashedPassword,
       no_telepon,
       role: 'warga'
     });

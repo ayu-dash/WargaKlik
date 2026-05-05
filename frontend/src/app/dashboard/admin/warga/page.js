@@ -337,8 +337,7 @@ export default function AdminWarga() {
                 <div className="p-3 md:p-4 bg-amber-50 rounded-xl md:rounded-2xl border border-amber-100 flex gap-3">
                    <AlertCircle className="w-5 h-5 text-amber-600 shrink-0 mt-0.5" />
                    <p className="text-[11px] md:text-sm font-medium text-amber-700 leading-relaxed">
-                     Kata sandi awal adalah <strong className="font-black">password123</strong>. 
-                     Warga wajib mengganti kata sandi demi keamanan saat pertama kali masuk ke sistem.
+                     Warga yang ditambahkan harus melakukan <strong className="font-black">Aktivasi Akun</strong> menggunakan email atau nomor WhatsApp untuk mengatur kata sandi mereka sebelum login.
                    </p>
                 </div>
               </div>
