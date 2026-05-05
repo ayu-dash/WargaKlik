@@ -8,6 +8,7 @@ router.use(authenticate);
 
 // Everyone can view Kas (transparency)
 router.get('/', kasController.getAllKas);
+router.get('/stats', kasController.getStats);
 
 // Only pengurus can add manual kas entry
 router.post('/', pengurusOnly, upload.single('bukti'), kasController.createKas);

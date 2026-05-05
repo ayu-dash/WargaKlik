@@ -2,8 +2,9 @@
 
 import { useState, useEffect } from 'react';
 import api from '@/utils/api';
-import { Users, Search, Plus, UserPlus, Check, X, Edit, Trash2, Loader2 } from 'lucide-react';
+import { Users, Search, Plus, UserPlus, Check, X, Edit, Trash2, Loader2, Receipt } from 'lucide-react';
 import { toast } from 'react-hot-toast';
+import Link from 'next/link';
 
 export default function AdminWarga() {
   const [warga, setWarga] = useState([]);
@@ -131,19 +132,31 @@ export default function AdminWarga() {
                       <td className="p-4 text-white font-medium">{item.kepala_keluarga}</td>
                       <td className="p-4 text-slate-400">{item.user?.email || '-'}</td>
                       <td className="p-4">
-                        {item.status === 'aktif' ? (
-                          <span className="badge badge-success px-2 py-1 text-xs">Aktif</span>
-                        ) : (
-                          <span className="badge badge-danger px-2 py-1 text-xs">Pindah</span>
-                        )}
+                        <div className="flex flex-col gap-1">
+                          {item.status === 'aktif' ? (
+                            <span className="badge badge-success px-2 py-1 text-[10px] w-fit">Aktif</span>
+                          ) : (
+                            <span className="badge badge-danger px-2 py-1 text-[10px] w-fit">Pindah</span>
+                          )}
+                          {item.iuran_custom?.length > 0 && (
+                            <span className="badge badge-info px-2 py-1 text-[10px] w-fit">Kustom</span>
+                          )}
+                        </div>
                       </td>
                       <td className="p-4 text-right">
-                        <button className="p-2 text-slate-400 hover:text-blue-400 transition-colors">
-                          <Edit className="w-4 h-4" />
-                        </button>
-                        <button className="p-2 text-slate-400 hover:text-red-400 transition-colors">
-                          <Trash2 className="w-4 h-4" />
-                        </button>
+                        <div className="flex items-center justify-end gap-1">
+                          <Link href={`/dashboard/admin/warga/${item.id}`}
+                            className="p-2 text-slate-400 hover:text-emerald-400 transition-colors rounded hover:bg-emerald-500/10"
+                            title="Atur Iuran">
+                            <Receipt className="w-4 h-4" />
+                          </Link>
+                          <button className="p-2 text-slate-400 hover:text-blue-400 transition-colors rounded hover:bg-blue-500/10">
+                            <Edit className="w-4 h-4" />
+                          </button>
+                          <button className="p-2 text-slate-400 hover:text-red-400 transition-colors rounded hover:bg-red-500/10">
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </div>
                       </td>
                     </tr>
                   ))

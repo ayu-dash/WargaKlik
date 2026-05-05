@@ -1,4 +1,4 @@
-const { Warga, User } = require('../models');
+const { Warga, User, WargaIuran } = require('../models');
 const { success, error, paginate } = require('../utils/response');
 const bcrypt = require('bcryptjs');
 
@@ -14,11 +14,18 @@ const getAllWarga = async (req, res) => {
     const { count, rows } = await Warga.findAndCountAll({
       limit,
       offset,
-      include: [{
-        model: User,
-        as: 'user',
-        attributes: ['id', 'name', 'email', 'no_telepon', 'role']
-      }],
+      include: [
+        {
+          model: User,
+          as: 'user',
+          attributes: ['id', 'name', 'email', 'no_telepon', 'role']
+        },
+        {
+          model: WargaIuran,
+          as: 'iuran_custom',
+          attributes: ['id', 'nominal_custom', 'is_excluded']
+        }
+      ],
       order: [['no_rumah', 'ASC']]
     });
 
@@ -39,11 +46,18 @@ const getAllWarga = async (req, res) => {
 const getWargaById = async (req, res) => {
   try {
     const warga = await Warga.findByPk(req.params.id, {
-      include: [{
-        model: User,
-        as: 'user',
-        attributes: ['id', 'name', 'email', 'no_telepon', 'role']
-      }]
+      include: [
+        {
+          model: User,
+          as: 'user',
+          attributes: ['id', 'name', 'email', 'no_telepon', 'role']
+        },
+        {
+          model: WargaIuran,
+          as: 'iuran_custom',
+          attributes: ['id', 'nominal_custom', 'is_excluded']
+        }
+      ]
     });
 
     if (!warga) return error(res, 'Warga tidak ditemukan', 404);

@@ -1,9 +1,10 @@
 const cron = require('node-cron');
-const { Warga, IuranMaster, Tagihan, TagihanItem } = require('../models');
+const { Warga, IuranMaster, Tagihan, TagihanItem, WargaIuran } = require('../models');
 
 /**
  * Generate monthly tagihan for all active warga
  * Runs on the 1st of every month at 00:01
+ * Supports per-warga custom iuran amounts via warga_iuran table
  */
 const setupGenerateTagihan = () => {
   cron.schedule('1 0 1 * *', async () => {
@@ -37,15 +38,46 @@ const setupGenerateTagihan = () => {
           continue;
         }
 
-        // Calculate total
+        // Get custom iuran settings for this warga
+        const customIuran = await WargaIuran.findAll({
+          where: { warga_id: warga.id }
+        });
+        const customMap = {};
+        customIuran.forEach(ci => {
+          customMap[ci.iuran_master_id] = ci;
+        });
+
+        // Calculate applicable iuran
         const bulananIuran = iuranList.filter(i => i.periode === 'bulanan');
-        // Add tahunan only in January
         const tahunanIuran = bulan === 1 ? iuranList.filter(i => i.periode === 'tahunan') : [];
         const applicableIuran = [...bulananIuran, ...tahunanIuran];
 
         if (applicableIuran.length === 0) continue;
 
-        const totalNominal = applicableIuran.reduce((sum, i) => sum + parseFloat(i.nominal), 0);
+        // Build items with custom amounts
+        const items = [];
+        let totalNominal = 0;
+
+        for (const iuran of applicableIuran) {
+          const custom = customMap[iuran.id];
+
+          // Skip if warga is excluded from this iuran
+          if (custom && custom.is_excluded) continue;
+
+          // Use custom nominal if set, otherwise use master nominal
+          const nominal = (custom && custom.nominal_custom !== null)
+            ? parseFloat(custom.nominal_custom)
+            : parseFloat(iuran.nominal);
+
+          items.push({
+            iuran_master_id: iuran.id,
+            nominal,
+            keterangan: iuran.nama
+          });
+          totalNominal += nominal;
+        }
+
+        if (items.length === 0) continue;
 
         // Create tagihan
         const tagihan = await Tagihan.create({
@@ -59,12 +91,10 @@ const setupGenerateTagihan = () => {
         });
 
         // Create tagihan items
-        for (const iuran of applicableIuran) {
+        for (const item of items) {
           await TagihanItem.create({
             tagihan_id: tagihan.id,
-            iuran_master_id: iuran.id,
-            nominal: iuran.nominal,
-            keterangan: iuran.nama
+            ...item
           });
         }
 
@@ -81,3 +111,4 @@ const setupGenerateTagihan = () => {
 };
 
 module.exports = setupGenerateTagihan;
+

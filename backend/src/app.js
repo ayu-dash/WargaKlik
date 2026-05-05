@@ -37,6 +37,7 @@ const kasRoutes = require('./routes/kas.routes');
 const pengumumanRoutes = require('./routes/pengumuman.routes');
 const notifikasiRoutes = require('./routes/notifikasi.routes');
 const laporanRoutes = require('./routes/laporan.routes');
+const wargaIuranRoutes = require('./routes/wargaIuran.routes');
 
 app.use('/api/auth', authRoutes);
 app.use('/api/warga', wargaRoutes);
@@ -47,6 +48,7 @@ app.use('/api/kas', kasRoutes);
 app.use('/api/pengumuman', pengumumanRoutes);
 app.use('/api/notifikasi', notifikasiRoutes);
 app.use('/api/laporan', laporanRoutes);
+app.use('/api/warga-iuran', wargaIuranRoutes);
 
 // Health check
 app.get('/api/health', (req, res) => {

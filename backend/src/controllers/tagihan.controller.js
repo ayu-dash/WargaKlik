@@ -1,4 +1,4 @@
-const { Tagihan, TagihanItem, Warga, User, Pembayaran } = require('../models');
+const { Tagihan, TagihanItem, Warga, User, Pembayaran, WargaIuran } = require('../models');
 const { success, error, paginate } = require('../utils/response');
 const { Op } = require('sequelize');
 
@@ -89,13 +89,13 @@ const getTagihanById = async (req, res) => {
 /**
  * POST /api/tagihan/generate (Admin manual trigger)
  * Generate tagihan for specific bulan/tahun
+ * Supports per-warga custom iuran amounts via warga_iuran table
  */
 const generateTagihan = async (req, res) => {
   try {
     const { bulan, tahun } = req.body;
     if (!bulan || !tahun) return error(res, 'Bulan dan tahun wajib diisi', 400);
 
-    // Use the existing generateTagihan job logic as a helper, or duplicate core logic here
     const { IuranMaster } = require('../models');
     
     const iuranList = await IuranMaster.findAll({ where: { is_active: true } });
@@ -116,13 +116,45 @@ const generateTagihan = async (req, res) => {
         continue;
       }
 
+      // Get custom iuran settings for this warga
+      const customIuran = await WargaIuran.findAll({
+        where: { warga_id: warga.id }
+      });
+      const customMap = {};
+      customIuran.forEach(ci => {
+        customMap[ci.iuran_master_id] = ci;
+      });
+
       const bulananIuran = iuranList.filter(i => i.periode === 'bulanan');
       const tahunanIuran = (parseInt(bulan) === 1) ? iuranList.filter(i => i.periode === 'tahunan') : [];
       const applicableIuran = [...bulananIuran, ...tahunanIuran];
 
       if (applicableIuran.length === 0) continue;
 
-      const totalNominal = applicableIuran.reduce((sum, i) => sum + parseFloat(i.nominal), 0);
+      // Calculate items with custom amounts
+      const items = [];
+      let totalNominal = 0;
+
+      for (const iuran of applicableIuran) {
+        const custom = customMap[iuran.id];
+        
+        // Skip if warga is excluded from this iuran
+        if (custom && custom.is_excluded) continue;
+        
+        // Use custom nominal if set, otherwise use master nominal
+        const nominal = (custom && custom.nominal_custom !== null) 
+          ? parseFloat(custom.nominal_custom) 
+          : parseFloat(iuran.nominal);
+        
+        items.push({
+          iuran_master_id: iuran.id,
+          nominal,
+          keterangan: iuran.nama
+        });
+        totalNominal += nominal;
+      }
+
+      if (items.length === 0) continue;
 
       const tagihan = await Tagihan.create({
         warga_id: warga.id,
@@ -134,12 +166,10 @@ const generateTagihan = async (req, res) => {
         status: 'belum_bayar'
       });
 
-      for (const iuran of applicableIuran) {
+      for (const item of items) {
         await TagihanItem.create({
           tagihan_id: tagihan.id,
-          iuran_master_id: iuran.id,
-          nominal: iuran.nominal,
-          keterangan: iuran.nama
+          ...item
         });
       }
 
@@ -154,3 +184,4 @@ const generateTagihan = async (req, res) => {
 };
 
 module.exports = { getAllTagihan, getTagihanById, generateTagihan };
+

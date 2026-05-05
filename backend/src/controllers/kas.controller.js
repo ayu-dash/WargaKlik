@@ -85,4 +85,56 @@ const createKas = async (req, res) => {
   }
 };
 
-module.exports = { getAllKas, createKas };
+/**
+ * GET /api/kas/stats
+ * Get monthly stats for charts (last 6 months)
+ */
+const getStats = async (req, res) => {
+  try {
+    const sequelize = require('../config/database');
+    const { Op } = require('sequelize');
+    
+    // Get stats for last 6 months
+    const stats = [];
+    const now = new Date();
+    
+    for (let i = 5; i >= 0; i--) {
+      const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+      const m = d.getMonth() + 1;
+      const y = d.getFullYear();
+      
+      const masuk = await KasHarian.sum('nominal', {
+        where: {
+          jenis: 'masuk',
+          [Op.and]: [
+            sequelize.where(sequelize.fn('MONTH', sequelize.col('tanggal')), m),
+            sequelize.where(sequelize.fn('YEAR', sequelize.col('tanggal')), y)
+          ]
+        }
+      }) || 0;
+
+      const keluar = await KasHarian.sum('nominal', {
+        where: {
+          jenis: 'keluar',
+          [Op.and]: [
+            sequelize.where(sequelize.fn('MONTH', sequelize.col('tanggal')), m),
+            sequelize.where(sequelize.fn('YEAR', sequelize.col('tanggal')), y)
+          ]
+        }
+      }) || 0;
+
+      stats.push({
+        month: d.toLocaleString('id-ID', { month: 'short' }),
+        masuk,
+        keluar
+      });
+    }
+
+    return success(res, stats);
+  } catch (err) {
+    console.error('Get kas stats error:', err);
+    return error(res, 'Gagal mengambil statistik kas', 500);
+  }
+};
+
+module.exports = { getAllKas, createKas, getStats };

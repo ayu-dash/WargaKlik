@@ -9,6 +9,7 @@ const KasHarian = require('./KasHarian');
 const Pengumuman = require('./Pengumuman');
 const Notifikasi = require('./Notifikasi');
 const Laporan = require('./Laporan');
+const WargaIuran = require('./WargaIuran');
 
 // ==================== ASSOCIATIONS ====================
 
@@ -60,6 +61,12 @@ TagihanItem.belongsTo(IuranMaster, { foreignKey: 'iuran_master_id', as: 'iuran_m
 Pembayaran.hasMany(KasHarian, { foreignKey: 'pembayaran_id', as: 'kas_entries' });
 KasHarian.belongsTo(Pembayaran, { foreignKey: 'pembayaran_id', as: 'pembayaran' });
 
+// Warga N:M IuranMaster via WargaIuran (custom nominal per warga)
+Warga.hasMany(WargaIuran, { foreignKey: 'warga_id', as: 'iuran_custom' });
+WargaIuran.belongsTo(Warga, { foreignKey: 'warga_id', as: 'warga' });
+IuranMaster.hasMany(WargaIuran, { foreignKey: 'iuran_master_id', as: 'warga_overrides' });
+WargaIuran.belongsTo(IuranMaster, { foreignKey: 'iuran_master_id', as: 'iuran_master' });
+
 module.exports = {
   sequelize,
   User,
@@ -71,5 +78,6 @@ module.exports = {
   KasHarian,
   Pengumuman,
   Notifikasi,
-  Laporan
+  Laporan,
+  WargaIuran
 };

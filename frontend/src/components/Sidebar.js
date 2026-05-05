@@ -49,7 +49,7 @@ export default function Sidebar({ isOpen, setIsOpen }) {
       title: 'Transparansi Keuangan',
       items: [
         { name: 'Kas Harian', path: '/dashboard/admin/kas', icon: History, show: true },
-        { name: 'Laporan Keuangan', path: '/dashboard/admin/laporan', icon: FileText, show: true },
+        { name: 'Laporan Keuangan', path: hasRole(['warga']) ? '/dashboard/laporan' : '/dashboard/admin/laporan', icon: FileText, show: true },
       ]
     },
     {
