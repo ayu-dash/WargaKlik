@@ -33,11 +33,7 @@ const Warga = sequelize.define('Warga', {
   },
   user_id: {
     type: DataTypes.INTEGER,
-    allowNull: true,
-    references: {
-      model: 'users',
-      key: 'id'
-    }
+    allowNull: true
   }
 }, {
   tableName: 'warga'

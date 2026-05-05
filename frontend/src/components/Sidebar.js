@@ -50,16 +50,16 @@ export default function Sidebar({ isOpen, setIsOpen }) {
     {
       title: 'Laporan Keuangan',
       items: [
-        { name: 'Catatan Kas', path: '/dashboard/admin/kas', icon: History, show: true },
-        { name: 'Laporan Resmi', path: hasRole(['warga']) ? '/dashboard/laporan' : '/dashboard/admin/laporan', icon: FileText, show: true },
+        { name: 'Catatan Kas', path: '/dashboard/admin/kas', icon: History, show: hasRole(['rt', 'wakil_rt', 'bendahara']) },
+        { name: 'Laporan Resmi', path: hasRole(['warga']) ? '/dashboard/laporan' : '/dashboard/admin/laporan', icon: FileText, show: hasRole(['warga', 'rt', 'wakil_rt', 'sekretaris']) },
       ]
     },
     {
       title: 'Kelola RT',
       items: [
         { name: 'Daftar Warga', path: '/dashboard/admin/warga', icon: Users, show: hasRole(['rt', 'wakil_rt', 'sekretaris', 'bendahara']) },
-        { name: 'Jenis Iuran', path: '/dashboard/admin/iuran', icon: WalletCards, show: hasRole(['rt', 'wakil_rt', 'sekretaris', 'bendahara']) },
-        { name: 'Tagihan Warga', path: '/dashboard/admin/tagihan', icon: Receipt, show: hasRole(['rt', 'wakil_rt', 'bendahara', 'sekretaris']) }
+        { name: 'Jenis Iuran', path: '/dashboard/admin/iuran', icon: WalletCards, show: hasRole(['rt', 'wakil_rt', 'bendahara']) },
+        { name: 'Tagihan Warga', path: '/dashboard/admin/tagihan', icon: Receipt, show: hasRole(['rt', 'wakil_rt', 'bendahara']) }
       ]
     }
   ];

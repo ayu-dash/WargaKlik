@@ -1,20 +1,20 @@
 const router = require('express').Router();
 const laporanController = require('../controllers/laporan.controller');
 const { authenticate } = require('../middlewares/auth.middleware');
-const { pengurusOnly, rtOnly } = require('../middlewares/role.middleware');
+const { pengurusOnly, rtOnly, bendaharaUp } = require('../middlewares/role.middleware');
 
 router.use(authenticate);
 
 // Everyone can view reports (warga only sees approved ones, logic handled in controller)
 router.get('/', laporanController.getAllLaporan);
 
-// Pengurus (Bendahara/Sekretaris/RT) can generate
-router.post('/generate', pengurusOnly, laporanController.generateLaporan);
+// Bendahara/RT can generate
+router.post('/generate', bendaharaUp, laporanController.generateLaporan);
 
-// Pengurus can delete their drafts
-router.delete('/:id', pengurusOnly, laporanController.deleteLaporan);
+// Bendahara/RT can delete their drafts
+router.delete('/:id', bendaharaUp, laporanController.deleteLaporan);
 
-// ONLY RT/Wakil RT can approve
-router.put('/:id/approve', rtOnly, laporanController.approveLaporan);
+// ONLY RT/Bendahara can approve
+router.put('/:id/approve', bendaharaUp, laporanController.approveLaporan);
 
 module.exports = router;

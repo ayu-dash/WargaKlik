@@ -1,7 +1,7 @@
 const router = require('express').Router();
 const pengumumanController = require('../controllers/pengumuman.controller');
 const { authenticate } = require('../middlewares/auth.middleware');
-const { pengurusOnly } = require('../middlewares/role.middleware');
+const { pengurusOnly, sekretarisUp } = require('../middlewares/role.middleware');
 
 router.use(authenticate);
 

@@ -164,7 +164,11 @@ export default function DashboardHome() {
           <p className="text-slate-500 text-base md:text-lg font-medium max-w-md leading-relaxed">
             {hasRole('warga') 
               ? 'Terima kasih telah berkontribusi untuk pembangunan lingkungan kita bersama.'
-              : 'Pantau laporan keuangan dan kelola data warga dengan jujur dan transparan.'}
+              : hasRole('sekretaris')
+              ? 'Kelola data warga dan berikan informasi terbaru untuk lingkungan yang lebih baik.'
+              : hasRole('bendahara')
+              ? 'Pantau laporan keuangan dan pastikan iuran warga berjalan dengan lancar.'
+              : 'Pantau seluruh aktivitas lingkungan dan pastikan transparansi pengurus RT.'}
           </p>
         </div>
         <div className="relative z-10 hidden lg:block">
@@ -175,7 +179,7 @@ export default function DashboardHome() {
       </div>
 
       {hasRole('warga') ? (
-        // Warga Dashboard - Friendly Layout
+        // Warga Dashboard
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 md:gap-8">
           <div className="lg:col-span-8 space-y-6 md:space-y-8">
             <div className="bg-white p-6 sm:p-8 md:p-10 rounded-3xl md:rounded-[2.5rem] border border-slate-100 shadow-sm space-y-6 md:space-y-8">
@@ -264,27 +268,55 @@ export default function DashboardHome() {
           </div>
         </div>
       ) : (
-        // Admin Dashboard - Clean Management View
+        // Admin & Pengurus Dashboard
         <div className="space-y-6 md:space-y-10">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-8">
-            {[
-              { label: 'Total Kas RT', value: formatRupiah(data?.saldoKas || 0), color: 'text-primary', icon: Wallet, bg: 'bg-emerald-50' },
-              { label: 'Pemasukan', value: formatRupiah(data?.kasMasuk || 0), color: 'text-blue-600', icon: TrendingUp, bg: 'bg-blue-50' },
-              { label: 'Pengeluaran', value: formatRupiah(data?.kasKeluar || 0), color: 'text-danger', icon: TrendingDown, bg: 'bg-red-50' },
-              { label: 'Warga Aktif', value: data?.totalWarga || 0, color: 'text-amber-600', icon: Users, bg: 'bg-amber-50' }
-            ].map((stat, i) => (
-              <div key={i} className="bg-white p-5 md:p-8 rounded-2xl md:rounded-[2rem] border border-slate-100 shadow-sm space-y-3 md:space-y-4 hover:shadow-lg transition-all group">
-                <div className={`w-10 h-10 md:w-14 md:h-14 ${stat.bg} rounded-xl md:rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform`}>
-                  <stat.icon className={`w-5 h-5 md:w-7 md:h-7 ${stat.color}`} />
-                </div>
-                <div>
-                  <div className="text-[10px] font-black text-slate-400 uppercase tracking-[0.15em] mb-0.5 md:mb-1">{stat.label}</div>
-                  <div className={`text-lg md:text-2xl font-black text-slate-900 truncate`}>
-                    {stat.value}
+            {/* Conditional Stats based on role */}
+            {hasRole(['rt', 'wakil_rt', 'bendahara']) && (
+              <>
+                <div className="bg-white p-5 md:p-8 rounded-2xl md:rounded-[2rem] border border-slate-100 shadow-sm space-y-3 md:space-y-4 hover:shadow-lg transition-all group">
+                  <div className="w-10 h-10 md:w-14 md:h-14 bg-emerald-50 rounded-xl md:rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform">
+                    <Wallet className="w-5 h-5 md:w-7 md:h-7 text-primary" />
+                  </div>
+                  <div>
+                    <div className="text-[10px] font-black text-slate-400 uppercase tracking-[0.15em] mb-0.5 md:mb-1">Saldo Kas RT</div>
+                    <div className="text-lg md:text-2xl font-black text-slate-900 truncate">{formatRupiah(data?.saldoKas || 0)}</div>
                   </div>
                 </div>
-              </div>
-            ))}
+                <div className="bg-white p-5 md:p-8 rounded-2xl md:rounded-[2rem] border border-slate-100 shadow-sm space-y-3 md:space-y-4 hover:shadow-lg transition-all group">
+                  <div className="w-10 h-10 md:w-14 md:h-14 bg-red-50 rounded-xl md:rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform">
+                    <AlertCircle className="w-5 h-5 md:w-7 md:h-7 text-danger" />
+                  </div>
+                  <div>
+                    <div className="text-[10px] font-black text-slate-400 uppercase tracking-[0.15em] mb-0.5 md:mb-1">Total Tunggakan</div>
+                    <div className="text-lg md:text-2xl font-black text-danger truncate">{data?.totalMenunggak || 0} Rumah</div>
+                  </div>
+                </div>
+              </>
+            )}
+
+            {hasRole(['rt', 'wakil_rt', 'sekretaris']) && (
+              <>
+                <div className="bg-white p-5 md:p-8 rounded-2xl md:rounded-[2rem] border border-slate-100 shadow-sm space-y-3 md:space-y-4 hover:shadow-lg transition-all group">
+                  <div className="w-10 h-10 md:w-14 md:h-14 bg-amber-50 rounded-xl md:rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform">
+                    <Users className="w-5 h-5 md:w-7 md:h-7 text-amber-600" />
+                  </div>
+                  <div>
+                    <div className="text-[10px] font-black text-slate-400 uppercase tracking-[0.15em] mb-0.5 md:mb-1">Warga Aktif</div>
+                    <div className="text-lg md:text-2xl font-black text-slate-900 truncate">{data?.totalWarga || 0} Keluarga</div>
+                  </div>
+                </div>
+                <div className="bg-white p-5 md:p-8 rounded-2xl md:rounded-[2rem] border border-slate-100 shadow-sm space-y-3 md:space-y-4 hover:shadow-lg transition-all group">
+                  <div className="w-10 h-10 md:w-14 md:h-14 bg-blue-50 rounded-xl md:rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform">
+                    <Megaphone className="w-5 h-5 md:w-7 md:h-7 text-blue-600" />
+                  </div>
+                  <div>
+                    <div className="text-[10px] font-black text-slate-400 uppercase tracking-[0.15em] mb-0.5 md:mb-1">Pengumuman</div>
+                    <div className="text-lg md:text-2xl font-black text-slate-900 truncate">Informasi Aktif</div>
+                  </div>
+                </div>
+              </>
+            )}
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 md:gap-8">
@@ -292,35 +324,77 @@ export default function DashboardHome() {
               <div className="flex items-center justify-between border-b border-slate-50 pb-4 md:pb-6">
                 <h3 className="text-lg md:text-2xl font-bold text-slate-900 flex items-center gap-2 md:gap-3">
                   <Activity className="w-6 h-6 md:w-7 md:h-7 text-primary" />
-                  Tren Keuangan Bulanan
+                  {hasRole('sekretaris') ? 'Aktivitas Lingkungan' : 'Tren Keuangan Bulanan'}
                 </h3>
-                <Link href="/dashboard/admin/laporan" className="text-[10px] font-bold text-slate-400 uppercase tracking-widest hover:text-primary transition-colors">Lihat Laporan Lengkap</Link>
+                <Link href={hasRole('sekretaris') ? '/dashboard/admin/warga' : '/dashboard/admin/laporan'} className="text-[10px] font-bold text-slate-400 uppercase tracking-widest hover:text-primary transition-colors">
+                  {hasRole('sekretaris') ? 'Lihat Data Warga' : 'Lihat Laporan Lengkap'}
+                </Link>
               </div>
-              <div className="h-64 sm:h-80 md:h-96 w-full">
-                <Bar options={chartOptions} data={chartData} />
-              </div>
+              
+              {hasRole(['rt', 'wakil_rt', 'bendahara']) ? (
+                <div className="h-64 sm:h-80 md:h-96 w-full">
+                  <Bar options={chartOptions} data={chartData} />
+                </div>
+              ) : (
+                <div className="space-y-6">
+                   <div className="p-8 bg-slate-50 rounded-[2rem] border border-slate-100 flex flex-col items-center justify-center text-center space-y-4">
+                      <div className="w-16 h-16 bg-white rounded-2xl flex items-center justify-center shadow-sm">
+                         <Megaphone className="w-8 h-8 text-primary" />
+                      </div>
+                      <h4 className="text-lg font-bold text-slate-900 tracking-tight">Butuh Pengumuman Baru?</h4>
+                      <p className="text-slate-500 text-sm max-w-xs font-medium">Buat pengumuman untuk menginformasikan kegiatan atau berita penting warga.</p>
+                      <Link href="/dashboard/pengumuman" className="bg-primary text-white px-8 py-3 rounded-xl font-bold text-sm shadow-lg shadow-primary/20 hover:scale-105 transition-all">Buat Sekarang</Link>
+                   </div>
+                </div>
+              )}
             </div>
 
             <div className="bg-white p-6 sm:p-8 md:p-10 rounded-2xl md:rounded-[2.5rem] border border-slate-100 shadow-sm flex flex-col justify-between space-y-6 md:space-y-8">
-              <div className="space-y-6 md:space-y-8">
-                <div className="w-12 h-12 md:w-16 md:h-16 bg-amber-50 rounded-xl md:rounded-2xl flex items-center justify-center">
-                  <AlertCircle className="w-6 h-6 md:w-8 md:h-8 text-amber-500" />
-                </div>
-                <div className="space-y-2">
-                  <h3 className="text-xl md:text-2xl font-bold text-slate-900 tracking-tight">Status Penagihan</h3>
-                  <p className="text-slate-500 text-sm md:text-base font-medium leading-relaxed">Ada {data?.totalMenunggak || 0} warga yang belum melunasi tagihan iuran bulan ini.</p>
-                </div>
-                <div className="p-4 md:p-6 bg-slate-50 rounded-xl md:rounded-[1.5rem] border border-slate-100">
-                   <div className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Total Tunggakan</div>
-                   <div className="text-2xl md:text-3xl font-black text-danger">{data?.totalMenunggak || 0} Rumah</div>
-                </div>
-              </div>
-              <Link 
-                href="/dashboard/admin/tagihan" 
-                className="w-full py-4 md:py-5 bg-slate-900 text-white rounded-xl md:rounded-2xl font-bold text-base md:text-lg text-center hover:bg-slate-800 transition-all flex items-center justify-center gap-2 group"
-              >
-                Kelola Tagihan <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-              </Link>
+              {hasRole(['rt', 'wakil_rt', 'bendahara']) ? (
+                <>
+                  <div className="space-y-6 md:space-y-8">
+                    <div className="w-12 h-12 md:w-16 md:h-16 bg-amber-50 rounded-xl md:rounded-2xl flex items-center justify-center">
+                      <AlertCircle className="w-6 h-6 md:w-8 md:h-8 text-amber-500" />
+                    </div>
+                    <div className="space-y-2">
+                      <h3 className="text-xl md:text-2xl font-bold text-slate-900 tracking-tight">Status Penagihan</h3>
+                      <p className="text-slate-500 text-sm md:text-base font-medium leading-relaxed">Ada {data?.totalMenunggak || 0} warga yang belum melunasi tagihan iuran bulan ini.</p>
+                    </div>
+                    <div className="p-4 md:p-6 bg-slate-50 rounded-xl md:rounded-[1.5rem] border border-slate-100">
+                       <div className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Total Tunggakan</div>
+                       <div className="text-2xl md:text-3xl font-black text-danger">{data?.totalMenunggak || 0} Rumah</div>
+                    </div>
+                  </div>
+                  <Link 
+                    href="/dashboard/admin/tagihan" 
+                    className="w-full py-4 md:py-5 bg-slate-900 text-white rounded-xl md:rounded-2xl font-bold text-base md:text-lg text-center hover:bg-slate-800 transition-all flex items-center justify-center gap-2 group"
+                  >
+                    Kelola Tagihan <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                  </Link>
+                </>
+              ) : (
+                <>
+                  <div className="space-y-6 md:space-y-8">
+                    <div className="w-12 h-12 md:w-16 md:h-16 bg-blue-50 rounded-xl md:rounded-2xl flex items-center justify-center">
+                      <Users className="w-6 h-6 md:w-8 md:h-8 text-blue-500" />
+                    </div>
+                    <div className="space-y-2">
+                      <h3 className="text-xl md:text-2xl font-bold text-slate-900 tracking-tight">Pendataan Warga</h3>
+                      <p className="text-slate-500 text-sm md:text-base font-medium leading-relaxed">Kelola data keluarga, pindahan, dan status kependudukan warga RT.</p>
+                    </div>
+                    <div className="p-4 md:p-6 bg-slate-50 rounded-xl md:rounded-[1.5rem] border border-slate-100">
+                       <div className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Total Warga</div>
+                       <div className="text-2xl md:text-3xl font-black text-slate-900">{data?.totalWarga || 0} Rumah</div>
+                    </div>
+                  </div>
+                  <Link 
+                    href="/dashboard/admin/warga" 
+                    className="w-full py-4 md:py-5 bg-slate-900 text-white rounded-xl md:rounded-2xl font-bold text-base md:text-lg text-center hover:bg-slate-800 transition-all flex items-center justify-center gap-2 group"
+                  >
+                    Kelola Warga <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                  </Link>
+                </>
+              )}
             </div>
           </div>
         </div>

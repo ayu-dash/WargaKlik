@@ -76,7 +76,7 @@ export default function AdminLaporan() {
           <p className="text-slate-500 text-base md:text-lg font-medium">Arsip resmi pertanggungjawaban kas warga.</p>
         </div>
 
-        {hasRole(['sekretaris', 'bendahara', 'rt', 'wakil_rt']) && (
+        {hasRole(['bendahara', 'rt', 'wakil_rt']) && (
           <button 
             onClick={() => setIsModalOpen(true)}
             className="w-full md:w-auto bg-primary text-white px-6 md:px-8 py-3.5 md:py-4 font-bold rounded-xl md:rounded-2xl shadow-xl shadow-primary/20 hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-3"
@@ -157,7 +157,7 @@ export default function AdminLaporan() {
                     </button>
                   )}
 
-                  {item.status === 'draft' && hasRole(['rt', 'wakil_rt']) && (
+                  {item.status === 'draft' && hasRole(['rt', 'wakil_rt', 'bendahara']) && (
                     <button 
                       onClick={() => handleApprove(item.id)}
                       className="flex-1 bg-primary text-white py-3 md:py-4 rounded-xl md:rounded-2xl font-bold flex items-center justify-center gap-2 text-xs md:text-sm hover:bg-primary-hover transition-all shadow-lg shadow-primary/20"

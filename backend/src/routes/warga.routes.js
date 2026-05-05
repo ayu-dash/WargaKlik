@@ -1,7 +1,7 @@
 const router = require('express').Router();
 const wargaController = require('../controllers/warga.controller');
 const { authenticate } = require('../middlewares/auth.middleware');
-const { pengurusOnly } = require('../middlewares/role.middleware');
+const { pengurusOnly, sekretarisUp } = require('../middlewares/role.middleware');
 const { body } = require('express-validator');
 const { validate } = require('../middlewares/validate.middleware');
 
@@ -15,8 +15,8 @@ router.use(authenticate);
 
 router.get('/', pengurusOnly, wargaController.getAllWarga);
 router.get('/:id', pengurusOnly, wargaController.getWargaById);
-router.post('/', pengurusOnly, createValidation, validate, wargaController.createWarga);
-router.put('/:id', pengurusOnly, wargaController.updateWarga);
-router.delete('/:id', pengurusOnly, wargaController.deleteWarga);
+router.post('/', sekretarisUp, createValidation, validate, wargaController.createWarga);
+router.put('/:id', sekretarisUp, wargaController.updateWarga);
+router.delete('/:id', sekretarisUp, wargaController.deleteWarga);
 
 module.exports = router;

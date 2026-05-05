@@ -2,11 +2,13 @@
 
 import { useState, useEffect } from 'react';
 import api from '@/utils/api';
+import { useAuth } from '@/contexts/AuthContext';
 import { Users, Search, Plus, UserPlus, Check, X, Edit, Trash2, Loader2, Receipt, Home, ShieldCheck, AlertCircle } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 import Link from 'next/link';
 
 export default function AdminWarga() {
+  const { hasRole } = useAuth();
   const [warga, setWarga] = useState([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
@@ -95,13 +97,15 @@ export default function AdminWarga() {
               onChange={(e) => setSearch(e.target.value)}
             />
           </div>
-          <button 
-            onClick={() => setIsModalOpen(true)}
-            className="w-full sm:w-auto bg-primary text-white px-6 md:px-8 py-3.5 md:py-4.5 font-bold rounded-xl md:rounded-[1.5rem] shadow-xl shadow-primary/20 hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-2 md:gap-3 whitespace-nowrap text-sm md:text-base"
-          >
-            <UserPlus className="w-5 h-5 md:w-6 md:h-6" />
-            Tambah Warga Baru
-          </button>
+          {hasRole(['rt', 'wakil_rt', 'sekretaris']) && (
+            <button 
+              onClick={() => setIsModalOpen(true)}
+              className="w-full sm:w-auto bg-primary text-white px-6 md:px-8 py-3.5 md:py-4.5 font-bold rounded-xl md:rounded-[1.5rem] shadow-xl shadow-primary/20 hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-2 md:gap-3 whitespace-nowrap text-sm md:text-base"
+            >
+              <UserPlus className="w-5 h-5 md:w-6 md:h-6" />
+              Tambah Warga Baru
+            </button>
+          )}
         </div>
       </div>
 
@@ -145,12 +149,16 @@ export default function AdminWarga() {
                         className="w-9 h-9 flex items-center justify-center bg-slate-50 text-slate-400 rounded-xl hover:bg-primary hover:text-white transition-all shadow-sm">
                         <Receipt className="w-4 h-4" />
                       </Link>
-                      <button className="w-9 h-9 flex items-center justify-center bg-slate-50 text-slate-400 rounded-xl hover:bg-blue-600 hover:text-white transition-all shadow-sm">
-                        <Edit className="w-4 h-4" />
-                      </button>
-                      <button className="w-9 h-9 flex items-center justify-center bg-slate-50 text-slate-400 rounded-xl hover:bg-danger hover:text-white transition-all shadow-sm">
-                        <Trash2 className="w-4 h-4" />
-                      </button>
+                      {hasRole(['rt', 'wakil_rt', 'sekretaris']) && (
+                        <>
+                          <button className="w-9 h-9 flex items-center justify-center bg-slate-50 text-slate-400 rounded-xl hover:bg-blue-600 hover:text-white transition-all shadow-sm">
+                            <Edit className="w-4 h-4" />
+                          </button>
+                          <button className="w-9 h-9 flex items-center justify-center bg-slate-50 text-slate-400 rounded-xl hover:bg-danger hover:text-white transition-all shadow-sm">
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -214,12 +222,16 @@ export default function AdminWarga() {
                               title="Atur Iuran">
                               <Receipt className="w-5 h-5" />
                             </Link>
-                            <button className="w-12 h-12 flex items-center justify-center bg-slate-100 text-slate-500 rounded-2xl hover:bg-blue-600 hover:text-white transition-all shadow-sm">
-                              <Edit className="w-5 h-5" />
-                            </button>
-                            <button className="w-12 h-12 flex items-center justify-center bg-slate-100 text-slate-500 rounded-2xl hover:bg-danger hover:text-white transition-all shadow-sm">
-                              <Trash2 className="w-5 h-5" />
-                            </button>
+                            {hasRole(['rt', 'wakil_rt', 'sekretaris']) && (
+                              <>
+                                <button className="w-12 h-12 flex items-center justify-center bg-slate-100 text-slate-500 rounded-2xl hover:bg-blue-600 hover:text-white transition-all shadow-sm">
+                                  <Edit className="w-5 h-5" />
+                                </button>
+                                <button className="w-12 h-12 flex items-center justify-center bg-slate-100 text-slate-500 rounded-2xl hover:bg-danger hover:text-white transition-all shadow-sm">
+                                  <Trash2 className="w-5 h-5" />
+                                </button>
+                              </>
+                            )}
                           </div>
                         </td>
                       </tr>
