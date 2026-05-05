@@ -183,5 +183,119 @@ const generateTagihan = async (req, res) => {
   }
 };
 
-module.exports = { getAllTagihan, getTagihanById, generateTagihan };
+/**
+ * POST /api/tagihan/generate-future
+ * Generate future tagihan for a specific warga
+ */
+const generateFutureTagihan = async (req, res) => {
+  try {
+    const { warga_id, count } = req.body;
+    const numMonths = parseInt(count) || 1;
+    
+    let targetWargaId = warga_id;
+    if (req.user.role === 'warga') {
+      const warga = await Warga.findOne({ where: { user_id: req.user.id } });
+      if (!warga) return error(res, 'Data warga tidak ditemukan', 404);
+      targetWargaId = warga.id;
+    }
+
+    if (!targetWargaId) return error(res, 'Warga ID wajib diisi', 400);
+
+    const warga = await Warga.findByPk(targetWargaId);
+    if (!warga) return error(res, 'Warga tidak ditemukan', 404);
+
+    // Find the latest tagihan for this warga to determine starting point
+    const latest = await Tagihan.findOne({
+      where: { warga_id: targetWargaId },
+      order: [['tahun', 'DESC'], ['bulan', 'DESC']]
+    });
+
+    let currentBulan, currentTahun;
+    if (latest) {
+      currentBulan = latest.bulan;
+      currentTahun = latest.tahun;
+    } else {
+      const now = new Date();
+      currentBulan = now.getMonth() + 1;
+      currentTahun = now.getFullYear();
+    }
+
+    const { IuranMaster } = require('../models');
+    const iuranList = await IuranMaster.findAll({ where: { is_active: true } });
+    
+    // Custom iuran settings
+    const customIuran = await WargaIuran.findAll({ where: { warga_id: targetWargaId } });
+    const customMap = {};
+    customIuran.forEach(ci => { customMap[ci.iuran_master_id] = ci; });
+
+    let createdCount = 0;
+    for (let i = 1; i <= numMonths; i++) {
+      // Increment month
+      currentBulan++;
+      if (currentBulan > 12) {
+        currentBulan = 1;
+        currentTahun++;
+      }
+
+      // Check if already exists
+      const existing = await Tagihan.findOne({
+        where: { warga_id: targetWargaId, bulan: currentBulan, tahun: currentTahun }
+      });
+      if (existing) continue;
+
+      // Filter applicable iuran
+      const bulananIuran = iuranList.filter(ir => ir.periode === 'bulanan');
+      const tahunanIuran = (currentBulan === 1) ? iuranList.filter(ir => ir.periode === 'tahunan') : [];
+      const applicable = [...bulananIuran, ...tahunanIuran];
+
+      if (applicable.length === 0) continue;
+
+      const items = [];
+      let totalNominal = 0;
+
+      for (const iuran of applicable) {
+        const custom = customMap[iuran.id];
+        if (custom && custom.is_excluded) continue;
+        
+        const nominal = (custom && custom.nominal_custom !== null) 
+          ? parseFloat(custom.nominal_custom) 
+          : parseFloat(iuran.nominal);
+        
+        items.push({
+          iuran_master_id: iuran.id,
+          nominal,
+          keterangan: iuran.nama
+        });
+        totalNominal += nominal;
+      }
+
+      if (items.length === 0) continue;
+
+      const tagihan = await Tagihan.create({
+        warga_id: targetWargaId,
+        bulan: currentBulan,
+        tahun: currentTahun,
+        periode_mulai: new Date(currentTahun, currentBulan - 1, 1),
+        periode_selesai: new Date(currentTahun, currentBulan, 0),
+        total_nominal: totalNominal,
+        status: 'belum_bayar'
+      });
+
+      for (const item of items) {
+        await TagihanItem.create({
+          tagihan_id: tagihan.id,
+          ...item
+        });
+      }
+      createdCount++;
+    }
+
+    return success(res, { createdCount }, `Berhasil membuat ${createdCount} tagihan bulan depan.`);
+  } catch (err) {
+    console.error('Generate future tagihan error:', err);
+    return error(res, 'Gagal membuat tagihan bulan depan', 500);
+  }
+};
+
+module.exports = { getAllTagihan, getTagihanById, generateTagihan, generateFutureTagihan };
 

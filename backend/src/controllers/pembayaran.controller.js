@@ -55,54 +55,76 @@ const getAllPembayaran = async (req, res) => {
  */
 const createMidtransTransaction = async (req, res) => {
   try {
-    const { tagihan_id } = req.body;
+    const { tagihan_ids } = req.body; // Can be a single ID or an array
+    const ids = Array.isArray(tagihan_ids) ? tagihan_ids : [tagihan_ids];
     
-    const tagihan = await Tagihan.findByPk(tagihan_id, {
+    if (!ids || ids.length === 0) return error(res, 'Tagihan ID tidak boleh kosong', 400);
+
+    const tagihanList = await Tagihan.findAll({
+      where: { id: ids },
       include: [
         { model: Warga, as: 'warga', include: [{ model: User, as: 'user' }] }
       ]
     });
 
-    if (!tagihan) return error(res, 'Tagihan tidak ditemukan', 404);
-    if (tagihan.status === 'lunas') return error(res, 'Tagihan sudah lunas', 400);
+    if (tagihanList.length === 0) return error(res, 'Tagihan tidak ditemukan', 404);
+    
+    // Check if all tagihan belong to the same warga (security check)
+    const wargaId = tagihanList[0].warga_id;
+    if (tagihanList.some(t => t.warga_id !== wargaId)) {
+      return error(res, 'Tagihan harus berasal dari warga yang sama', 400);
+    }
 
     // Auth check for warga
-    if (req.user.role === 'warga' && tagihan.warga.user_id !== req.user.id) {
+    if (req.user.role === 'warga' && tagihanList[0].warga.user_id !== req.user.id) {
       return error(res, 'Akses ditolak', 403);
     }
 
-    const orderId = midtransService.generateOrderId(tagihan.id);
-    const grossAmount = Math.round(parseFloat(tagihan.total_nominal));
+    if (tagihanList.some(t => t.status === 'lunas')) {
+      return error(res, 'Salah satu tagihan sudah lunas', 400);
+    }
+
+    // Generate unique order ID for this bulk transaction
+    // Use a prefix to distinguish bulk payments if needed
+    const orderId = `RAPEL-${Date.now()}-${wargaId}`;
+    let totalGrossAmount = 0;
+    const itemDetails = [];
+
+    for (const tagihan of tagihanList) {
+      const amount = Math.round(parseFloat(tagihan.total_nominal));
+      totalGrossAmount += amount;
+      itemDetails.push({
+        id: `TAGIHAN-${tagihan.id}`,
+        price: amount,
+        quantity: 1,
+        name: `Iuran RT ${tagihan.bulan}/${tagihan.tahun}`
+      });
+    }
 
     const customerDetails = {
-      first_name: tagihan.warga.kepala_keluarga,
-      email: tagihan.warga.user?.email || '',
-      phone: tagihan.warga.user?.no_telepon || ''
+      first_name: tagihanList[0].warga.kepala_keluarga,
+      email: tagihanList[0].warga.user?.email || '',
+      phone: tagihanList[0].warga.user?.no_telepon || ''
     };
 
-    const itemDetails = [{
-      id: `TAGIHAN-${tagihan.bulan}-${tagihan.tahun}`,
-      price: grossAmount,
-      quantity: 1,
-      name: `Iuran RT ${tagihan.bulan}/${tagihan.tahun} (${tagihan.warga.no_rumah})`
-    }];
+    const snapData = await midtransService.createTransaction(orderId, totalGrossAmount, customerDetails, itemDetails);
 
-    const snapData = await midtransService.createTransaction(orderId, grossAmount, customerDetails, itemDetails);
-
-    // Record pending payment
-    await Pembayaran.create({
-      tagihan_id: tagihan.id,
-      metode: 'midtrans',
-      jumlah_bayar: grossAmount,
-      tanggal_bayar: new Date(),
-      reference_id: orderId,
-      status: 'pending'
-    });
+    // Record pending payments for each tagihan
+    for (const tagihan of tagihanList) {
+      await Pembayaran.create({
+        tagihan_id: tagihan.id,
+        metode: 'midtrans',
+        jumlah_bayar: tagihan.total_nominal,
+        tanggal_bayar: new Date(),
+        reference_id: orderId,
+        status: 'pending'
+      });
+    }
 
     return success(res, snapData, 'Token Midtrans berhasil digenerate');
   } catch (err) {
-    console.error('Midtrans create error:', err);
-    return error(res, 'Gagal membuat transaksi', 500);
+    console.error('Midtrans create bulk error:', err);
+    return error(res, 'Gagal membuat transaksi rapel', 500);
   }
 };
 
@@ -118,44 +140,55 @@ const midtransWebhook = async (req, res) => {
       return res.status(403).json({ message: 'Invalid signature' });
     }
 
-    const pembayaran = await Pembayaran.findOne({ where: { reference_id: order_id } });
-    if (!pembayaran) {
+    // Find ALL pembayaran records with this reference_id
+    const pembayaranList = await Pembayaran.findAll({ 
+      where: { reference_id: order_id },
+      include: [{ 
+        model: Tagihan, 
+        as: 'tagihan',
+        include: [{ model: Warga, as: 'warga', include: [{ model: User, as: 'user' }] }]
+      }]
+    });
+
+    if (pembayaranList.length === 0) {
       return res.status(404).json({ message: 'Pembayaran tidak ditemukan' });
     }
 
-    const tagihan = await Tagihan.findByPk(pembayaran.tagihan_id, {
-      include: [{ model: Warga, as: 'warga', include: [{ model: User, as: 'user' }] }]
-    });
-
     if (transaction_status === 'settlement' || transaction_status === 'capture') {
       await sequelize.transaction(async (t) => {
-        await pembayaran.update({ status: 'success' }, { transaction: t });
-        await tagihan.update({ status: 'lunas' }, { transaction: t });
-        
-        await KasHarian.create({
-          pembayaran_id: pembayaran.id,
-          tanggal: new Date(),
-          jenis: 'masuk',
-          kategori: 'iuran',
-          keterangan: `Pembayaran Iuran RT ${tagihan.bulan}/${tagihan.tahun} - ${tagihan.warga.no_rumah}`,
-          nominal: pembayaran.jumlah_bayar,
-          dicatat_oleh: tagihan.warga.user_id // System logic usually attributes to the payer if via midtrans
-        }, { transaction: t });
-      });
+        for (const pembayaran of pembayaranList) {
+          const tagihan = pembayaran.tagihan;
+          
+          await pembayaran.update({ status: 'success' }, { transaction: t });
+          await tagihan.update({ status: 'lunas' }, { transaction: t });
+          
+          await KasHarian.create({
+            pembayaran_id: pembayaran.id,
+            tanggal: new Date(),
+            jenis: 'masuk',
+            kategori: 'iuran',
+            keterangan: `Pembayaran Iuran RT ${tagihan.bulan}/${tagihan.tahun} - ${tagihan.warga.no_rumah} (Rapel)`,
+            nominal: pembayaran.jumlah_bayar,
+            dicatat_oleh: tagihan.warga.user_id || 1 // Fallback to admin if no user
+          }, { transaction: t });
 
-      // Send notification
-      if (tagihan.warga.user_id) {
-        await notificationService.notify(tagihan.warga.user_id, {
-          title: 'Pembayaran Berhasil',
-          message: `Pembayaran iuran bulan ${tagihan.bulan}/${tagihan.tahun} sebesar Rp ${Number(pembayaran.jumlah_bayar).toLocaleString('id-ID')} telah berhasil.`,
-          type: 'pembayaran',
-          refId: pembayaran.id,
-          refType: 'pembayaran',
-          channels: ['inapp', 'email', 'whatsapp']
-        });
-      }
+          // Notify per tagihan or once for all? 
+          // Per tagihan is clearer for the user to see which months are paid.
+          if (tagihan.warga.user_id) {
+            await notificationService.notify(tagihan.warga.user_id, {
+              title: 'Pembayaran Berhasil',
+              message: `Pembayaran iuran bulan ${tagihan.bulan}/${tagihan.tahun} sebesar Rp ${Number(pembayaran.jumlah_bayar).toLocaleString('id-ID')} telah berhasil.`,
+              type: 'pembayaran',
+              refId: pembayaran.id,
+              refType: 'pembayaran',
+              channels: ['inapp', 'email']
+            });
+          }
+        }
+      });
     } else if (transaction_status === 'expire' || transaction_status === 'cancel' || transaction_status === 'deny') {
-      await pembayaran.update({ status: transaction_status === 'expire' ? 'expired' : 'failed' });
+      const finalStatus = transaction_status === 'expire' ? 'expired' : 'failed';
+      await Pembayaran.update({ status: finalStatus }, { where: { reference_id: order_id } });
     }
 
     return res.status(200).json({ message: 'Webhook processed' });
@@ -170,67 +203,82 @@ const midtransWebhook = async (req, res) => {
  */
 const createManualPayment = async (req, res) => {
   try {
-    const { tagihan_id, jumlah_bayar, tanggal_bayar, catatan } = req.body;
+    const { tagihan_ids, jumlah_bayar, tanggal_bayar, catatan } = req.body;
+    const ids = Array.isArray(tagihan_ids) ? tagihan_ids : [tagihan_ids];
+    
+    if (!ids || ids.length === 0) return error(res, 'Tagihan ID wajib diisi', 400);
+
     let bukti_url = null;
     if (req.file) {
       bukti_url = `/uploads/${req.file.filename}`;
     }
 
-    const tagihan = await Tagihan.findByPk(tagihan_id, {
+    const tagihanList = await Tagihan.findAll({
+      where: { id: ids },
       include: [{ model: Warga, as: 'warga' }]
     });
 
-    if (!tagihan) return error(res, 'Tagihan tidak ditemukan', 404);
-    if (tagihan.status === 'lunas') return error(res, 'Tagihan sudah lunas', 400);
+    if (tagihanList.length === 0) return error(res, 'Tagihan tidak ditemukan', 404);
 
     await sequelize.transaction(async (t) => {
-      const pembayaran = await Pembayaran.create({
-        tagihan_id,
-        dicatat_oleh: req.user.id,
-        metode: 'manual',
-        jumlah_bayar,
-        tanggal_bayar,
-        status: 'success',
-        bukti_url,
-        catatan
-      }, { transaction: t });
+      // Calculate how much to pay for each tagihan
+      // For simplicity in RT cases, we assume the user pays the full amount of each selected tagihan.
+      // If the provided jumlah_bayar is enough to cover all, we mark all as lunas.
+      
+      let remainingPayment = parseFloat(jumlah_bayar);
 
-      // Cek apakah sudah lunas
-      // Logic sederhana: jika jumlah_bayar >= sisa tagihan, lunas.
-      // Untuk Iuran RT biasanya bayar full.
-      if (parseFloat(jumlah_bayar) >= parseFloat(tagihan.total_nominal)) {
-        await tagihan.update({ status: 'lunas' }, { transaction: t });
-      } else {
-        await tagihan.update({ status: 'sebagian' }, { transaction: t });
-      }
+      for (const tagihan of tagihanList) {
+        if (remainingPayment <= 0) break;
 
-      await KasHarian.create({
-        pembayaran_id: pembayaran.id,
-        tanggal: tanggal_bayar,
-        jenis: 'masuk',
-        kategori: 'iuran',
-        keterangan: `Penerimaan Tunai: Iuran RT ${tagihan.bulan}/${tagihan.tahun} - ${tagihan.warga.no_rumah}`,
-        nominal: jumlah_bayar,
-        bukti_url,
-        dicatat_oleh: req.user.id
-      }, { transaction: t });
+        const toPay = Math.min(remainingPayment, parseFloat(tagihan.total_nominal));
+        
+        const pembayaran = await Pembayaran.create({
+          tagihan_id: tagihan.id,
+          dicatat_oleh: req.user.id,
+          metode: 'manual',
+          jumlah_bayar: toPay,
+          tanggal_bayar,
+          status: 'success',
+          bukti_url,
+          catatan: ids.length > 1 ? `${catatan} (Pembayaran Rapel)` : catatan
+        }, { transaction: t });
 
-      if (tagihan.warga.user_id) {
-        await notificationService.notify(tagihan.warga.user_id, {
-          title: 'Pembayaran Diterima',
-          message: `Pembayaran iuran manual bulan ${tagihan.bulan}/${tagihan.tahun} sebesar Rp ${Number(jumlah_bayar).toLocaleString('id-ID')} telah dicatat oleh pengurus.`,
-          type: 'pembayaran',
-          refId: pembayaran.id,
-          refType: 'pembayaran',
-          channels: ['inapp', 'email'] // Maybe WhatsApp too
-        });
+        if (toPay >= parseFloat(tagihan.total_nominal)) {
+          await tagihan.update({ status: 'lunas' }, { transaction: t });
+        } else {
+          await tagihan.update({ status: 'sebagian' }, { transaction: t });
+        }
+
+        await KasHarian.create({
+          pembayaran_id: pembayaran.id,
+          tanggal: tanggal_bayar,
+          jenis: 'masuk',
+          kategori: 'iuran',
+          keterangan: `Penerimaan Tunai: Iuran RT ${tagihan.bulan}/${tagihan.tahun} - ${tagihan.warga.no_rumah} ${ids.length > 1 ? '(Rapel)' : ''}`,
+          nominal: toPay,
+          bukti_url,
+          dicatat_oleh: req.user.id
+        }, { transaction: t });
+
+        if (tagihan.warga.user_id) {
+          await notificationService.notify(tagihan.warga.user_id, {
+            title: 'Pembayaran Diterima',
+            message: `Pembayaran iuran manual bulan ${tagihan.bulan}/${tagihan.tahun} sebesar Rp ${Number(toPay).toLocaleString('id-ID')} telah dicatat oleh pengurus.`,
+            type: 'pembayaran',
+            refId: pembayaran.id,
+            refType: 'pembayaran',
+            channels: ['inapp', 'email']
+          });
+        }
+
+        remainingPayment -= toPay;
       }
     });
 
-    return success(res, null, 'Pembayaran manual berhasil dicatat', 201);
+    return success(res, null, `Berhasil mencatat pembayaran untuk ${tagihanList.length} tagihan`, 201);
   } catch (err) {
-    console.error('Manual payment error:', err);
-    return error(res, 'Gagal mencatat pembayaran', 500);
+    console.error('Manual payment bulk error:', err);
+    return error(res, 'Gagal mencatat pembayaran rapel', 500);
   }
 };
 

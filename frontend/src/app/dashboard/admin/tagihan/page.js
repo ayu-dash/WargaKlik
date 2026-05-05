@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import api from '@/utils/api';
-import { Receipt, Search, Check, AlertCircle, Clock, Loader2, HandCoins, X } from 'lucide-react';
+import { Receipt, Search, Check, AlertCircle, Clock, Loader2, HandCoins, X, Plus } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 import { formatRupiah, getBulanName } from '@/utils/format';
 
@@ -14,13 +14,23 @@ export default function AdminTagihan() {
   
   // Modal Bayar Manual
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [selectedTagihan, setSelectedTagihan] = useState(null);
+  const [selectedTagihan, setSelectedTagihan] = useState(null); // Now can be array
   const [jumlahBayar, setJumlahBayar] = useState('');
   const [catatan, setCatatan] = useState('');
+  const [selectedIds, setSelectedIds] = useState([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Modal Generate Tagihan
+  const [isGenerateModalOpen, setIsGenerateModalOpen] = useState(false);
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [genDate, setGenDate] = useState({
+    bulan: new Date().getMonth() + 1,
+    tahun: new Date().getFullYear()
+  });
 
   useEffect(() => {
     fetchTagihan();
+    setSelectedIds([]); // Clear selection on filter change
   }, [filter]);
 
   const fetchTagihan = async () => {
@@ -38,29 +48,81 @@ export default function AdminTagihan() {
     }
   };
 
-  const handleGenerate = async () => {
-    const now = new Date();
-    const bulan = now.getMonth() + 1;
-    const tahun = now.getFullYear();
-    
-    if (!confirm(`Generate tagihan untuk bulan ${getBulanName(bulan)} ${tahun}?`)) return;
-    
+  const toggleSelect = (id) => {
+    if (selectedIds.includes(id)) {
+      setSelectedIds(selectedIds.filter(i => i !== id));
+    } else {
+      setSelectedIds([...selectedIds, id]);
+    }
+  };
+
+  const handleGenerate = async (e) => {
+    e.preventDefault();
+    setIsGenerating(true);
     try {
-      const res = await api.post('/tagihan/generate', { bulan, tahun });
+      const res = await api.post('/tagihan/generate', { 
+        bulan: parseInt(genDate.bulan), 
+        tahun: parseInt(genDate.tahun) 
+      });
       if (res.data.success) {
         toast.success(res.data.message || 'Tagihan berhasil digenerate');
+        setIsGenerateModalOpen(false);
         fetchTagihan();
       }
     } catch (err) {
       toast.error(err.response?.data?.message || 'Gagal generate tagihan');
+    } finally {
+      setIsGenerating(false);
     }
   };
 
   const openBayarModal = (item) => {
-    setSelectedTagihan(item);
-    setJumlahBayar(item.total_nominal);
+    if (item) {
+      setSelectedTagihan([item]);
+      setJumlahBayar(item.total_nominal);
+    } else {
+      // Bulk mode
+      const selectedItems = tagihan.filter(t => selectedIds.includes(t.id));
+      setSelectedTagihan(selectedItems);
+      const total = selectedItems.reduce((sum, t) => sum + parseFloat(t.total_nominal), 0);
+      setJumlahBayar(total);
+    }
     setCatatan('');
     setIsModalOpen(true);
+  };
+
+  const handleGenerateFuture = async () => {
+    if (!selectedTagihan || selectedTagihan.length === 0) return;
+    const wargaId = selectedTagihan[0].warga_id;
+    setIsGenerating(true);
+    try {
+      const res = await api.post('/tagihan/generate-future', { 
+        warga_id: wargaId,
+        count: 1 
+      });
+      if (res.data.success) {
+        toast.success(res.data.message);
+        // Refresh tagihan list
+        await fetchTagihan();
+        // Update selected tagihan if in modal
+        if (isModalOpen) {
+          const updated = await api.get('/tagihan');
+          const newlyCreated = updated.data.data.find(t => 
+            t.warga_id === wargaId && 
+            t.status === 'belum_bayar' && 
+            !selectedTagihan.some(st => st.id === t.id)
+          );
+          if (newlyCreated) {
+            setSelectedTagihan(prev => [...prev, newlyCreated]);
+            setJumlahBayar(prev => parseFloat(prev) + parseFloat(newlyCreated.total_nominal));
+          }
+        }
+      }
+    } catch (err) {
+      toast.error('Gagal membuat tagihan bulan depan');
+    } finally {
+      setIsGenerating(false);
+    }
   };
 
   const handleBayarManual = async (e) => {
@@ -68,7 +130,7 @@ export default function AdminTagihan() {
     setIsSubmitting(true);
     try {
       const res = await api.post('/pembayaran/manual', {
-        tagihan_id: selectedTagihan.id,
+        tagihan_ids: selectedTagihan.map(t => t.id),
         jumlah_bayar: jumlahBayar,
         tanggal_bayar: new Date().toISOString().split('T')[0],
         catatan
@@ -76,6 +138,7 @@ export default function AdminTagihan() {
       
       toast.success('Pembayaran manual berhasil dicatat');
       setIsModalOpen(false);
+      setSelectedIds([]);
       fetchTagihan();
     } catch (err) {
       toast.error(err.message || 'Gagal mencatat pembayaran');
@@ -100,10 +163,68 @@ export default function AdminTagihan() {
           <p className="text-slate-400 text-sm mt-1">Pantau pembayaran iuran warga</p>
         </div>
 
-        <button onClick={handleGenerate} className="btn-secondary py-2 text-sm">
-          Generate Tagihan Bulan Ini
-        </button>
+        <div className="flex gap-3">
+          {selectedIds.length > 0 && (
+            <button onClick={() => openBayarModal(null)} className="btn-primary flex items-center gap-2 py-2 text-sm px-4">
+              <HandCoins className="w-4 h-4" />
+              Bayar Sekaligus ({selectedIds.length})
+            </button>
+          )}
+          <button onClick={() => setIsGenerateModalOpen(true)} className="btn-secondary flex items-center gap-2 py-2 text-sm">
+            <Plus className="w-4 h-4" />
+            Generate Tagihan
+          </button>
+        </div>
       </div>
+
+      {/* Modal Generate Tagihan */}
+      {isGenerateModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/80 backdrop-blur-sm animate-fade-in">
+          <div className="glass-card w-full max-w-sm overflow-hidden">
+            <div className="p-6 border-b border-slate-700/50 flex justify-between items-center">
+              <h2 className="text-lg font-bold text-white flex items-center gap-2">
+                <Receipt className="w-5 h-5 text-emerald-400" />
+                Generate Tagihan
+              </h2>
+              <button onClick={() => setIsGenerateModalOpen(false)} className="text-slate-400 hover:text-white">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            
+            <form onSubmit={handleGenerate} className="p-6 space-y-4">
+              <p className="text-sm text-slate-400 mb-4">
+                Pilih periode untuk membuat tagihan iuran baru bagi semua warga aktif.
+              </p>
+              
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-slate-300 mb-1">Bulan</label>
+                  <select className="input-field" value={genDate.bulan} onChange={e => setGenDate({...genDate, bulan: e.target.value})}>
+                    {[...Array(12)].map((_, i) => (
+                      <option key={i+1} value={i+1}>{getBulanName(i+1)}</option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-slate-300 mb-1">Tahun</label>
+                  <input type="number" className="input-field" value={genDate.tahun} 
+                    onChange={e => setGenDate({...genDate, tahun: e.target.value})} />
+                </div>
+              </div>
+
+              <div className="pt-4 mt-6 flex justify-end gap-3">
+                <button type="button" onClick={() => setIsGenerateModalOpen(false)} className="btn-secondary">
+                  Batal
+                </button>
+                <button type="submit" disabled={isGenerating} className="btn-primary flex items-center gap-2">
+                  {isGenerating ? <Loader2 className="w-4 h-4 animate-spin" /> : <Check className="w-4 h-4" />}
+                  Generate
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
 
       <div className="glass-card p-4 flex flex-col sm:flex-row gap-4 items-center">
         <div className="relative flex-1 w-full">
@@ -151,6 +272,7 @@ export default function AdminTagihan() {
             <table className="w-full text-left border-collapse">
               <thead>
                 <tr className="bg-slate-800/50 border-b border-slate-700/50">
+                  <th className="p-4 w-10"></th>
                   <th className="p-4 text-sm font-semibold text-slate-300">Warga</th>
                   <th className="p-4 text-sm font-semibold text-slate-300">Periode</th>
                   <th className="p-4 text-sm font-semibold text-slate-300">Nominal</th>
@@ -161,7 +283,17 @@ export default function AdminTagihan() {
               <tbody>
                 {filteredTagihan.length > 0 ? (
                   filteredTagihan.map((item) => (
-                    <tr key={item.id} className="border-b border-slate-700/50 hover:bg-slate-800/30 transition-colors">
+                    <tr key={item.id} className={`border-b border-slate-700/50 hover:bg-slate-800/30 transition-colors ${selectedIds.includes(item.id) ? 'bg-emerald-500/5' : ''}`}>
+                      <td className="p-4">
+                        {item.status !== 'lunas' && (
+                          <input 
+                            type="checkbox" 
+                            className="w-4 h-4 rounded border-slate-700 bg-slate-800 text-emerald-500 focus:ring-emerald-500"
+                            checked={selectedIds.includes(item.id)}
+                            onChange={() => toggleSelect(item.id)}
+                          />
+                        )}
+                      </td>
                       <td className="p-4">
                         <div className="font-medium text-white">{item.warga?.kepala_keluarga}</div>
                         <div className="text-xs text-slate-400">Blok {item.warga?.no_rumah}</div>
@@ -191,7 +323,7 @@ export default function AdminTagihan() {
                   ))
                 ) : (
                   <tr>
-                    <td colSpan={5} className="p-8 text-center text-slate-400">
+                    <td colSpan={6} className="p-8 text-center text-slate-400">
                       Tidak ada data tagihan ditemukan.
                     </td>
                   </tr>
@@ -216,11 +348,34 @@ export default function AdminTagihan() {
             </div>
             
             <form onSubmit={handleBayarManual} className="p-6 space-y-4">
-              <div className="p-4 bg-slate-800/50 rounded-xl border border-slate-700/50 mb-4">
+              <div className="p-4 bg-slate-800/50 rounded-xl border border-slate-700/50 mb-4 max-h-48 overflow-y-auto">
                 <p className="text-sm text-slate-400 mb-1">Penerimaan dari:</p>
-                <p className="font-bold text-white">{selectedTagihan.warga?.kepala_keluarga} (Blok {selectedTagihan.warga?.no_rumah})</p>
-                <p className="text-sm text-slate-400 mt-2">Tagihan Bulan: {getBulanName(selectedTagihan.bulan)} {selectedTagihan.tahun}</p>
-                <p className="font-bold text-emerald-400 mt-1">{formatRupiah(selectedTagihan.total_nominal)}</p>
+                <p className="font-bold text-white">{selectedTagihan[0]?.warga?.kepala_keluarga} (Blok {selectedTagihan[0]?.warga?.no_rumah})</p>
+                
+                <div className="mt-3 space-y-2">
+                  <div className="flex justify-between items-center mb-1">
+                    <p className="text-xs text-slate-500 uppercase font-semibold">Detail Tagihan ({selectedTagihan.length}):</p>
+                    <button 
+                      type="button"
+                      onClick={handleGenerateFuture}
+                      disabled={isGenerating}
+                      className="text-[10px] text-emerald-400 hover:text-emerald-300 flex items-center gap-1 bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20"
+                    >
+                      {isGenerating ? <Loader2 className="w-3 h-3 animate-spin" /> : <Plus className="w-3 h-3" />}
+                      Tambah Bulan
+                    </button>
+                  </div>
+                  {selectedTagihan.map(t => (
+                    <div key={t.id} className="flex justify-between text-sm">
+                      <span className="text-slate-300">{getBulanName(t.bulan)} {t.tahun}</span>
+                      <span className="text-emerald-400">{formatRupiah(t.total_nominal)}</span>
+                    </div>
+                  ))}
+                  <div className="border-t border-slate-700 pt-2 flex justify-between font-bold text-white">
+                    <span>Total Tagihan</span>
+                    <span className="text-emerald-400">{formatRupiah(selectedTagihan.reduce((sum, t) => sum + parseFloat(t.total_nominal), 0))}</span>
+                  </div>
+                </div>
               </div>
 
               <div>
@@ -231,7 +386,7 @@ export default function AdminTagihan() {
               
               <div>
                 <label className="block text-sm font-medium text-slate-300 mb-1">Catatan</label>
-                <input type="text" className="input-field" placeholder="Misal: Dititipkan ke satpam" 
+                <input type="text" className="input-field" placeholder="Misal: Pembayaran rapel 3 bulan" 
                   value={catatan} onChange={e => setCatatan(e.target.value)} />
               </div>
 
@@ -247,7 +402,6 @@ export default function AdminTagihan() {
             </form>
           </div>
         </div>
-      )}
-    </div>
+      )}    </div>
   );
 }

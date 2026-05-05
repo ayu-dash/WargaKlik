@@ -96,17 +96,19 @@ export default function AdminLaporan() {
             <div key={item.id} className="glass-card p-5 flex flex-col justify-between">
               <div className="flex justify-between items-start mb-4">
                 <div className="flex items-center gap-3">
-                  <div className={`p-3 rounded-xl border ${item.status === 'approved' ? 'bg-emerald-500/10 border-emerald-500/30' : 'bg-amber-500/10 border-amber-500/30'}`}>
+                  <div className={`p-3 rounded-xl border ${item.status === 'approved' ? 'bg-emerald-500/10 border-emerald-500/30' : (item.jenis === 'tunggakan' ? 'bg-red-500/10 border-red-500/30' : 'bg-amber-500/10 border-amber-500/30')}`}>
                     {item.status === 'approved' ? (
                       <FileCheck className="w-6 h-6 text-emerald-400" />
                     ) : (
-                      <FileText className="w-6 h-6 text-amber-400" />
+                      <FileText className={`w-6 h-6 ${item.jenis === 'tunggakan' ? 'text-red-400' : 'text-amber-400'}`} />
                     )}
                   </div>
                   <div>
-                    <h3 className="text-lg font-bold text-white">Laporan {item.jenis === 'bulanan' ? 'Bulanan' : 'Tahunan'}</h3>
+                    <h3 className="text-lg font-bold text-white">
+                      {item.jenis === 'bulanan' ? 'Laporan Bulanan' : (item.jenis === 'tahunan' ? 'Laporan Tahunan' : 'Laporan Tunggakan')}
+                    </h3>
                     <p className="text-sm text-slate-400">
-                      {item.jenis === 'bulanan' ? `${getBulanName(item.bulan)} ${item.tahun}` : `Tahun ${item.tahun}`}
+                      {(item.jenis === 'bulanan' || item.jenis === 'tunggakan') ? `${getBulanName(item.bulan)} ${item.tahun}` : `Tahun ${item.tahun}`}
                     </p>
                   </div>
                 </div>
@@ -181,11 +183,12 @@ export default function AdminLaporan() {
                 <select className="input-field" value={formData.jenis} onChange={e => setFormData({...formData, jenis: e.target.value})}>
                   <option value="bulanan">Bulanan</option>
                   <option value="tahunan">Tahunan</option>
+                  <option value="tunggakan">Tunggakan (Hanya Belum Lunas)</option>
                 </select>
               </div>
               
               <div className="grid grid-cols-2 gap-4">
-                {formData.jenis === 'bulanan' && (
+                {(formData.jenis === 'bulanan' || formData.jenis === 'tunggakan') && (
                   <div>
                     <label className="block text-sm font-medium text-slate-300 mb-1">Bulan</label>
                     <select className="input-field" value={formData.bulan} onChange={e => setFormData({...formData, bulan: e.target.value})}>

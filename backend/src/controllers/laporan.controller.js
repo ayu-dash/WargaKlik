@@ -65,8 +65,12 @@ const generateLaporan = async (req, res) => {
     let fileUrl = null;
     if (jenis === 'bulanan') {
       fileUrl = await pdfService.generateLaporanBulanan(bulan, tahun);
-    } else {
+    } else if (jenis === 'tahunan') {
       fileUrl = await pdfService.generateLaporanTahunan(tahun);
+    } else if (jenis === 'tunggakan') {
+      fileUrl = await pdfService.generateLaporanTunggakan(bulan, tahun);
+    } else {
+      return error(res, 'Jenis laporan tidak valid', 400);
     }
 
     const laporan = await Laporan.create({

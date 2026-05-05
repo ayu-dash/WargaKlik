@@ -181,4 +181,76 @@ const generateLaporanTahunan = async (tahun) => {
   });
 };
 
-module.exports = { generateLaporanBulanan, generateLaporanTahunan };
+/**
+ * Generate arrears (tunggakan) report PDF
+ */
+const generateLaporanTunggakan = async (bulan, tahun) => {
+  const filename = `laporan-tunggakan-${bulan}-${tahun}-${Date.now()}.pdf`;
+  const filePath = path.join(UPLOADS_DIR, filename);
+
+  const tunggakanData = await Tagihan.findAll({
+    where: { 
+      bulan, 
+      tahun, 
+      status: { [Op.ne]: 'lunas' } 
+    },
+    include: [{ model: Warga, as: 'warga' }],
+    order: [sequelize.literal('CAST(SUBSTRING(no_rumah FROM \'[0-9]+\') AS INTEGER) ASC')]
+  });
+
+  const doc = new PDFDocument({ margin: 50, size: 'A4' });
+  const stream = fs.createWriteStream(filePath);
+  doc.pipe(stream);
+
+  doc.fontSize(18).font('Helvetica-Bold').text('LAPORAN TUNGGAKAN IURAN RT', { align: 'center' });
+  doc.fontSize(12).font('Helvetica').text(`Periode: ${getBulanName(bulan)} ${tahun}`, { align: 'center' });
+  doc.moveDown(2);
+
+  doc.fontSize(11).font('Helvetica-Bold');
+  const tableTop = doc.y;
+  doc.text('No. Rumah', 50, tableTop, { width: 80 });
+  doc.text('Nama Kepala Keluarga', 140, tableTop, { width: 180 });
+  doc.text('Status', 330, tableTop, { width: 80 });
+  doc.text('Tunggakan', 420, tableTop, { width: 90, align: 'right' });
+  doc.moveDown(0.5);
+  doc.moveTo(50, doc.y).lineTo(510, doc.y).stroke();
+  doc.moveDown(0.3);
+
+  doc.font('Helvetica').fontSize(10);
+  let totalTunggakan = 0;
+  
+  for (const item of tunggakanData) {
+    if (doc.y > 720) doc.addPage();
+    const y = doc.y;
+    doc.text(item.warga?.no_rumah || '-', 50, y, { width: 80 });
+    doc.text(item.warga?.kepala_keluarga || '-', 140, y, { width: 180 });
+    doc.text(item.status.replace('_', ' '), 330, y, { width: 80 });
+    doc.text(`Rp ${parseFloat(item.total_nominal).toLocaleString('id-ID')}`, 420, y, { width: 90, align: 'right' });
+    totalTunggakan += parseFloat(item.total_nominal);
+    doc.moveDown(0.5);
+  }
+
+  doc.moveDown(0.5);
+  doc.moveTo(50, doc.y).lineTo(510, doc.y).stroke();
+  doc.moveDown(0.5);
+  doc.font('Helvetica-Bold');
+  doc.text('TOTAL TUNGGAKAN', 50, doc.y, { width: 300 });
+  doc.text(`Rp ${totalTunggakan.toLocaleString('id-ID')}`, 410, doc.y, { width: 100, align: 'right' });
+
+  doc.moveDown(3);
+  doc.fontSize(9).font('Helvetica').text(`Digenerate pada: ${new Date().toLocaleString('id-ID', { timeZone: 'Asia/Jakarta' })}`, { align: 'right' });
+
+  doc.end();
+
+  return new Promise((resolve, reject) => {
+    stream.on('finish', () => resolve(`/uploads/${filename}`));
+    stream.on('error', reject);
+  });
+};
+
+const getBulanName = (bulan) => {
+  const nama = ['', 'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+  return nama[parseInt(bulan)];
+};
+
+module.exports = { generateLaporanBulanan, generateLaporanTahunan, generateLaporanTunggakan };

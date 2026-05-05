@@ -8,5 +8,6 @@ router.use(authenticate);
 router.get('/', tagihanController.getAllTagihan);
 router.get('/:id', tagihanController.getTagihanById);
 router.post('/generate', pengurusOnly, tagihanController.generateTagihan);
+router.post('/generate-future', tagihanController.generateFutureTagihan);
 
 module.exports = router;
