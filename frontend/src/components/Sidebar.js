@@ -29,13 +29,16 @@ export default function Sidebar({ isOpen, setIsOpen }) {
 
   if (!user) return null;
 
-  const isActive = (path) => pathname === path || pathname.startsWith(`${path}/`);
+  const isActive = (path, exact = false) => {
+    if (exact) return pathname === path;
+    return pathname === path || pathname.startsWith(`${path}/`);
+  };
 
   const menuGroups = [
     {
       title: 'Utama',
       items: [
-        { name: 'Ringkasan', path: '/dashboard', icon: LayoutDashboard, show: true },
+        { name: 'Dashboard', path: '/dashboard', icon: LayoutDashboard, show: true, exact: true },
         { name: 'Pengumuman', path: '/dashboard/pengumuman', icon: Megaphone, show: true },
         { name: 'Pemberitahuan', path: '/dashboard/notifikasi', icon: Bell, show: true },
         { name: 'Profil Saya', path: '/dashboard/profil', icon: UserCog, show: true },
@@ -105,7 +108,7 @@ export default function Sidebar({ isOpen, setIsOpen }) {
                 <div className="space-y-1.5">
                   {visibleItems.map((item) => {
                     const Icon = item.icon;
-                    const active = isActive(item.path);
+                    const active = isActive(item.path, item.exact);
                     return (
                       <Link 
                         key={item.path} 
