@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import api from '@/utils/api';
-import { Receipt, Search, Check, AlertCircle, Clock, Loader2, HandCoins, X, Plus, User } from 'lucide-react';
+import { Receipt, Search, Check, AlertCircle, Clock, Loader2, HandCoins, X, Plus, User, ArrowRight, Home } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 import { formatRupiah, getBulanName } from '@/utils/format';
 import Link from 'next/link';
@@ -13,35 +13,26 @@ export default function AdminTagihan() {
   const [search, setSearch] = useState('');
   const [filter, setFilter] = useState('semua');
   
-  // Modal Bayar Manual
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [selectedTagihan, setSelectedTagihan] = useState(null); // Now can be array
-  const [jumlahBayar, setJumlahBayar] = useState('');
-  const [catatan, setCatatan] = useState('');
-  const [selectedIds, setSelectedIds] = useState([]);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-
-  // Modal Generate Tagihan
+  // Modal Generate
   const [isGenerateModalOpen, setIsGenerateModalOpen] = useState(false);
-  const [isGenerating, setIsGenerating] = useState(false);
-  const [genDate, setGenDate] = useState({
-    bulan: new Date().getMonth() + 1,
-    tahun: new Date().getFullYear()
+  const [wargaList, setWargaList] = useState([]);
+  const [genData, setGenData] = useState({
+    warga_id: '',
+    bulan: (new Date().getMonth() + 1).toString(),
+    tahun: new Date().getFullYear().toString()
   });
+  const [isGenerating, setIsGenerating] = useState(false);
 
   useEffect(() => {
-    fetchTagihan();
-    setSelectedIds([]); // Clear selection on filter change
-  }, [filter]);
+    fetchData();
+    fetchWarga();
+  }, []);
 
-  const fetchTagihan = async () => {
-    setLoading(true);
+  const fetchData = async () => {
     try {
-      const url = filter === 'semua' ? '/tagihan' : `/tagihan?status=${filter}`;
-      const res = await api.get(url);
-      if (res.data.success) {
-        setTagihan(res.data.data);
-      }
+      setLoading(true);
+      const res = await api.get('/tagihan');
+      setTagihan(res.data.data);
     } catch (err) {
       toast.error('Gagal mengambil data tagihan');
     } finally {
@@ -49,27 +40,25 @@ export default function AdminTagihan() {
     }
   };
 
-  const toggleSelect = (id) => {
-    if (selectedIds.includes(id)) {
-      setSelectedIds(selectedIds.filter(i => i !== id));
-    } else {
-      setSelectedIds([...selectedIds, id]);
+  const fetchWarga = async () => {
+    try {
+      const res = await api.get('/warga');
+      setWargaList(res.data.data);
+    } catch (err) {
+      console.error(err);
     }
   };
 
-  const handleGenerate = async (e) => {
-    e.preventDefault();
-    setIsGenerating(true);
+  const handleGenerate = async () => {
     try {
-      const res = await api.post('/tagihan/generate', { 
-        bulan: parseInt(genDate.bulan), 
-        tahun: parseInt(genDate.tahun) 
+      setIsGenerating(true);
+      await api.post('/tagihan/generate', {
+        ...genData,
+        warga_id: genData.warga_id || null
       });
-      if (res.data.success) {
-        toast.success(res.data.message || 'Tagihan berhasil digenerate');
-        setIsGenerateModalOpen(false);
-        fetchTagihan();
-      }
+      toast.success('Tagihan berhasil dibuat');
+      setIsGenerateModalOpen(false);
+      fetchData();
     } catch (err) {
       toast.error(err.response?.data?.message || 'Gagal generate tagihan');
     } finally {
@@ -77,81 +66,13 @@ export default function AdminTagihan() {
     }
   };
 
-  const openBayarModal = (item) => {
-    if (item) {
-      setSelectedTagihan([item]);
-      setJumlahBayar(item.total_nominal);
-    } else {
-      // Bulk mode
-      const selectedItems = tagihan.filter(t => selectedIds.includes(t.id));
-      setSelectedTagihan(selectedItems);
-      const total = selectedItems.reduce((sum, t) => sum + parseFloat(t.total_nominal), 0);
-      setJumlahBayar(total);
-    }
-    setCatatan('');
-    setIsModalOpen(true);
-  };
-
-  const handleGenerateFuture = async () => {
-    if (!selectedTagihan || selectedTagihan.length === 0) return;
-    const wargaId = selectedTagihan[0].warga_id;
-    setIsGenerating(true);
-    try {
-      const res = await api.post('/tagihan/generate-future', { 
-        warga_id: wargaId,
-        count: 1 
-      });
-      if (res.data.success) {
-        toast.success(res.data.message);
-        // Refresh tagihan list
-        await fetchTagihan();
-        // Update selected tagihan if in modal
-        if (isModalOpen) {
-          const updated = await api.get('/tagihan');
-          const newlyCreated = updated.data.data.find(t => 
-            t.warga_id === wargaId && 
-            t.status === 'belum_bayar' && 
-            !selectedTagihan.some(st => st.id === t.id)
-          );
-          if (newlyCreated) {
-            setSelectedTagihan(prev => [...prev, newlyCreated]);
-            setJumlahBayar(prev => parseFloat(prev) + parseFloat(newlyCreated.total_nominal));
-          }
-        }
-      }
-    } catch (err) {
-      toast.error('Gagal membuat tagihan bulan depan');
-    } finally {
-      setIsGenerating(false);
-    }
-  };
-
-  const handleBayarManual = async (e) => {
-    e.preventDefault();
-    setIsSubmitting(true);
-    try {
-      const res = await api.post('/pembayaran/manual', {
-        tagihan_ids: selectedTagihan.map(t => t.id),
-        jumlah_bayar: jumlahBayar,
-        tanggal_bayar: new Date().toISOString().split('T')[0],
-        catatan
-      });
-      
-      toast.success('Pembayaran manual berhasil dicatat');
-      setIsModalOpen(false);
-      setSelectedIds([]);
-      fetchTagihan();
-    } catch (err) {
-      toast.error(err.message || 'Gagal mencatat pembayaran');
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
-  const filteredTagihan = tagihan.filter(t => 
-    t.warga?.kepala_keluarga?.toLowerCase().includes(search.toLowerCase()) || 
-    t.warga?.no_rumah?.toLowerCase().includes(search.toLowerCase())
-  );
+  const filteredTagihan = tagihan.filter(t => {
+    const matchesFilter = filter === 'semua' || t.status === filter;
+    const matchesSearch = 
+      t.warga?.kepala_keluarga?.toLowerCase().includes(search.toLowerCase()) ||
+      t.warga?.no_rumah?.toLowerCase().includes(search.toLowerCase());
+    return matchesFilter && matchesSearch;
+  });
 
   const groupedTagihan = filteredTagihan.reduce((acc, curr) => {
     const key = curr.warga_id;
@@ -166,243 +87,237 @@ export default function AdminTagihan() {
   }, {});
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+    <div className="space-y-8 animate-fade-in relative pb-10 font-sans">
+      <div className="fixed inset-0 community-grid opacity-20 pointer-events-none -z-10" />
+
+      {/* Header Section */}
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 border-b border-slate-200 pb-8">
         <div>
-          <h1 className="text-2xl font-bold text-white flex items-center gap-2">
-            <Receipt className="w-6 h-6 text-emerald-400" />
-            Kelola Tagihan
+          <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">
+            Kelola <span className="text-primary">Tagihan Warga</span>
           </h1>
-          <p className="text-slate-400 text-sm mt-1">Pantau pembayaran iuran warga</p>
+          <p className="text-slate-500 text-lg mt-1 font-medium">
+            Pantau dan validasi iuran warga dengan mudah dan transparan.
+          </p>
         </div>
 
-        <div className="flex gap-3">
-          {selectedIds.length > 0 && (
-            <button onClick={() => openBayarModal(null)} className="btn-primary flex items-center gap-2 py-2 text-sm px-4">
-              <HandCoins className="w-4 h-4" />
-              Bayar Sekaligus ({selectedIds.length})
-            </button>
-          )}
-          <button onClick={() => setIsGenerateModalOpen(true)} className="btn-secondary flex items-center gap-2 py-2 text-sm">
-            <Plus className="w-4 h-4" />
-            Generate Tagihan
-          </button>
+        <button 
+          onClick={() => setIsGenerateModalOpen(true)} 
+          className="bg-primary text-white px-6 py-3.5 font-bold rounded-2xl shadow-lg shadow-primary/20 hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center gap-2"
+        >
+          <Plus className="w-5 h-5" />
+          Buat Tagihan Baru
+        </button>
+      </div>
+
+      {/* Stats Summary - Accessible Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="bg-white p-8 rounded-[2rem] border border-slate-100 shadow-sm space-y-4">
+          <div className="w-12 h-12 bg-emerald-50 rounded-2xl flex items-center justify-center">
+            <User className="w-6 h-6 text-primary" />
+          </div>
+          <div>
+            <div className="text-slate-500 font-bold text-sm uppercase tracking-wider">Total Warga</div>
+            <div className="text-4xl font-black text-slate-900 tracking-tight">{Object.keys(groupedTagihan).length} Rumah</div>
+          </div>
+        </div>
+
+        <div className="bg-white p-8 rounded-[2rem] border border-slate-100 shadow-sm space-y-4">
+          <div className="w-12 h-12 bg-red-50 rounded-2xl flex items-center justify-center">
+            <AlertCircle className="w-6 h-6 text-danger" />
+          </div>
+          <div>
+            <div className="text-slate-500 font-bold text-sm uppercase tracking-wider">Total Tunggakan</div>
+            <div className="text-4xl font-black text-danger tracking-tight">
+              {formatRupiah(Object.values(groupedTagihan).reduce((acc, g) => 
+                acc + g.items.filter(t => t.status !== 'lunas').reduce((s, t) => s + parseFloat(t.total_nominal), 0)
+              , 0))}
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-white p-8 rounded-[2rem] border border-slate-100 shadow-sm space-y-4">
+          <div className="w-12 h-12 bg-blue-50 rounded-2xl flex items-center justify-center">
+            <Check className="w-6 h-6 text-secondary" />
+          </div>
+          <div>
+            <div className="text-slate-500 font-bold text-sm uppercase tracking-wider">Persentase Lunas</div>
+            <div className="text-4xl font-black text-secondary tracking-tight">
+              {Math.round((tagihan.filter(t => t.status === 'lunas').length / (tagihan.length || 1)) * 100)}%
+            </div>
+          </div>
         </div>
       </div>
 
-      {/* Modal Generate Tagihan */}
-      {isGenerateModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/80 backdrop-blur-sm animate-fade-in">
-          <div className="glass-card w-full max-w-sm overflow-hidden">
-            <div className="p-6 border-b border-slate-700/50 flex justify-between items-center">
-              <h2 className="text-lg font-bold text-white flex items-center gap-2">
-                <Receipt className="w-5 h-5 text-emerald-400" />
-                Generate Tagihan
-              </h2>
-              <button onClick={() => setIsGenerateModalOpen(false)} className="text-slate-400 hover:text-white">
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-            
-            <form onSubmit={handleGenerate} className="p-6 space-y-4">
-              <p className="text-sm text-slate-400 mb-4">
-                Pilih periode untuk membuat tagihan iuran baru bagi semua warga aktif.
-              </p>
-              
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-slate-300 mb-1">Bulan</label>
-                  <select className="input-field" value={genDate.bulan} onChange={e => setGenDate({...genDate, bulan: e.target.value})}>
-                    {[...Array(12)].map((_, i) => (
-                      <option key={i+1} value={i+1}>{getBulanName(i+1)}</option>
-                    ))}
-                  </select>
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-slate-300 mb-1">Tahun</label>
-                  <input type="number" className="input-field" value={genDate.tahun} 
-                    onChange={e => setGenDate({...genDate, tahun: e.target.value})} />
-                </div>
-              </div>
-
-              <div className="pt-4 mt-6 flex justify-end gap-3">
-                <button type="button" onClick={() => setIsGenerateModalOpen(false)} className="btn-secondary">
-                  Batal
-                </button>
-                <button type="submit" disabled={isGenerating} className="btn-primary flex items-center gap-2">
-                  {isGenerating ? <Loader2 className="w-4 h-4 animate-spin" /> : <Check className="w-4 h-4" />}
-                  Generate
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
-
-      <div className="glass-card p-4 flex flex-col sm:flex-row gap-4 items-center">
-        <div className="relative flex-1 w-full">
-          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-            <Search className="h-4 w-4 text-slate-500" />
+      {/* Control Bar */}
+      <div className="flex flex-col lg:flex-row justify-between items-center gap-6 bg-white border border-slate-200 p-3 rounded-3xl shadow-sm">
+        <div className="relative flex-grow w-full max-w-xl">
+          <div className="absolute inset-y-0 left-5 flex items-center pointer-events-none">
+            <Search className="h-5 w-5 text-slate-400" />
           </div>
           <input
             type="text"
-            className="input-field pl-9"
-            placeholder="Cari nama atau no rumah..."
+            className="w-full bg-slate-50 border-none py-4 pl-14 pr-6 text-slate-900 font-semibold focus:ring-2 focus:ring-primary/20 transition-all rounded-2xl outline-none"
+            placeholder="Cari Nama atau Nomor Rumah..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />
         </div>
         
-        <div className="flex gap-2 w-full sm:w-auto overflow-x-auto pb-1 sm:pb-0">
-          <button 
-            onClick={() => setFilter('semua')} 
-            className={`px-4 py-2 rounded-lg text-sm whitespace-nowrap transition-colors ${filter === 'semua' ? 'bg-emerald-500 text-white' : 'glass text-slate-400 hover:text-white'}`}
-          >
-            Semua
-          </button>
-          <button 
-            onClick={() => setFilter('belum_bayar')} 
-            className={`px-4 py-2 rounded-lg text-sm whitespace-nowrap transition-colors ${filter === 'belum_bayar' ? 'bg-red-500 text-white' : 'glass text-slate-400 hover:text-white'}`}
-          >
-            Belum Bayar
-          </button>
-          <button 
-            onClick={() => setFilter('lunas')} 
-            className={`px-4 py-2 rounded-lg text-sm whitespace-nowrap transition-colors ${filter === 'lunas' ? 'bg-emerald-500 text-white' : 'glass text-slate-400 hover:text-white'}`}
-          >
-            Lunas
-          </button>
+        <div className="flex p-1.5 bg-slate-100 rounded-2xl gap-1 w-full lg:w-auto overflow-x-auto">
+          {[
+            { id: 'semua', label: 'Semua' },
+            { id: 'belum_bayar', label: 'Belum Bayar' },
+            { id: 'lunas', label: 'Sudah Lunas' }
+          ].map((f) => (
+            <button 
+              key={f.id}
+              onClick={() => setFilter(f.id)} 
+              className={`px-8 py-3 rounded-xl text-sm font-bold transition-all whitespace-nowrap ${filter === f.id ? 'bg-white text-primary shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
+            >
+              {f.label}
+            </button>
+          ))}
         </div>
       </div>
 
+      {/* Content Grid */}
       {loading ? (
-        <div className="glass-card p-6 h-64 flex items-center justify-center">
-          <Loader2 className="w-8 h-8 text-emerald-500 animate-spin" />
+        <div className="h-64 flex flex-col items-center justify-center bg-white rounded-3xl border border-slate-100">
+          <Loader2 className="w-12 h-12 text-primary animate-spin mb-4" />
+          <div className="text-slate-500 font-bold animate-pulse">Memuat data warga...</div>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8">
           {Object.keys(groupedTagihan).length > 0 ? (
             Object.values(groupedTagihan).map((group) => {
               const unpaidItems = group.items.filter(t => t.status !== 'lunas');
               const totalUnpaid = unpaidItems.reduce((sum, t) => sum + parseFloat(t.total_nominal), 0);
               
               return (
-                <div key={group.warga.id} className="glass-card p-5 border-l-4 border-emerald-500 hover:bg-slate-800/30 transition-all group">
-                  <div className="flex justify-between items-start mb-4">
-                    <div className="flex items-center gap-3">
-                      <div className="p-2 rounded-lg bg-emerald-500/10 border border-emerald-500/20">
-                        <User className="w-5 h-5 text-emerald-400" />
-                      </div>
-                      <div>
-                        <h3 className="font-bold text-white leading-tight">{group.warga.kepala_keluarga}</h3>
-                        <p className="text-xs text-slate-500 mt-0.5">Blok {group.warga.no_rumah}</p>
+                <div key={group.warga.id} className="bg-white border border-slate-100 rounded-[2.5rem] p-8 shadow-sm hover:shadow-xl hover:scale-[1.02] transition-all group flex flex-col h-full">
+                  <div className="flex items-start gap-5 mb-8 border-b border-slate-50 pb-6">
+                    <div className="w-16 h-16 bg-slate-900 rounded-2xl flex items-center justify-center text-white font-bold text-xl shadow-lg">
+                      {group.warga.no_rumah}
+                    </div>
+                    <div>
+                      <h3 className="text-2xl font-bold text-slate-900 group-hover:text-primary transition-colors">
+                        {group.warga.kepala_keluarga}
+                      </h3>
+                      <div className="flex items-center gap-2 mt-2">
+                        <div className={`w-2.5 h-2.5 rounded-full ${unpaidItems.length > 0 ? 'bg-danger animate-pulse' : 'bg-primary'}`} />
+                        <span className="text-xs font-bold text-slate-500 uppercase tracking-widest">
+                          {unpaidItems.length > 0 ? `${unpaidItems.length} Bulan Belum Bayar` : 'Sudah Lunas'}
+                        </span>
                       </div>
                     </div>
                   </div>
                   
-                  <div className="space-y-3 mb-5">
-                    <div className="flex justify-between items-center text-sm">
-                      <span className="text-slate-400">Total Tagihan</span>
-                      <span className="text-white font-medium">{group.items.length} Periode</span>
-                    </div>
-                    <div className="flex justify-between items-center text-sm">
-                      <span className="text-slate-400">Belum Lunas</span>
-                      <span className={`font-bold ${unpaidItems.length > 0 ? 'text-red-400' : 'text-emerald-400'}`}>
-                        {unpaidItems.length} Periode
+                  <div className="space-y-6 flex-grow mb-8">
+                    <div className="flex justify-between items-end">
+                      <span className="text-sm font-bold text-slate-400 uppercase tracking-wider">Tunggakan</span>
+                      <span className={`text-3xl font-black ${totalUnpaid > 0 ? 'text-slate-900' : 'text-primary'}`}>
+                        {formatRupiah(totalUnpaid)}
                       </span>
                     </div>
-                    <div className="pt-2 border-t border-slate-700/50 flex justify-between items-center">
-                      <span className="text-xs text-slate-500 uppercase tracking-wider font-bold">Total Tunggakan</span>
-                      <span className="text-lg font-bold text-emerald-400">{formatRupiah(totalUnpaid)}</span>
+                    
+                    <div className="bg-slate-50 p-5 rounded-2xl flex justify-between">
+                      <div className="text-center flex-1">
+                        <div className="text-[10px] text-slate-400 font-bold uppercase mb-1">Total Tagihan</div>
+                        <div className="text-lg font-bold text-slate-700">{group.items.length}</div>
+                      </div>
+                      <div className="w-px bg-slate-200 mx-4" />
+                      <div className="text-center flex-1">
+                        <div className="text-[10px] text-slate-400 font-bold uppercase mb-1">Status</div>
+                        <div className={`text-lg font-bold ${unpaidItems.length > 0 ? 'text-danger' : 'text-primary'}`}>
+                          {unpaidItems.length > 0 ? 'Hutang' : 'Lunas'}
+                        </div>
+                      </div>
                     </div>
                   </div>
 
                   <Link 
                     href={`/dashboard/admin/tagihan/${group.warga.id}`}
-                    className="w-full btn-secondary py-2 flex items-center justify-center gap-2 text-sm group-hover:bg-emerald-500 group-hover:text-white group-hover:border-emerald-500 transition-all"
+                    className="w-full py-4.5 bg-slate-100 text-slate-700 font-bold rounded-2xl text-center hover:bg-primary hover:text-white transition-all flex items-center justify-center gap-2"
                   >
-                    Kelola Tagihan <Plus className="w-4 h-4" />
+                    Lihat Detail Tagihan <ArrowRight className="w-5 h-5" />
                   </Link>
                 </div>
               );
             })
           ) : (
-            <div className="col-span-full glass-card p-12 text-center text-slate-400">
-              Tidak ada data tagihan ditemukan.
+            <div className="col-span-full py-20 text-center bg-white border border-dashed border-slate-200 rounded-[2.5rem]">
+              <Home className="w-16 h-16 text-slate-200 mx-auto mb-4" />
+              <div className="text-lg font-bold text-slate-400">Data warga tidak ditemukan.</div>
             </div>
           )}
         </div>
       )}
 
-      {isModalOpen && selectedTagihan && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/80 backdrop-blur-sm animate-fade-in">
-          <div className="glass-card w-full max-w-md overflow-hidden">
-            <div className="p-6 border-b border-slate-700/50 flex justify-between items-center">
-              <h2 className="text-lg font-bold text-white flex items-center gap-2">
-                <HandCoins className="w-5 h-5 text-emerald-400" />
-                Catat Pembayaran Tunai
-              </h2>
-              <button onClick={() => setIsModalOpen(false)} className="text-slate-400 hover:text-white">
-                <X className="w-5 h-5" />
+      {/* Modals - Simplified & Friendly */}
+      {isGenerateModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-6 bg-slate-900/60 backdrop-blur-sm">
+          <div className="bg-white rounded-[2.5rem] w-full max-w-xl p-10 shadow-2xl animate-in fade-in zoom-in duration-300">
+            <div className="flex justify-between items-center mb-10 pb-6 border-b border-slate-100">
+              <h3 className="font-bold text-3xl text-slate-900 tracking-tight">Buat Tagihan Baru</h3>
+              <button onClick={() => setIsGenerateModalOpen(false)} className="w-10 h-10 bg-slate-100 rounded-full flex items-center justify-center text-slate-400 hover:text-slate-900 transition-colors">
+                <X className="w-6 h-6" />
               </button>
             </div>
             
-            <form onSubmit={handleBayarManual} className="p-6 space-y-4">
-              <div className="p-4 bg-slate-800/50 rounded-xl border border-slate-700/50 mb-4 max-h-48 overflow-y-auto">
-                <p className="text-sm text-slate-400 mb-1">Penerimaan dari:</p>
-                <p className="font-bold text-white">{selectedTagihan[0]?.warga?.kepala_keluarga} (Blok {selectedTagihan[0]?.warga?.no_rumah})</p>
-                
-                <div className="mt-3 space-y-2">
-                  <div className="flex justify-between items-center mb-1">
-                    <p className="text-xs text-slate-500 uppercase font-semibold">Detail Tagihan ({selectedTagihan.length}):</p>
-                    <button 
-                      type="button"
-                      onClick={handleGenerateFuture}
-                      disabled={isGenerating}
-                      className="text-xs text-emerald-400 hover:text-white flex items-center gap-2 bg-emerald-500/20 px-3 py-1.5 rounded-lg border border-emerald-500/40 transition-all hover:bg-emerald-500/30 font-medium"
-                    >
-                      {isGenerating ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Plus className="w-3.5 h-3.5" />}
-                      Tambah Bulan Depan
-                    </button>
-                  </div>
-                  {selectedTagihan.map(t => (
-                    <div key={t.id} className="flex justify-between text-sm">
-                      <span className="text-slate-300">{getBulanName(t.bulan)} {t.tahun}</span>
-                      <span className="text-emerald-400">{formatRupiah(t.total_nominal)}</span>
-                    </div>
-                  ))}
-                  <div className="border-t border-slate-700 pt-2 flex justify-between font-bold text-white">
-                    <span>Total Tagihan</span>
-                    <span className="text-emerald-400">{formatRupiah(selectedTagihan.reduce((sum, t) => sum + parseFloat(t.total_nominal), 0))}</span>
-                  </div>
+            <div className="space-y-8">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="space-y-2">
+                  <label className="block text-sm font-bold text-slate-700 ml-1">Pilih Warga</label>
+                  <select 
+                    className="w-full bg-slate-50 border border-slate-200 p-4 text-slate-700 font-semibold outline-none focus:border-primary rounded-2xl"
+                    value={genData.warga_id} 
+                    onChange={e => setGenData({...genData, warga_id: e.target.value})}
+                  >
+                    <option value="">SEMUA WARGA</option>
+                    {wargaList.map(w => (
+                      <option key={w.id} value={w.id}>BLOK {w.no_rumah} - {w.kepala_keluarga}</option>
+                    ))}
+                  </select>
+                </div>
+                <div className="space-y-2">
+                  <label className="block text-sm font-bold text-slate-700 ml-1">Tahun</label>
+                  <input 
+                    type="number" 
+                    className="w-full bg-slate-50 border border-slate-200 p-4 text-slate-700 font-semibold outline-none focus:border-primary rounded-2xl"
+                    value={genData.tahun} 
+                    onChange={e => setGenData({...genData, tahun: e.target.value})} 
+                  />
                 </div>
               </div>
 
-              <div>
-                <label className="block text-sm font-medium text-slate-300 mb-1">Jumlah Bayar (Rp)</label>
-                <input type="number" readOnly className="input-field text-lg font-bold bg-slate-800/50 cursor-not-allowed opacity-80" 
-                  value={jumlahBayar} />
-                <p className="text-[10px] text-slate-500 mt-1">* Nominal otomatis menyesuaikan total tagihan terpilih</p>
-              </div>
-              
-              <div>
-                <label className="block text-sm font-medium text-slate-300 mb-1">Catatan</label>
-                <input type="text" className="input-field" placeholder="Misal: Pembayaran rapel 3 bulan" 
-                  value={catatan} onChange={e => setCatatan(e.target.value)} />
+              <div className="space-y-4">
+                <label className="block text-sm font-bold text-slate-700 ml-1">Pilih Bulan</label>
+                <div className="grid grid-cols-3 md:grid-cols-4 gap-3">
+                  {[...Array(12)].map((_, i) => (
+                    <button 
+                      key={i+1}
+                      onClick={() => setGenData({...genData, bulan: (i+1).toString()})}
+                      className={`py-3 text-sm font-bold rounded-xl border transition-all ${genData.bulan === (i+1).toString() ? 'bg-primary border-primary text-white shadow-md' : 'bg-white border-slate-200 text-slate-500 hover:bg-slate-50'}`}
+                    >
+                      {getBulanName(i+1)}
+                    </button>
+                  ))}
+                </div>
               </div>
 
-              <div className="pt-4 mt-6 flex justify-end gap-3">
-                <button type="button" onClick={() => setIsModalOpen(false)} className="btn-secondary">
-                  Batal
-                </button>
-                <button type="submit" disabled={isSubmitting} className="btn-primary flex items-center gap-2">
-                  {isSubmitting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Check className="w-4 h-4" />}
-                  Simpan Pembayaran
-                </button>
-              </div>
-            </form>
+              <button 
+                onClick={handleGenerate}
+                disabled={isGenerating}
+                className="w-full bg-primary text-white py-5 rounded-2xl font-bold text-xl shadow-xl shadow-primary/20 hover:bg-primary-hover transition-all flex items-center justify-center gap-3 mt-4"
+              >
+                {isGenerating ? <Loader2 className="w-6 h-6 animate-spin" /> : <Check className="w-6 h-6" />}
+                Buat Tagihan Sekarang
+              </button>
+            </div>
           </div>
         </div>
-      )}    </div>
+      )}
+    </div>
   );
 }

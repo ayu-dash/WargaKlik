@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import api from '@/utils/api';
-import { Users, Search, Plus, UserPlus, Check, X, Edit, Trash2, Loader2, Receipt } from 'lucide-react';
+import { Users, Search, Plus, UserPlus, Check, X, Edit, Trash2, Loader2, Receipt, Home, ShieldCheck } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 import Link from 'next/link';
 
@@ -11,7 +11,6 @@ export default function AdminWarga() {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   
-  // Modal state
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [formData, setFormData] = useState({
     no_rumah: '',
@@ -50,7 +49,6 @@ export default function AdminWarga() {
         no_telepon: formData.no_telepon,
         no_rumah: formData.no_rumah,
         kepala_keluarga: formData.kepala_keluarga,
-        // The backend uses 'aktif'/'pindah' logic internally or defaults to active
       });
       
       toast.success('Data warga berhasil ditambahkan');
@@ -70,24 +68,28 @@ export default function AdminWarga() {
   );
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        <div>
-          <h1 className="text-2xl font-bold text-white flex items-center gap-2">
-            <Users className="w-6 h-6 text-emerald-400" />
-            Data Warga
+    <div className="space-y-10 animate-fade-in relative pb-10 font-sans">
+      <div className="fixed inset-0 community-grid opacity-20 pointer-events-none -z-10" />
+
+      {/* Header Section */}
+      <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-8 border-b border-slate-200 pb-10">
+        <div className="space-y-2">
+          <h1 className="text-4xl font-black text-slate-900 tracking-tight">
+            Data <span className="text-primary">Warga RT</span>
           </h1>
-          <p className="text-slate-400 text-sm mt-1">Kelola data warga RT</p>
+          <p className="text-slate-500 text-lg font-medium">
+            Kelola daftar rumah dan penduduk di lingkungan kita.
+          </p>
         </div>
 
-        <div className="flex items-center gap-3 w-full sm:w-auto">
-          <div className="relative flex-1 sm:w-64">
-            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-              <Search className="h-4 w-4 text-slate-500" />
+        <div className="flex flex-col sm:flex-row items-center gap-4 w-full lg:w-auto">
+          <div className="relative w-full sm:w-80">
+            <div className="absolute inset-y-0 left-5 flex items-center pointer-events-none">
+              <Search className="h-5 w-5 text-slate-400" />
             </div>
             <input
               type="text"
-              className="input-field pl-9"
+              className="w-full bg-white border border-slate-200 py-4.5 pl-14 pr-6 text-slate-900 font-semibold focus:ring-4 focus:ring-primary/5 focus:border-primary transition-all rounded-[1.5rem] outline-none shadow-sm"
               placeholder="Cari nama atau no rumah..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
@@ -95,66 +97,75 @@ export default function AdminWarga() {
           </div>
           <button 
             onClick={() => setIsModalOpen(true)}
-            className="btn-primary flex items-center gap-2 py-2.5 px-4 whitespace-nowrap"
+            className="w-full sm:w-auto bg-primary text-white px-8 py-4.5 font-bold rounded-[1.5rem] shadow-xl shadow-primary/20 hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-3 whitespace-nowrap"
           >
-            <UserPlus className="w-4 h-4" />
-            <span className="hidden sm:inline">Tambah Warga</span>
+            <UserPlus className="w-6 h-6" />
+            Tambah Warga Baru
           </button>
         </div>
       </div>
 
       {loading ? (
-        <div className="glass-card p-6 h-64 flex items-center justify-center">
-          <Loader2 className="w-8 h-8 text-emerald-500 animate-spin" />
+        <div className="h-80 flex flex-col items-center justify-center bg-white rounded-[3rem] border border-slate-100 shadow-sm">
+          <Loader2 className="w-12 h-12 text-primary animate-spin mb-4" />
+          <div className="text-slate-500 font-bold">Menyiapkan data warga...</div>
         </div>
       ) : (
-        <div className="glass-card overflow-hidden">
+        <div className="bg-white rounded-[3rem] border border-slate-100 shadow-xl shadow-slate-200/40 overflow-hidden">
           <div className="overflow-x-auto">
-            <table className="w-full text-left border-collapse">
+            <table className="w-full text-left">
               <thead>
-                <tr className="bg-slate-800/50 border-b border-slate-700/50">
-                  <th className="p-4 text-sm font-semibold text-slate-300">No. Rumah</th>
-                  <th className="p-4 text-sm font-semibold text-slate-300">Kepala Keluarga</th>
-                  <th className="p-4 text-sm font-semibold text-slate-300">Email (User)</th>
-                  <th className="p-4 text-sm font-semibold text-slate-300">Status</th>
-                  <th className="p-4 text-sm font-semibold text-slate-300 text-right">Aksi</th>
+                <tr className="bg-slate-50 border-b border-slate-100">
+                  <th className="p-8 text-sm font-black text-slate-400 uppercase tracking-widest">No. Rumah</th>
+                  <th className="p-8 text-sm font-black text-slate-400 uppercase tracking-widest">Kepala Keluarga</th>
+                  <th className="p-8 text-sm font-black text-slate-400 uppercase tracking-widest">Akun & Kontak</th>
+                  <th className="p-8 text-sm font-black text-slate-400 uppercase tracking-widest">Status</th>
+                  <th className="p-8 text-sm font-black text-slate-400 uppercase tracking-widest text-right">Aksi</th>
                 </tr>
               </thead>
-              <tbody>
+              <tbody className="divide-y divide-slate-50">
                 {filteredWarga.length > 0 ? (
                   filteredWarga.map((item) => (
-                    <tr key={item.id} className="border-b border-slate-700/50 hover:bg-slate-800/30 transition-colors">
-                      <td className="p-4">
-                        <span className="font-mono font-medium text-emerald-400 bg-emerald-500/10 px-2 py-1 rounded">
+                    <tr key={item.id} className="hover:bg-slate-50 transition-colors group">
+                      <td className="p-8">
+                        <div className="w-16 h-16 bg-slate-900 rounded-[1.2rem] flex items-center justify-center text-white font-black text-xl shadow-lg">
                           {item.no_rumah}
-                        </span>
+                        </div>
                       </td>
-                      <td className="p-4 text-white font-medium">{item.kepala_keluarga}</td>
-                      <td className="p-4 text-slate-400">{item.user?.email || '-'}</td>
-                      <td className="p-4">
-                        <div className="flex flex-col gap-1">
+                      <td className="p-8 font-extrabold text-slate-900 text-xl group-hover:text-primary transition-colors">
+                        {item.kepala_keluarga}
+                      </td>
+                      <td className="p-8">
+                        <div className="space-y-1">
+                           <div className="text-sm font-bold text-slate-700">{item.user?.email || 'Belum ada email'}</div>
+                           <div className="text-xs font-medium text-slate-400">{item.no_telepon || 'No HP tidak ada'}</div>
+                        </div>
+                      </td>
+                      <td className="p-8">
+                        <div className="flex items-center gap-2">
                           {item.status === 'aktif' ? (
-                            <span className="badge badge-success px-2 py-1 text-[10px] w-fit">Aktif</span>
+                            <span className="inline-flex items-center gap-1.5 bg-emerald-50 text-primary px-4 py-2 rounded-full text-xs font-black uppercase tracking-widest border border-emerald-100">
+                               <Check className="w-3.5 h-3.5" /> Aktif
+                            </span>
                           ) : (
-                            <span className="badge badge-danger px-2 py-1 text-[10px] w-fit">Pindah</span>
-                          )}
-                          {item.iuran_custom?.length > 0 && (
-                            <span className="badge badge-info px-2 py-1 text-[10px] w-fit">Kustom</span>
+                            <span className="inline-flex items-center gap-1.5 bg-red-50 text-danger px-4 py-2 rounded-full text-xs font-black uppercase tracking-widest border border-red-100">
+                               <X className="w-3.5 h-3.5" /> Pindah
+                            </span>
                           )}
                         </div>
                       </td>
-                      <td className="p-4 text-right">
-                        <div className="flex items-center justify-end gap-1">
+                      <td className="p-8">
+                        <div className="flex items-center justify-end gap-3">
                           <Link href={`/dashboard/admin/warga/${item.id}`}
-                            className="p-2 text-slate-400 hover:text-emerald-400 transition-colors rounded hover:bg-emerald-500/10"
+                            className="w-12 h-12 flex items-center justify-center bg-slate-100 text-slate-500 rounded-2xl hover:bg-primary hover:text-white transition-all shadow-sm"
                             title="Atur Iuran">
-                            <Receipt className="w-4 h-4" />
+                            <Receipt className="w-5 h-5" />
                           </Link>
-                          <button className="p-2 text-slate-400 hover:text-blue-400 transition-colors rounded hover:bg-blue-500/10">
-                            <Edit className="w-4 h-4" />
+                          <button className="w-12 h-12 flex items-center justify-center bg-slate-100 text-slate-500 rounded-2xl hover:bg-blue-600 hover:text-white transition-all shadow-sm">
+                            <Edit className="w-5 h-5" />
                           </button>
-                          <button className="p-2 text-slate-400 hover:text-red-400 transition-colors rounded hover:bg-red-500/10">
-                            <Trash2 className="w-4 h-4" />
+                          <button className="w-12 h-12 flex items-center justify-center bg-slate-100 text-slate-500 rounded-2xl hover:bg-danger hover:text-white transition-all shadow-sm">
+                            <Trash2 className="w-5 h-5" />
                           </button>
                         </div>
                       </td>
@@ -162,8 +173,9 @@ export default function AdminWarga() {
                   ))
                 ) : (
                   <tr>
-                    <td colSpan={5} className="p-8 text-center text-slate-400">
-                      Tidak ada data warga ditemukan.
+                    <td colSpan={5} className="p-20 text-center">
+                      <Home className="w-16 h-16 text-slate-200 mx-auto mb-4" />
+                      <div className="text-lg font-bold text-slate-400">Tidak ada data warga yang cocok.</div>
                     </td>
                   </tr>
                 )}
@@ -173,79 +185,116 @@ export default function AdminWarga() {
         </div>
       )}
 
-      {/* Modal Tambah Warga */}
+      {/* Modal - Friendly Style */}
       {isModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/80 backdrop-blur-sm animate-fade-in">
-          <div className="glass-card w-full max-w-lg overflow-hidden flex flex-col max-h-[90vh]">
-            <div className="p-6 border-b border-slate-700/50 flex justify-between items-center">
-              <h2 className="text-lg font-bold text-white flex items-center gap-2">
-                <UserPlus className="w-5 h-5 text-emerald-400" />
-                Tambah Data Warga
-              </h2>
-              <button onClick={() => setIsModalOpen(false)} className="text-slate-400 hover:text-white">
-                <X className="w-5 h-5" />
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-6 bg-slate-900/60 backdrop-blur-sm">
+          <div className="bg-white rounded-[3rem] w-full max-w-2xl p-10 md:p-14 shadow-2xl animate-in fade-in zoom-in duration-300 overflow-y-auto max-h-[90vh]">
+            <div className="flex justify-between items-center mb-10 pb-6 border-b border-slate-100">
+              <h3 className="font-bold text-3xl text-slate-900 tracking-tight flex items-center gap-4">
+                <UserPlus className="w-10 h-10 text-primary" /> Tambah Warga
+              </h3>
+              <button onClick={() => setIsModalOpen(false)} className="w-12 h-12 bg-slate-100 rounded-full flex items-center justify-center text-slate-400 hover:text-slate-900 transition-colors">
+                <X className="w-7 h-7" />
               </button>
             </div>
             
-            <div className="p-6 overflow-y-auto custom-scrollbar">
-              <form id="wargaForm" onSubmit={handleCreate} className="space-y-4">
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-slate-300 mb-1">No. Rumah</label>
-                    <input type="text" required className="input-field" placeholder="A-01" 
-                      value={formData.no_rumah} onChange={e => setFormData({...formData, no_rumah: e.target.value})} />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-slate-300 mb-1">Status</label>
-                    <select className="input-field" value={formData.status} onChange={e => setFormData({...formData, status: e.target.value})}>
-                      <option value="aktif">Aktif</option>
-                      <option value="pindah">Pindah</option>
-                    </select>
-                  </div>
+            <form onSubmit={handleCreate} className="space-y-10">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div className="space-y-3">
+                  <label className="block text-sm font-bold text-slate-700 ml-1">Nomor Rumah (Blok)</label>
+                  <input 
+                    type="text" 
+                    required 
+                    className="w-full bg-slate-50 border border-slate-200 p-5 text-slate-900 font-black text-xl outline-none focus:border-primary rounded-[1.5rem]"
+                    placeholder="Contoh: A-01" 
+                    value={formData.no_rumah} 
+                    onChange={e => setFormData({...formData, no_rumah: e.target.value})} 
+                  />
                 </div>
+                <div className="space-y-3">
+                  <label className="block text-sm font-bold text-slate-700 ml-1">Nama Kepala Keluarga</label>
+                  <input 
+                    type="text" 
+                    required 
+                    className="w-full bg-slate-50 border border-slate-200 p-5 text-slate-900 font-bold text-lg outline-none focus:border-primary rounded-[1.5rem]"
+                    placeholder="Nama Lengkap KK" 
+                    value={formData.kepala_keluarga} 
+                    onChange={e => setFormData({...formData, kepala_keluarga: e.target.value})} 
+                  />
+                </div>
+              </div>
 
-                <div>
-                  <label className="block text-sm font-medium text-slate-300 mb-1">Kepala Keluarga</label>
-                  <input type="text" required className="input-field" placeholder="Nama Kepala Keluarga" 
-                    value={formData.kepala_keluarga} onChange={e => setFormData({...formData, kepala_keluarga: e.target.value})} />
+              <div className="space-y-6 pt-6 border-t border-slate-100">
+                <div className="flex items-center gap-3 mb-4">
+                   <div className="w-8 h-8 rounded-full bg-blue-50 flex items-center justify-center">
+                      <ShieldCheck className="w-4 h-4 text-blue-600" />
+                   </div>
+                   <h4 className="text-sm font-black text-slate-400 uppercase tracking-[0.2em]">Data Akun & Akses</h4>
                 </div>
-
-                <div className="border-t border-slate-700/50 pt-4 mt-2">
-                  <h3 className="text-sm font-semibold text-slate-400 uppercase mb-3">Data Akun (User)</h3>
-                  
-                  <div className="space-y-4">
-                    <div>
-                      <label className="block text-sm font-medium text-slate-300 mb-1">Nama Pengguna</label>
-                      <input type="text" required className="input-field" placeholder="Nama Lengkap" 
-                        value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} />
+                
+                <div className="space-y-6">
+                  <div className="space-y-3">
+                    <label className="block text-sm font-bold text-slate-700 ml-1">Nama Lengkap Pengguna</label>
+                    <input 
+                      type="text" 
+                      required 
+                      className="w-full bg-slate-50 border border-slate-200 p-5 text-slate-700 font-bold outline-none focus:border-primary rounded-[1.5rem]"
+                      placeholder="Gunakan nama asli" 
+                      value={formData.name} 
+                      onChange={e => setFormData({...formData, name: e.target.value})} 
+                    />
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div className="space-y-3">
+                      <label className="block text-sm font-bold text-slate-700 ml-1">Alamat Email</label>
+                      <input 
+                        type="email" 
+                        required 
+                        className="w-full bg-slate-50 border border-slate-200 p-5 text-slate-700 font-bold outline-none focus:border-primary rounded-[1.5rem]"
+                        placeholder="email@warga.com" 
+                        value={formData.email} 
+                        onChange={e => setFormData({...formData, email: e.target.value})} 
+                      />
                     </div>
-                    <div>
-                      <label className="block text-sm font-medium text-slate-300 mb-1">Email</label>
-                      <input type="email" required className="input-field" placeholder="email@example.com" 
-                        value={formData.email} onChange={e => setFormData({...formData, email: e.target.value})} />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-slate-300 mb-1">No. WhatsApp</label>
-                      <input type="text" className="input-field" placeholder="08123456789" 
-                        value={formData.no_telepon} onChange={e => setFormData({...formData, no_telepon: e.target.value})} />
+                    <div className="space-y-3">
+                      <label className="block text-sm font-bold text-slate-700 ml-1">Nomor WhatsApp</label>
+                      <input 
+                        type="text" 
+                        className="w-full bg-slate-50 border border-slate-200 p-5 text-slate-700 font-bold outline-none focus:border-primary rounded-[1.5rem]"
+                        placeholder="08123456789" 
+                        value={formData.no_telepon} 
+                        onChange={e => setFormData({...formData, no_telepon: e.target.value})} 
+                      />
                     </div>
                   </div>
-                  <p className="text-xs text-amber-400 mt-3">
-                    * Password default: <strong>password123</strong>. Warga akan diminta mengganti password saat aktivasi.
-                  </p>
                 </div>
-              </form>
-            </div>
-            
-            <div className="p-4 border-t border-slate-700/50 bg-slate-800/30 flex justify-end gap-3">
-              <button type="button" onClick={() => setIsModalOpen(false)} className="btn-secondary">
-                Batal
-              </button>
-              <button type="submit" form="wargaForm" disabled={isSubmitting} className="btn-primary flex items-center gap-2">
-                {isSubmitting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Check className="w-4 h-4" />}
-                Simpan
-              </button>
-            </div>
+                <div className="p-6 bg-amber-50 rounded-[1.5rem] border border-amber-100 flex gap-4">
+                   <AlertCircle className="w-6 h-6 text-amber-600 shrink-0 mt-0.5" />
+                   <p className="text-sm font-medium text-amber-700 leading-relaxed">
+                     Kata sandi awal adalah <strong className="font-black">password123</strong>. 
+                     Warga wajib mengganti kata sandi demi keamanan saat pertama kali masuk ke sistem.
+                   </p>
+                </div>
+              </div>
+
+              <div className="pt-8 flex flex-col sm:flex-row gap-4">
+                <button 
+                  type="button" 
+                  onClick={() => setIsModalOpen(false)} 
+                  className="w-full sm:flex-1 py-5 bg-slate-100 text-slate-700 font-bold rounded-[1.5rem] hover:bg-slate-200 transition-all text-lg"
+                >
+                  Batalkan
+                </button>
+                <button 
+                  type="submit" 
+                  disabled={isSubmitting} 
+                  className="w-full sm:flex-[2] bg-primary text-white py-5 rounded-[1.5rem] font-bold text-xl shadow-xl shadow-primary/20 hover:bg-primary-hover transition-all flex items-center justify-center gap-3"
+                >
+                  {isSubmitting ? <Loader2 className="w-7 h-7 animate-spin" /> : <Check className="w-7 h-7" />}
+                  Simpan Data Warga
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       )}

@@ -1,36 +1,37 @@
-'use client';
-
-import { AuthProvider } from '@/contexts/AuthContext';
-import { Toaster } from 'react-hot-toast';
-import Script from 'next/script';
+import { Plus_Jakarta_Sans, Outfit, JetBrains_Mono } from 'next/font/google';
+import ClientProviders from '@/components/ClientProviders';
 import './globals.css';
+
+const sans = Plus_Jakarta_Sans({
+  subsets: ['latin'],
+  variable: '--font-sans',
+  display: 'swap',
+});
+
+const display = Outfit({
+  subsets: ['latin'],
+  variable: '--font-display',
+  display: 'swap',
+});
+
+const mono = JetBrains_Mono({
+  subsets: ['latin'],
+  variable: '--font-mono',
+  display: 'swap',
+});
+
+export const metadata = {
+  title: 'WargaKlik - Sistem Iuran RT Digital',
+  description: 'Sistem manajemen iuran RT modern yang transparan dan digital.',
+};
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="id">
+    <html lang="id" className={`${sans.variable} ${display.variable} ${mono.variable}`}>
       <body className="antialiased text-slate-50 bg-slate-900 min-h-screen selection:bg-emerald-500/30">
-        <AuthProvider>
+        <ClientProviders midtransClientKey={process.env.NEXT_PUBLIC_MIDTRANS_CLIENT_KEY}>
           {children}
-          <Toaster 
-            position="top-right"
-            toastOptions={{
-              className: 'glass',
-              style: {
-                background: 'rgba(30, 41, 59, 0.9)',
-                color: '#f8fafc',
-                backdropFilter: 'blur(12px)',
-                border: '1px solid rgba(255, 255, 255, 0.1)',
-              },
-              success: { iconTheme: { primary: '#10b981', secondary: '#0f172a' } },
-              error: { iconTheme: { primary: '#ef4444', secondary: '#0f172a' } },
-            }}
-          />
-        </AuthProvider>
-        <Script
-          src="https://app.sandbox.midtrans.com/snap/snap.js"
-          data-client-key={process.env.NEXT_PUBLIC_MIDTRANS_CLIENT_KEY}
-          strategy="lazyOnload"
-        />
+        </ClientProviders>
       </body>
     </html>
   );

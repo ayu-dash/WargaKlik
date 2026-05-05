@@ -13,7 +13,10 @@ import {
   Clock,
   HandCoins,
   Loader2,
-  Plus
+  Plus,
+  ArrowRight,
+  ShieldCheck,
+  Calendar
 } from 'lucide-react';
 import Link from 'next/link';
 import { formatRupiah, getBulanName } from '@/utils/format';
@@ -113,13 +116,13 @@ export default function TagihanList() {
   const getStatusBadge = (status) => {
     switch(status) {
       case 'lunas':
-        return <span className="badge badge-success"><CheckCircle2 className="w-3 h-3 mr-1"/> Lunas</span>;
+        return <span className="inline-flex items-center gap-1.5 bg-emerald-50 text-primary px-4 py-2 rounded-full text-[10px] font-black uppercase tracking-widest border border-emerald-100"><CheckCircle2 className="w-3.5 h-3.5"/> Lunas</span>;
       case 'belum_bayar':
-        return <span className="badge badge-danger"><AlertCircle className="w-3 h-3 mr-1"/> Belum Bayar</span>;
+        return <span className="inline-flex items-center gap-1.5 bg-red-50 text-danger px-4 py-2 rounded-full text-[10px] font-black uppercase tracking-widest border border-red-100"><AlertCircle className="w-3.5 h-3.5"/> Belum Bayar</span>;
       case 'sebagian':
-        return <span className="badge badge-warning"><Clock className="w-3 h-3 mr-1"/> Sebagian</span>;
+        return <span className="inline-flex items-center gap-1.5 bg-amber-50 text-amber-700 px-4 py-2 rounded-full text-[10px] font-black uppercase tracking-widest border border-amber-100"><Clock className="w-3.5 h-3.5"/> Sebagian</span>;
       default:
-        return <span className="badge badge-info">{status}</span>;
+        return <span className="bg-slate-100 text-slate-500 px-4 py-2 rounded-full text-[10px] font-black uppercase tracking-widest">{status}</span>;
     }
   };
 
@@ -128,130 +131,140 @@ export default function TagihanList() {
     .reduce((sum, t) => sum + parseFloat(t.total_nominal), 0);
 
   return (
-    <div className="space-y-6 max-w-5xl mx-auto">
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        <div>
-          <h1 className="text-2xl font-bold text-white flex items-center gap-2">
-            <Receipt className="w-6 h-6 text-emerald-400" />
-            Tagihan Saya
+    <div className="space-y-10 animate-fade-in relative pb-20 font-sans max-w-5xl mx-auto">
+      <div className="fixed inset-0 community-grid opacity-20 pointer-events-none -z-10" />
+
+      {/* Header Section */}
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-8 border-b border-slate-200 pb-10">
+        <div className="space-y-1">
+          <h1 className="text-4xl font-black text-slate-900 tracking-tight">
+            Tagihan <span className="text-primary">Warga</span>
           </h1>
-          <p className="text-slate-400 text-sm mt-1">Kelola dan bayar iuran RT bulanan Anda</p>
+          <p className="text-slate-500 text-lg font-medium">Bayar iuran bulanan dengan mudah dan cepat.</p>
         </div>
 
-        <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto">
+        <div className="flex flex-wrap items-center gap-4 w-full md:w-auto">
           <button 
             onClick={handleGenerateFuture}
             disabled={isGeneratingFuture}
-            className="btn-secondary flex items-center gap-2 py-2 px-4 text-sm order-2 sm:order-1 border-emerald-500/30 text-emerald-400 hover:bg-emerald-500/10"
+            className="flex-1 md:flex-none bg-white border-2 border-slate-100 px-6 py-4 rounded-[1.2rem] font-bold text-slate-600 hover:border-primary/20 hover:text-primary transition-all flex items-center justify-center gap-2 shadow-sm"
           >
-            {isGeneratingFuture ? <Loader2 className="w-4 h-4 animate-spin" /> : <Plus className="w-4 h-4" />}
+            {isGeneratingFuture ? <Loader2 className="w-5 h-5 animate-spin" /> : <Plus className="w-5 h-5" />}
             Bayar Bulan Depan
           </button>
           
-          <div className="relative w-full sm:w-48 order-1 sm:order-2">
-            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-              <Filter className="h-4 w-4 text-slate-500" />
+          <div className="relative flex-1 md:w-56">
+            <div className="absolute inset-y-0 left-5 flex items-center pointer-events-none">
+              <Filter className="h-5 w-5 text-slate-400" />
             </div>
             <select
-              className="input-field pl-9 appearance-none"
+              className="w-full bg-white border border-slate-200 py-4 pl-12 pr-6 text-slate-900 font-bold focus:border-primary transition-all rounded-[1.2rem] outline-none shadow-sm appearance-none"
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
             >
-              <option value="all">Semua Status</option>
-              <option value="belum_bayar">Belum Bayar</option>
-              <option value="sebagian">Bayar Sebagian</option>
-              <option value="lunas">Lunas</option>
+              <option value="all">Semua Tagihan</option>
+              <option value="belum_bayar">Belum Lunas</option>
+              <option value="sebagian">Terbayar Sebagian</option>
+              <option value="lunas">Sudah Lunas</option>
             </select>
           </div>
         </div>
       </div>
 
+      {/* Floating Action Bar for Payment */}
       {selectedIds.length > 0 && (
-        <div className="glass-card p-4 border-emerald-500/30 bg-emerald-500/5 flex flex-col sm:flex-row items-center justify-between gap-4 sticky top-4 z-10 animate-fade-in">
-          <div className="flex items-center gap-3">
-            <div className="p-2 bg-emerald-500/20 rounded-lg">
-              <CheckCircle2 className="w-5 h-5 text-emerald-400" />
-            </div>
-            <div>
-              <p className="text-white font-medium">{selectedIds.length} Tagihan Terpilih</p>
-              <p className="text-slate-400 text-sm">Total: <span className="text-emerald-400 font-bold">{formatRupiah(totalSelected)}</span></p>
-            </div>
-          </div>
-          <button 
-            onClick={handleBulkPay}
-            disabled={isPaying}
-            className="btn-primary w-full sm:w-auto px-8 py-3 flex items-center justify-center gap-2"
-          >
-            {isPaying ? <Loader2 className="w-5 h-5 animate-spin" /> : <HandCoins className="w-5 h-5" />}
-            Bayar Sekaligus (Rapel)
-          </button>
+        <div className="fixed bottom-10 left-1/2 -translate-x-1/2 z-50 w-[90%] max-w-2xl animate-in slide-in-from-bottom-10 duration-500">
+           <div className="bg-slate-900 text-white p-8 rounded-[2.5rem] shadow-2xl flex flex-col md:flex-row items-center justify-between gap-6">
+              <div className="flex items-center gap-5">
+                <div className="w-16 h-16 bg-white/10 rounded-[1.2rem] flex items-center justify-center">
+                  <CheckCircle2 className="w-8 h-8 text-primary" />
+                </div>
+                <div>
+                  <div className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1">{selectedIds.length} Tagihan Terpilih</div>
+                  <div className="text-3xl font-black text-white leading-none">{formatRupiah(totalSelected)}</div>
+                </div>
+              </div>
+              <button 
+                onClick={handleBulkPay}
+                disabled={isPaying}
+                className="w-full md:w-auto bg-primary text-white px-10 py-5 rounded-[1.5rem] font-black text-xl shadow-xl shadow-primary/20 hover:scale-[1.05] active:scale-[0.95] transition-all flex items-center justify-center gap-3"
+              >
+                {isPaying ? <Loader2 className="w-7 h-7 animate-spin" /> : <HandCoins className="w-7 h-7" />}
+                Bayar Sekarang
+              </button>
+           </div>
         </div>
       )}
 
       {loading ? (
-        <div className="space-y-4">
-          {[1,2,3].map(i => (
-            <div key={i} className="h-24 bg-slate-800/50 rounded-xl animate-pulse"></div>
-          ))}
+        <div className="h-80 flex flex-col items-center justify-center bg-white rounded-[3rem] border border-slate-100 shadow-sm">
+          <Loader2 className="w-12 h-12 text-primary animate-spin mb-4" />
+          <div className="text-slate-500 font-bold">Mengambil data tagihan...</div>
         </div>
       ) : tagihan.length > 0 ? (
-        <div className="grid grid-cols-1 gap-4">
+        <div className="grid grid-cols-1 gap-6">
           {tagihan.map((item) => (
             <div 
               key={item.id}
-              className={`glass-card p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 group transition-all ${
-                selectedIds.includes(item.id) ? 'border-emerald-500/50 bg-emerald-500/5 ring-1 ring-emerald-500/20' : 'hover:border-slate-600'
+              onClick={() => item.status !== 'lunas' && toggleSelect(item.id)}
+              className={`bg-white p-8 rounded-[2.5rem] border-2 flex flex-col md:flex-row md:items-center justify-between gap-8 group transition-all cursor-pointer ${
+                selectedIds.includes(item.id) ? 'border-primary ring-4 ring-primary/5 shadow-xl' : 'border-slate-100 hover:border-primary/20 hover:shadow-lg'
               }`}
             >
-              <div className="flex items-start gap-4">
+              <div className="flex items-center gap-6">
                 {item.status !== 'lunas' && (
-                  <div className="pt-3">
+                  <div className="relative">
                     <input 
                       type="checkbox" 
-                      className="w-5 h-5 rounded border-slate-700 bg-slate-800 text-emerald-500 focus:ring-emerald-500 focus:ring-offset-slate-900 cursor-pointer"
+                      className="peer sr-only"
                       checked={selectedIds.includes(item.id)}
-                      onChange={() => toggleSelect(item.id)}
+                      readOnly
                     />
+                    <div className="w-8 h-8 bg-slate-100 rounded-lg peer-checked:bg-primary transition-all flex items-center justify-center">
+                       <Check className={`w-5 h-5 text-white transition-all ${selectedIds.includes(item.id) ? 'scale-100' : 'scale-0'}`} />
+                    </div>
                   </div>
                 )}
                 
-                <div className={`p-3 rounded-xl border flex-shrink-0 ${
-                  item.status === 'lunas' ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400' :
-                  item.status === 'belum_bayar' ? 'bg-red-500/10 border-red-500/30 text-red-400' :
-                  'bg-amber-500/10 border-amber-500/30 text-amber-400'
+                <div className={`w-16 h-16 rounded-[1.2rem] flex items-center justify-center shadow-md transition-transform group-hover:scale-110 ${
+                  item.status === 'lunas' ? 'bg-emerald-50 text-primary' :
+                  item.status === 'belum_bayar' ? 'bg-red-50 text-danger' :
+                  'bg-amber-50 text-amber-600'
                 }`}>
-                  <Receipt className="w-6 h-6" />
+                  <Receipt className="w-8 h-8" />
                 </div>
                 
-                <div onClick={() => item.status !== 'lunas' && toggleSelect(item.id)} className="cursor-pointer">
-                  <h3 className="font-semibold text-white text-lg">
-                    Iuran Bulan {getBulanName(item.bulan)} {item.tahun}
+                <div className="space-y-1">
+                  <h3 className="font-black text-slate-900 text-2xl tracking-tight leading-tight">
+                    Iuran {getBulanName(item.bulan)} {item.tahun}
                   </h3>
-                  <div className="flex items-center gap-3 mt-1.5 text-sm text-slate-400">
-                    <span className="font-medium text-slate-300">{formatRupiah(item.total_nominal)}</span>
-                    <span className="w-1 h-1 rounded-full bg-slate-600"></span>
-                    <span>Jatuh Tempo: {new Date(item.tahun, item.bulan - 1, 10).toLocaleDateString('id-ID')}</span>
+                  <div className="flex flex-wrap items-center gap-4">
+                    <span className="font-black text-primary text-lg">{formatRupiah(item.total_nominal)}</span>
+                    <div className="flex items-center gap-1.5 text-xs font-bold text-slate-400">
+                       <Calendar className="w-3.5 h-3.5" />
+                       Jatuh Tempo: 10 {getBulanName(item.bulan)} {item.tahun}
+                    </div>
                   </div>
                 </div>
               </div>
               
-              <div className="flex items-center justify-between sm:justify-end w-full sm:w-auto gap-4 pl-14 sm:pl-0">
+              <div className="flex items-center justify-between md:justify-end gap-6 border-t md:border-t-0 pt-6 md:pt-0 border-slate-50">
                 {getStatusBadge(item.status)}
                 
-                <Link href={`/dashboard/tagihan/${item.id}`} className="w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center text-slate-400 hover:bg-emerald-500/20 hover:text-emerald-400 transition-colors">
-                  <ChevronRight className="w-5 h-5" />
+                <Link href={`/dashboard/tagihan/${item.id}`} className="w-12 h-12 rounded-full bg-slate-50 flex items-center justify-center text-slate-400 hover:bg-primary hover:text-white transition-all shadow-inner group/btn">
+                  <ArrowRight className="w-6 h-6 group-hover/btn:translate-x-1 transition-transform" />
                 </Link>
               </div>
             </div>
           ))}
         </div>
       ) : (
-        <div className="glass-card p-12 text-center flex flex-col items-center">
-          <div className="w-16 h-16 bg-slate-800 rounded-full flex items-center justify-center mb-4">
-            <Receipt className="w-8 h-8 text-slate-500" />
+        <div className="bg-white border border-dashed border-slate-200 p-20 text-center rounded-[3rem] flex flex-col items-center">
+          <div className="w-24 h-24 bg-slate-50 rounded-full flex items-center justify-center mb-6 shadow-inner">
+            <ShieldCheck className="w-12 h-12 text-slate-300" />
           </div>
-          <h3 className="text-lg font-medium text-white mb-2">Tidak ada tagihan</h3>
-          <p className="text-slate-400">Anda tidak memiliki tagihan dengan status tersebut.</p>
+          <h3 className="text-2xl font-black text-slate-900 mb-2">Semua Aman!</h3>
+          <p className="text-slate-500 font-medium max-w-sm">Anda tidak memiliki tagihan yang perlu dibayar saat ini. Terima kasih atas partisipasi Anda!</p>
         </div>
       )}
     </div>

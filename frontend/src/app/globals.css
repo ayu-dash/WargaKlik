@@ -1,34 +1,53 @@
 @import "tailwindcss";
 
 @theme {
-  --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+  --font-sans: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+  --font-display: 'Plus Jakarta Sans', sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
   
-  --color-primary: #10b981; /* Emerald 500 */
-  --color-primary-hover: #059669; /* Emerald 600 */
+  --color-primary: #059669; /* Emerald 600 */
+  --color-primary-hover: #047857; /* Emerald 700 */
   
-  --color-secondary: #3b82f6; /* Blue 500 */
-  --color-warning: #f59e0b; /* Amber 500 */
-  --color-danger: #ef4444; /* Red 500 */
+  --color-secondary: #0ea5e9; /* Sky 500 */
+  --color-warning: #d97706; /* Amber 600 */
+  --color-danger: #dc2626; /* Red 600 */
   
-  --color-bg: #0f172a; /* Slate 900 */
-  --color-surface: rgba(30, 41, 59, 0.7); /* Slate 800 with opacity for glassmorphism */
-  --color-surface-hover: rgba(30, 41, 59, 0.9);
+  --color-bg: #f8fafc; /* Slate 50 */
+  --color-surface: #ffffff;
+  --color-surface-raised: #f1f5f9;
   
-  --color-border: rgba(255, 255, 255, 0.1);
-  --color-border-hover: rgba(255, 255, 255, 0.2);
+  --color-border: #e2e8f0; /* Slate 200 */
+  --color-border-active: #cbd5e1;
   
-  --color-text: #f8fafc; /* Slate 50 */
-  --color-text-muted: #94a3b8; /* Slate 400 */
+  --color-text: #0f172a; /* Slate 900 */
+  --color-text-muted: #475569; /* Slate 600 */
+  --color-text-dim: #94a3b8; /* Slate 400 */
+}
+
+/* Friendly Patterns */
+.community-grid {
+  background-image: linear-gradient(var(--color-border) 1px, transparent 1px),
+    linear-gradient(90deg, var(--color-border) 1px, transparent 1px);
+  background-size: 40px 40px;
+}
+
+.card-friendly {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 1.5rem;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+  transition: all 0.3s ease;
+}
+
+.card-friendly:hover {
+  border-color: var(--color-primary);
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
 }
 
 /* Base styles */
 body {
   background-color: var(--color-bg);
   color: var(--color-text);
-  background-image: 
-    radial-gradient(circle at 15% 50%, rgba(16, 185, 129, 0.08), transparent 25%),
-    radial-gradient(circle at 85% 30%, rgba(59, 130, 246, 0.08), transparent 25%);
-  background-attachment: fixed;
   min-height: 100vh;
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;

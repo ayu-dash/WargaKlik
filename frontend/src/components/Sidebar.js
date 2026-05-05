@@ -17,7 +17,9 @@ import {
   User as UserIcon,
   Menu,
   X,
-  UserCog
+  UserCog,
+  ChevronRight,
+  Heart
 } from 'lucide-react';
 import { useState } from 'react';
 
@@ -31,33 +33,33 @@ export default function Sidebar({ isOpen, setIsOpen }) {
 
   const menuGroups = [
     {
-      title: 'Menu Utama',
+      title: 'Utama',
       items: [
-        { name: 'Dashboard', path: '/dashboard', icon: LayoutDashboard, show: true },
+        { name: 'Ringkasan', path: '/dashboard', icon: LayoutDashboard, show: true },
         { name: 'Pengumuman', path: '/dashboard/pengumuman', icon: Megaphone, show: true },
-        { name: 'Notifikasi', path: '/dashboard/notifikasi', icon: Bell, show: true },
+        { name: 'Pemberitahuan', path: '/dashboard/notifikasi', icon: Bell, show: true },
         { name: 'Profil Saya', path: '/dashboard/profil', icon: UserCog, show: true },
       ]
     },
     {
-      title: 'Menu Warga',
+      title: 'Warga',
       items: [
-        { name: 'Tagihan Saya', path: '/dashboard/tagihan', icon: Receipt, show: hasRole('warga') }
+        { name: 'Bayar Iuran', path: '/dashboard/tagihan', icon: Receipt, show: hasRole('warga') }
       ]
     },
     {
-      title: 'Transparansi Keuangan',
+      title: 'Laporan Keuangan',
       items: [
-        { name: 'Kas Harian', path: '/dashboard/admin/kas', icon: History, show: true },
-        { name: 'Laporan Keuangan', path: hasRole(['warga']) ? '/dashboard/laporan' : '/dashboard/admin/laporan', icon: FileText, show: true },
+        { name: 'Catatan Kas', path: '/dashboard/admin/kas', icon: History, show: true },
+        { name: 'Laporan Resmi', path: hasRole(['warga']) ? '/dashboard/laporan' : '/dashboard/admin/laporan', icon: FileText, show: true },
       ]
     },
     {
-      title: 'Pengurus RT',
+      title: 'Kelola RT',
       items: [
-        { name: 'Data Warga', path: '/dashboard/admin/warga', icon: Users, show: hasRole(['rt', 'wakil_rt', 'sekretaris', 'bendahara']) },
-        { name: 'Data Iuran', path: '/dashboard/admin/iuran', icon: WalletCards, show: hasRole(['rt', 'wakil_rt', 'sekretaris', 'bendahara']) },
-        { name: 'Kelola Tagihan', path: '/dashboard/admin/tagihan', icon: Receipt, show: hasRole(['rt', 'wakil_rt', 'bendahara', 'sekretaris']) }
+        { name: 'Daftar Warga', path: '/dashboard/admin/warga', icon: Users, show: hasRole(['rt', 'wakil_rt', 'sekretaris', 'bendahara']) },
+        { name: 'Jenis Iuran', path: '/dashboard/admin/iuran', icon: WalletCards, show: hasRole(['rt', 'wakil_rt', 'sekretaris', 'bendahara']) },
+        { name: 'Tagihan Warga', path: '/dashboard/admin/tagihan', icon: Receipt, show: hasRole(['rt', 'wakil_rt', 'bendahara', 'sekretaris']) }
       ]
     }
   ];
@@ -67,25 +69,25 @@ export default function Sidebar({ isOpen, setIsOpen }) {
       {/* Mobile overlay */}
       {isOpen && (
         <div 
-          className="fixed inset-0 bg-slate-900/80 backdrop-blur-sm z-40 lg:hidden"
+          className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-40 lg:hidden"
           onClick={() => setIsOpen(false)}
         />
       )}
 
       {/* Sidebar */}
       <aside className={`
-        fixed top-0 left-0 z-50 h-screen w-64 glass border-r border-slate-700/50 
-        transition-transform duration-300 ease-in-out flex flex-col
+        fixed top-0 left-0 z-50 h-screen w-64 bg-white border-r border-slate-200 
+        transition-transform duration-300 ease-in-out flex flex-col shadow-xl shadow-slate-200/50
         ${isOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
       `}>
-        <div className="flex items-center justify-between p-6">
+        <div className="flex items-center justify-between p-6 mb-2">
           <Link href="/dashboard" className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-xl bg-emerald-500/20 border border-emerald-500/30 flex items-center justify-center">
-              <span className="text-emerald-500 font-bold">RT</span>
+            <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center shadow-md shadow-primary/20">
+              <Receipt className="w-6 h-6 text-white" />
             </div>
-            <span className="text-xl font-bold text-white tracking-wide">Web Iuran</span>
+            <span className="text-xl font-bold text-slate-900 tracking-tight">WargaKlik</span>
           </Link>
-          <button onClick={() => setIsOpen(false)} className="lg:hidden text-slate-400 hover:text-white">
+          <button onClick={() => setIsOpen(false)} className="lg:hidden text-slate-400 hover:text-slate-900">
             <X className="w-6 h-6" />
           </button>
         </div>
@@ -97,10 +99,10 @@ export default function Sidebar({ isOpen, setIsOpen }) {
 
             return (
               <div key={idx} className="mb-8">
-                <h3 className="px-3 text-xs font-semibold text-slate-500 uppercase tracking-wider mb-3">
+                <h3 className="px-4 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-4">
                   {group.title}
                 </h3>
-                <div className="space-y-1">
+                <div className="space-y-1.5">
                   {visibleItems.map((item) => {
                     const Icon = item.icon;
                     const active = isActive(item.path);
@@ -109,14 +111,17 @@ export default function Sidebar({ isOpen, setIsOpen }) {
                         key={item.path} 
                         href={item.path}
                         className={`
-                          flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200
+                          flex items-center justify-between group px-4 py-3.5 rounded-2xl transition-all duration-200
                           ${active 
-                            ? 'bg-emerald-500/10 text-emerald-400 font-medium' 
-                            : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/50'}
+                            ? 'bg-emerald-50 text-primary font-bold shadow-sm' 
+                            : 'text-slate-500 hover:text-slate-900 hover:bg-slate-50'}
                         `}
                       >
-                        <Icon className={`w-5 h-5 ${active ? 'text-emerald-400' : 'text-slate-500'}`} />
-                        {item.name}
+                        <div className="flex items-center gap-4">
+                          <Icon className={`w-5 h-5 ${active ? 'text-primary' : 'text-slate-400 group-hover:text-primary transition-colors'}`} />
+                          <span className="text-sm tracking-tight">{item.name}</span>
+                        </div>
+                        {active && <ChevronRight className="w-4 h-4 text-primary" />}
                       </Link>
                     );
                   })}
@@ -126,23 +131,29 @@ export default function Sidebar({ isOpen, setIsOpen }) {
           })}
         </div>
 
-        <div className="p-4 mt-auto border-t border-slate-800">
-          <div className="flex items-center gap-3 px-3 mb-4">
-            <div className="w-10 h-10 rounded-full bg-slate-800 flex items-center justify-center border border-slate-700">
-              <UserIcon className="w-5 h-5 text-slate-400" />
+        <div className="p-6 bg-slate-50 border-t border-slate-200">
+          <div className="flex items-center gap-4 mb-6 px-1">
+            <div className="w-11 h-11 rounded-2xl bg-white flex items-center justify-center border border-slate-200 shadow-sm">
+              <UserIcon className="w-6 h-6 text-slate-400" />
             </div>
             <div className="flex-1 overflow-hidden">
-              <p className="text-sm font-medium text-white truncate">{user.name}</p>
-              <p className="text-xs text-slate-400 capitalize">{user.role}</p>
+              <p className="text-sm font-bold text-slate-900 truncate">{user.name}</p>
+              <p className="text-[10px] font-black text-primary uppercase tracking-widest mt-0.5">{user.role}</p>
             </div>
           </div>
           <button 
             onClick={logout}
-            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-400 hover:text-red-400 hover:bg-red-400/10 transition-colors"
+            className="w-full flex items-center justify-center gap-3 px-4 py-3.5 rounded-2xl text-slate-500 font-bold bg-white border border-slate-200 hover:text-red-600 hover:border-red-200 hover:bg-red-50 transition-all text-sm"
           >
             <LogOut className="w-5 h-5" />
-            Logout
+            Keluar Akun
           </button>
+          <div className="mt-6 text-center">
+            <div className="inline-flex items-center gap-1.5 text-[9px] font-black text-slate-400 uppercase tracking-widest">
+              <Heart className="w-3 h-3 fill-slate-300" />
+              Untuk Warga RT
+            </div>
+          </div>
         </div>
       </aside>
     </>

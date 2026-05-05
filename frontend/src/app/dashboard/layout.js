@@ -29,7 +29,8 @@ export default function DashboardLayout({ children }) {
   if (!user) return null;
 
   return (
-    <div className="min-h-screen bg-slate-900 flex">
+    <div className="min-h-screen bg-bg relative overflow-hidden flex">
+      <div className="fixed inset-0 community-grid opacity-20 pointer-events-none -z-10" />
       <Sidebar isOpen={isSidebarOpen} setIsOpen={setIsSidebarOpen} />
       
       <div className="flex-1 flex flex-col lg:pl-64 min-w-0 transition-all duration-300">
