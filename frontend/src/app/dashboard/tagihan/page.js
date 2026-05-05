@@ -142,7 +142,7 @@ export default function TagihanList() {
           <button 
             onClick={handleGenerateFuture}
             disabled={isGeneratingFuture}
-            className="btn-secondary flex items-center gap-2 py-2 text-sm order-2 sm:order-1"
+            className="btn-secondary flex items-center gap-2 py-2 px-4 text-sm order-2 sm:order-1 border-emerald-500/30 text-emerald-400 hover:bg-emerald-500/10"
           >
             {isGeneratingFuture ? <Loader2 className="w-4 h-4 animate-spin" /> : <Plus className="w-4 h-4" />}
             Bayar Bulan Depan
