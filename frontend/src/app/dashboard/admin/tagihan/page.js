@@ -87,7 +87,7 @@ export default function AdminTagihan() {
   }, {});
 
   return (
-    <div className="space-y-6 md:space-y-10 animate-fade-in relative pb-10 font-sans max-w-7xl mx-auto px-4 sm:px-0">
+    <div className="space-y-6 md:space-y-10 relative pb-10 font-sans max-w-7xl mx-auto px-4 sm:px-0">
       <div className="fixed inset-0 community-grid opacity-20 pointer-events-none -z-10" />
 
       {/* Header Section */}
@@ -259,65 +259,70 @@ export default function AdminTagihan() {
       {/* Modals - Simplified & Friendly */}
       {isGenerateModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 md:p-6 bg-slate-900/60 backdrop-blur-sm">
-          <div className="bg-white rounded-3xl md:rounded-[2.5rem] w-full max-w-xl p-8 md:p-14 shadow-2xl animate-in fade-in zoom-in duration-300 max-h-[90vh] overflow-y-auto">
-            <div className="flex justify-between items-center mb-8 md:mb-10 pb-4 md:pb-6 border-b border-slate-100">
-              <h3 className="font-bold text-xl md:text-3xl text-slate-900 tracking-tight flex items-center gap-3 md:gap-4">
-                <Plus className="w-7 h-7 md:w-9 md:h-9 text-primary" /> Buat Tagihan
+          <div className="bg-white rounded-[2rem] md:rounded-[2.5rem] w-full max-w-xl p-6 md:p-8 shadow-2xl animate-in fade-in zoom-in duration-300 max-h-[90vh] overflow-y-auto">
+            <div className="flex justify-between items-center mb-4 md:mb-6 pb-3 md:pb-4 border-b border-slate-100">
+              <h3 className="font-bold text-xl md:text-3xl text-slate-900 tracking-tight flex items-center gap-3">
+                <Plus className="w-6 h-6 md:w-8 md:h-8 text-primary" /> Buat Tagihan
               </h3>
-              <button onClick={() => setIsGenerateModalOpen(false)} className="w-8 h-8 md:w-10 md:h-10 bg-slate-100 rounded-full flex items-center justify-center text-slate-400 hover:text-slate-900 transition-colors">
-                <X className="w-5 h-5 md:w-6 md:h-6" />
+              <button onClick={() => setIsGenerateModalOpen(false)} className="w-8 h-8 bg-slate-100 rounded-full flex items-center justify-center text-slate-400 hover:text-slate-900 transition-colors">
+                <X className="w-5 h-5" />
               </button>
             </div>
             
-            <div className="space-y-6 md:space-y-8">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
-                <div className="space-y-2">
-                  <label className="block text-xs md:text-sm font-bold text-slate-700 ml-1">Target Warga</label>
+            <div className="space-y-4">
+              <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-1.5">
+                  <label className="block text-[10px] font-bold text-slate-500 uppercase ml-1">Target Warga</label>
                   <select 
-                    className="w-full bg-slate-50 border border-slate-200 p-4 md:p-5 text-slate-700 font-bold outline-none focus:border-primary rounded-xl md:rounded-2xl text-sm"
+                    className="w-full bg-slate-50 border border-slate-200 p-2.5 text-slate-700 font-bold outline-none focus:border-primary rounded-xl text-sm"
                     value={genData.warga_id} 
                     onChange={e => setGenData({...genData, warga_id: e.target.value})}
                   >
                     <option value="">SELURUH WARGA</option>
                     {wargaList.map(w => (
-                      <option key={w.id} value={w.id}>BLOK {w.no_rumah} - {w.kepala_keluarga}</option>
+                      <option key={w.id} value={w.id}>BLOK {w.no_rumah}</option>
                     ))}
                   </select>
                 </div>
-                <div className="space-y-2">
-                  <label className="block text-xs md:text-sm font-bold text-slate-700 ml-1">Tahun Penagihan</label>
+                <div className="space-y-1.5">
+                  <label className="block text-[10px] font-bold text-slate-500 uppercase ml-1">Tahun</label>
                   <input 
                     type="number" 
-                    className="w-full bg-slate-50 border border-slate-200 p-4 md:p-5 text-slate-700 font-bold outline-none focus:border-primary rounded-xl md:rounded-2xl text-sm"
+                    className="w-full bg-slate-50 border border-slate-200 p-2.5 text-slate-700 font-bold outline-none focus:border-primary rounded-xl text-sm"
                     value={genData.tahun} 
                     onChange={e => setGenData({...genData, tahun: e.target.value})} 
                   />
                 </div>
               </div>
 
-              <div className="space-y-4">
-                <label className="block text-xs md:text-sm font-bold text-slate-700 ml-1">Pilih Bulan Penagihan</label>
-                <div className="grid grid-cols-3 md:grid-cols-4 gap-2 md:gap-3">
+              <div className="space-y-1.5">
+                <label className="block text-[10px] font-bold text-slate-500 uppercase ml-1">Bulan Penagihan</label>
+                <div className="grid grid-cols-4 gap-2">
                   {[...Array(12)].map((_, i) => (
                     <button 
                       key={i+1}
                       onClick={() => setGenData({...genData, bulan: (i+1).toString()})}
-                      className={`py-3 md:py-4 text-[10px] md:text-xs font-black uppercase tracking-widest rounded-xl md:rounded-2xl border transition-all ${genData.bulan === (i+1).toString() ? 'bg-primary border-primary text-white shadow-lg shadow-primary/20' : 'bg-white border-slate-200 text-slate-400 hover:bg-slate-50 hover:border-slate-300'}`}
+                      className={`py-2 text-[10px] font-black uppercase tracking-widest rounded-xl border transition-all ${genData.bulan === (i+1).toString() ? 'bg-primary border-primary text-white shadow-lg shadow-primary/20' : 'bg-white border-slate-200 text-slate-400 hover:bg-slate-50'}`}
                     >
-                      {getBulanName(i+1)}
+                      {getBulanName(i+1).substring(0, 3)}
                     </button>
                   ))}
                 </div>
               </div>
 
-              <button 
-                onClick={handleGenerate}
-                disabled={isGenerating}
-                className="w-full bg-primary text-white py-4 md:py-6 rounded-xl md:rounded-[2rem] font-black text-lg md:text-2xl shadow-xl shadow-primary/20 hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-3 mt-4"
-              >
-                {isGenerating ? <Loader2 className="w-6 h-6 md:w-8 md:h-8 animate-spin" /> : <HandCoins className="w-6 h-6 md:w-8 md:h-8" />}
-                Terbitkan Tagihan
-              </button>
+              <div className="pt-2 flex gap-3">
+                <button type="button" onClick={() => setIsGenerateModalOpen(false)} className="flex-1 py-3 bg-slate-100 text-slate-700 font-bold rounded-xl hover:bg-slate-200 transition-all text-sm">
+                  Batal
+                </button>
+                <button 
+                  onClick={handleGenerate}
+                  disabled={isGenerating}
+                  className="flex-[2] bg-primary text-white py-3 rounded-xl font-bold text-sm shadow-xl shadow-primary/20 hover:bg-primary-hover transition-all flex items-center justify-center gap-2"
+                >
+                  {isGenerating ? <Loader2 className="w-4 h-4 animate-spin" /> : <Check className="w-4 h-4" />}
+                  Terbitkan Tagihan
+                </button>
+              </div>
             </div>
           </div>
         </div>

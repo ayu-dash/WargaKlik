@@ -64,7 +64,7 @@ export default function AdminLaporan() {
   };
 
   return (
-    <div className="space-y-6 md:space-y-10 animate-fade-in relative pb-10 font-sans max-w-6xl mx-auto">
+    <div className="space-y-6 md:space-y-10 relative pb-10 font-sans max-w-6xl mx-auto">
       <div className="fixed inset-0 community-grid opacity-20 pointer-events-none -z-10" />
 
       {/* Header Section */}
@@ -180,8 +180,8 @@ export default function AdminLaporan() {
       {/* Modal - Friendly Style */}
       {isModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 md:p-6 bg-slate-900/60 backdrop-blur-sm">
-          <div className="bg-white rounded-3xl md:rounded-[2.5rem] w-full max-w-xl p-8 md:p-14 shadow-2xl animate-in fade-in zoom-in duration-300 max-h-[90vh] overflow-y-auto">
-            <div className="flex justify-between items-center mb-6 md:mb-10 pb-4 md:pb-6 border-b border-slate-100">
+          <div className="bg-white rounded-3xl md:rounded-[2.5rem] w-full max-w-xl p-6 md:p-8 shadow-2xl animate-in fade-in zoom-in duration-300 max-h-[90vh] overflow-y-auto">
+            <div className="flex justify-between items-center mb-4 md:mb-6 pb-3 md:pb-4 border-b border-slate-100">
               <h3 className="font-bold text-xl md:text-3xl text-slate-900 tracking-tight flex items-center gap-3 md:gap-4">
                 <FileText className="w-6 h-6 md:w-8 md:h-8 text-primary" /> Buat Laporan
               </h3>
@@ -190,9 +190,9 @@ export default function AdminLaporan() {
               </button>
             </div>
             
-            <form onSubmit={handleGenerate} className="space-y-6 md:space-y-8">
-              <div className="space-y-2 md:space-y-3">
-                <label className="block text-xs md:text-sm font-bold text-slate-700 ml-1">Jenis Laporan Keuangan</label>
+            <form onSubmit={handleGenerate} className="space-y-4 md:space-y-6">
+              <div className="space-y-1.5">
+                <label className="block text-[10px] md:text-xs font-black text-slate-400 uppercase tracking-widest ml-1">Jenis Laporan Keuangan</label>
                 <select 
                   className="w-full bg-slate-50 border border-slate-200 p-4 md:p-5 text-slate-900 font-bold text-base md:text-lg outline-none focus:border-primary rounded-xl md:rounded-2xl"
                   value={formData.jenis} 
@@ -239,12 +239,12 @@ export default function AdminLaporan() {
                  </p>
               </div>
 
-              <div className="pt-4 md:pt-6 flex flex-col-reverse sm:flex-row gap-3 md:gap-4">
-                <button type="button" onClick={() => setIsModalOpen(false)} className="w-full sm:flex-1 py-4 md:py-5 bg-slate-100 text-slate-700 font-bold rounded-xl md:rounded-2xl hover:bg-slate-200 transition-all">
+              <div className="pt-2 md:pt-4 flex flex-col-reverse sm:flex-row gap-3">
+                <button type="button" onClick={() => setIsModalOpen(false)} className="w-full sm:flex-1 py-3 md:py-4 bg-slate-100 text-slate-700 font-bold rounded-xl md:rounded-2xl hover:bg-slate-200 transition-all text-sm">
                   Batal
                 </button>
-                <button type="submit" disabled={isSubmitting} className="w-full sm:flex-[2] bg-primary text-white py-4 md:py-5 rounded-xl md:rounded-2xl font-bold text-lg md:text-xl shadow-xl shadow-primary/20 hover:bg-primary-hover transition-all flex items-center justify-center gap-3">
-                  {isSubmitting ? <Loader2 className="w-6 h-6 md:w-7 md:h-7 animate-spin" /> : <ChevronRight className="w-6 h-6 md:w-7 md:h-7" />}
+                <button type="submit" disabled={isSubmitting} className="w-full sm:flex-[2] bg-primary text-white py-3 md:py-4 rounded-xl md:rounded-2xl font-bold text-base shadow-xl shadow-primary/20 hover:bg-primary-hover transition-all flex items-center justify-center gap-2">
+                  {isSubmitting ? <Loader2 className="w-5 h-5 animate-spin" /> : <ChevronRight className="w-5 h-5" />}
                   Mulai Generate Sekarang
                 </button>
               </div>

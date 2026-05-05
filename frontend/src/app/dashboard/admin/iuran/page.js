@@ -54,7 +54,7 @@ export default function AdminIuran() {
   };
 
   return (
-    <div className="space-y-6 md:space-y-10 animate-fade-in relative pb-10 font-sans max-w-6xl mx-auto px-4 sm:px-0">
+    <div className="space-y-6 md:space-y-10 relative pb-10 font-sans max-w-6xl mx-auto px-4 sm:px-0">
       <div className="fixed inset-0 community-grid opacity-20 pointer-events-none -z-10" />
 
       {/* Header Section */}
@@ -132,73 +132,73 @@ export default function AdminIuran() {
       {/* Modal - Friendly Style */}
       {isModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 md:p-6 bg-slate-900/60 backdrop-blur-sm">
-          <div className="bg-white rounded-3xl md:rounded-[2.5rem] w-full max-w-xl p-8 md:p-14 shadow-2xl animate-in fade-in zoom-in duration-300 max-h-[90vh] overflow-y-auto">
-            <div className="flex justify-between items-center mb-8 md:mb-10 pb-4 md:pb-6 border-b border-slate-100">
-              <h3 className="font-bold text-xl md:text-3xl text-slate-900 tracking-tight flex items-center gap-3 md:gap-4">
-                <Plus className="w-7 h-7 md:w-9 md:h-9 text-primary" /> Master Iuran
+          <div className="bg-white rounded-3xl md:rounded-[2.5rem] w-full max-w-xl p-6 md:p-8 shadow-2xl animate-in fade-in zoom-in duration-300 max-h-[90vh] overflow-y-auto">
+            <div className="flex justify-between items-center mb-4 md:mb-6 pb-3 md:pb-4 border-b border-slate-100">
+              <h3 className="font-bold text-xl md:text-3xl text-slate-900 tracking-tight flex items-center gap-3">
+                <Plus className="w-6 h-6 md:w-8 md:h-8 text-primary" /> Master Iuran
               </h3>
-              <button onClick={() => setIsModalOpen(false)} className="w-8 h-8 md:w-10 md:h-10 bg-slate-100 rounded-full flex items-center justify-center text-slate-400 hover:text-slate-900 transition-colors">
-                <X className="w-5 h-5 md:w-6 md:h-6" />
+              <button onClick={() => setIsModalOpen(false)} className="w-8 h-8 bg-slate-100 rounded-full flex items-center justify-center text-slate-400 hover:text-slate-900 transition-colors">
+                <X className="w-5 h-5" />
               </button>
             </div>
             
-            <form onSubmit={handleCreate} className="space-y-6 md:space-y-8">
-              <div className="space-y-2">
-                <label className="block text-xs md:text-sm font-bold text-slate-700 ml-1">Nama Jenis Iuran</label>
+            <form onSubmit={handleCreate} className="space-y-4">
+              <div className="space-y-1.5">
+                <label className="block text-[10px] font-bold text-slate-500 uppercase ml-1">Nama Jenis Iuran</label>
                 <input 
                   type="text" 
                   required 
-                  className="w-full bg-slate-50 border border-slate-200 p-4 md:p-5 text-slate-900 font-bold text-base md:text-lg outline-none focus:border-primary rounded-xl md:rounded-2xl"
+                  className="w-full bg-slate-50 border border-slate-200 p-3 text-slate-900 font-bold outline-none focus:border-primary rounded-xl text-sm"
                   placeholder="Misal: Iuran Keamanan" 
                   value={formData.nama} 
                   onChange={e => setFormData({...formData, nama: e.target.value})} 
                 />
               </div>
               
-              <div className="space-y-2">
-                <label className="block text-xs md:text-sm font-bold text-slate-700 ml-1">Nominal Bulanan (Rp)</label>
+              <div className="space-y-1.5">
+                <label className="block text-[10px] font-bold text-slate-500 uppercase ml-1">Nominal (Rp)</label>
                 <input 
                   type="number" 
                   required 
-                  className="w-full bg-slate-50 border border-slate-200 p-4 md:p-6 text-slate-900 font-black text-2xl md:text-3xl outline-none focus:border-primary rounded-xl md:rounded-2xl"
+                  className="w-full bg-slate-50 border border-slate-200 p-3 text-slate-900 font-black text-xl outline-none focus:border-primary rounded-xl"
                   placeholder="0" 
                   value={formData.nominal} 
                   onChange={e => setFormData({...formData, nominal: e.target.value})} 
                 />
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-8">
-                <div className="space-y-2">
-                  <label className="block text-xs md:text-sm font-bold text-slate-700 ml-1">Periode Penagihan</label>
+              <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-1.5">
+                  <label className="block text-[10px] font-bold text-slate-500 uppercase ml-1">Periode</label>
                   <select 
-                    className="w-full bg-slate-50 border border-slate-200 p-3.5 md:p-4 text-slate-700 font-bold outline-none focus:border-primary rounded-xl md:rounded-2xl text-sm"
+                    className="w-full bg-slate-50 border border-slate-200 p-2.5 text-slate-700 font-bold outline-none focus:border-primary rounded-xl text-sm"
                     value={formData.periode} 
                     onChange={e => setFormData({...formData, periode: e.target.value})}
                   >
-                    <option value="bulanan">Setiap Bulan</option>
-                    <option value="tahunan">Setiap Tahun</option>
+                    <option value="bulanan">Bulanan</option>
+                    <option value="tahunan">Tahunan</option>
                   </select>
                 </div>
-                <div className="space-y-2">
-                  <label className="block text-xs md:text-sm font-bold text-slate-700 ml-1">Status Penggunaan</label>
+                <div className="space-y-1.5">
+                  <label className="block text-[10px] font-bold text-slate-500 uppercase ml-1">Status</label>
                   <select 
-                    className="w-full bg-slate-50 border border-slate-200 p-3.5 md:p-4 text-slate-700 font-bold outline-none focus:border-primary rounded-xl md:rounded-2xl text-sm"
+                    className="w-full bg-slate-50 border border-slate-200 p-2.5 text-slate-700 font-bold outline-none focus:border-primary rounded-xl text-sm"
                     value={formData.is_active} 
                     onChange={e => setFormData({...formData, is_active: e.target.value === 'true'})}
                   >
-                    <option value="true">Aktif & Digunakan</option>
-                    <option value="false">Nonaktif / Arsip</option>
+                    <option value="true">Aktif</option>
+                    <option value="false">Nonaktif</option>
                   </select>
                 </div>
               </div>
 
-              <div className="pt-4 md:pt-6 flex flex-col-reverse sm:flex-row gap-3 md:gap-4">
-                <button type="button" onClick={() => setIsModalOpen(false)} className="w-full sm:flex-1 py-4 md:py-5 bg-slate-100 text-slate-700 font-bold rounded-xl md:rounded-2xl hover:bg-slate-200 transition-all text-sm md:text-base">
+              <div className="pt-2 flex gap-3">
+                <button type="button" onClick={() => setIsModalOpen(false)} className="flex-1 py-3 bg-slate-100 text-slate-700 font-bold rounded-xl hover:bg-slate-200 transition-all text-sm">
                   Batal
                 </button>
-                <button type="submit" disabled={isSubmitting} className="w-full sm:flex-[2] bg-primary text-white py-4 md:py-5 rounded-xl md:rounded-2xl font-bold text-lg md:text-xl shadow-xl shadow-primary/20 hover:bg-primary-hover transition-all flex items-center justify-center gap-3">
-                  {isSubmitting ? <Loader2 className="w-6 h-6 md:w-7 md:h-7 animate-spin" /> : <Check className="w-6 h-6 md:w-7 md:h-7" />}
-                  Simpan Master Iuran
+                <button type="submit" disabled={isSubmitting} className="flex-[2] bg-primary text-white py-3 rounded-xl font-bold text-sm shadow-xl shadow-primary/20 hover:bg-primary-hover transition-all flex items-center justify-center gap-2">
+                  {isSubmitting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Check className="w-4 h-4" />}
+                  Simpan Master
                 </button>
               </div>
             </form>

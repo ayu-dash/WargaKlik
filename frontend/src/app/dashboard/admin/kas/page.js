@@ -63,7 +63,7 @@ export default function AdminKas() {
   };
 
   return (
-    <div className="space-y-6 md:space-y-10 animate-fade-in relative pb-10 font-sans max-w-6xl mx-auto px-4 sm:px-0">
+    <div className="space-y-6 md:space-y-10 relative pb-10 font-sans max-w-6xl mx-auto px-4 sm:px-0">
       <div className="fixed inset-0 community-grid opacity-20 pointer-events-none -z-10" />
 
       {/* Header Section */}
@@ -259,80 +259,72 @@ export default function AdminKas() {
       {/* Modal - Friendly Style */}
       {isModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 md:p-6 bg-slate-900/60 backdrop-blur-sm">
-          <div className="bg-white rounded-3xl md:rounded-[2.5rem] w-full max-w-xl p-8 md:p-10 shadow-2xl animate-in fade-in zoom-in duration-300 max-h-[90vh] overflow-y-auto">
-            <div className="flex justify-between items-center mb-6 md:mb-10 pb-4 md:pb-6 border-b border-slate-100">
+          <div className="bg-white rounded-3xl md:rounded-[2.5rem] w-full max-w-xl p-6 md:p-8 shadow-2xl animate-in fade-in zoom-in duration-300 max-h-[90vh] overflow-y-auto">
+            <div className="flex justify-between items-center mb-4 md:mb-6 pb-3 md:pb-4 border-b border-slate-100">
               <h3 className="font-bold text-xl md:text-3xl text-slate-900 tracking-tight flex items-center gap-3">
                 <History className="w-6 h-6 md:w-8 md:h-8 text-primary" /> Catat Kas
               </h3>
-              <button onClick={() => setIsModalOpen(false)} className="w-8 h-8 md:w-10 md:h-10 bg-slate-100 rounded-full flex items-center justify-center text-slate-400 hover:text-slate-900 transition-colors">
-                <X className="w-5 h-5 md:w-6 md:h-6" />
+              <button onClick={() => setIsModalOpen(false)} className="w-8 h-8 bg-slate-100 rounded-full flex items-center justify-center text-slate-400 hover:text-slate-900 transition-colors">
+                <X className="w-5 h-5" />
               </button>
             </div>
             
-            <form onSubmit={handleCreateKas} className="space-y-6 md:space-y-8">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-8">
-                <div className="space-y-2">
-                  <label className="block text-xs md:text-sm font-bold text-slate-700 ml-1">Jenis Catatan</label>
+            <form onSubmit={handleCreateKas} className="space-y-4">
+              <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-1">
+                  <label className="block text-[10px] font-bold text-slate-500 uppercase ml-1">Jenis</label>
                   <select 
-                    className="w-full bg-slate-50 border border-slate-200 p-3.5 md:p-4 text-slate-700 font-semibold outline-none focus:border-primary rounded-xl md:rounded-2xl text-sm"
+                    className="w-full bg-slate-50 border border-slate-200 p-2.5 text-slate-700 font-semibold outline-none focus:border-primary rounded-xl text-sm"
                     value={formData.jenis} 
                     onChange={e => setFormData({...formData, jenis: e.target.value})}
                   >
                     <option value="keluar">Pengeluaran</option>
-                    <option value="masuk">Pemasukan Lain</option>
+                    <option value="masuk">Pemasukan</option>
                   </select>
                 </div>
-                <div className="space-y-2">
-                  <label className="block text-xs md:text-sm font-bold text-slate-700 ml-1">Tanggal</label>
+                <div className="space-y-1">
+                  <label className="block text-[10px] font-bold text-slate-500 uppercase ml-1">Tanggal</label>
                   <input 
                     type="date" 
                     required 
-                    className="w-full bg-slate-50 border border-slate-200 p-3.5 md:p-4 text-slate-700 font-semibold outline-none focus:border-primary rounded-xl md:rounded-2xl text-sm"
+                    className="w-full bg-slate-50 border border-slate-200 p-2.5 text-slate-700 font-semibold outline-none focus:border-primary rounded-xl text-sm"
                     value={formData.tanggal} 
                     onChange={e => setFormData({...formData, tanggal: e.target.value})} 
                   />
                 </div>
               </div>
 
-              <div className="space-y-2">
-                <label className="block text-xs md:text-sm font-bold text-slate-700 ml-1">Nominal (Rp)</label>
+              <div className="space-y-1">
+                <label className="block text-[10px] font-bold text-slate-500 uppercase ml-1">Nominal (Rp)</label>
                 <input 
                   type="number" 
                   required 
-                  className="w-full bg-slate-50 border border-slate-200 p-4 md:p-5 text-slate-900 font-black text-xl md:text-2xl outline-none focus:border-primary rounded-xl md:rounded-2xl"
+                  className="w-full bg-slate-50 border border-slate-200 p-3 text-slate-900 font-black text-lg outline-none focus:border-primary rounded-xl"
                   placeholder="0"
                   value={formData.nominal} 
                   onChange={e => setFormData({...formData, nominal: e.target.value})} 
                 />
               </div>
               
-              <div className="space-y-2">
-                <label className="block text-xs md:text-sm font-bold text-slate-700 ml-1">Keterangan / Alasan</label>
+              <div className="space-y-1">
+                <label className="block text-[10px] font-bold text-slate-500 uppercase ml-1">Keterangan</label>
                 <input 
                   type="text" 
                   required 
-                  className="w-full bg-slate-50 border border-slate-200 p-3.5 md:p-4 text-slate-700 font-semibold outline-none focus:border-primary rounded-xl md:rounded-2xl text-sm"
-                  placeholder="Misal: Pembelian sapu lidi" 
+                  className="w-full bg-slate-50 border border-slate-200 p-2.5 text-slate-700 font-semibold outline-none focus:border-primary rounded-xl text-sm"
+                  placeholder="Contoh: Pembelian sapu" 
                   value={formData.keterangan} 
                   onChange={e => setFormData({...formData, keterangan: e.target.value})} 
                 />
               </div>
 
-              <div className="pt-4 flex flex-col-reverse sm:flex-row gap-3 md:gap-4">
-                <button 
-                  type="button" 
-                  onClick={() => setIsModalOpen(false)} 
-                  className="w-full sm:flex-1 py-4 md:py-5 bg-slate-100 text-slate-700 font-bold rounded-xl md:rounded-2xl hover:bg-slate-200 transition-all text-sm md:text-base"
-                >
+              <div className="pt-2 flex gap-3">
+                <button type="button" onClick={() => setIsModalOpen(false)} className="flex-1 py-3 bg-slate-100 text-slate-700 font-bold rounded-xl hover:bg-slate-200 transition-all text-sm">
                   Batal
                 </button>
-                <button 
-                  type="submit" 
-                  disabled={isSubmitting} 
-                  className="w-full sm:flex-[2] bg-primary text-white py-4 md:py-5 rounded-xl md:rounded-2xl font-bold text-lg md:text-xl shadow-xl shadow-primary/20 hover:bg-primary-hover transition-all flex items-center justify-center gap-3"
-                >
-                  {isSubmitting ? <Loader2 className="w-5 h-5 md:w-6 md:h-6 animate-spin" /> : <Check className="w-5 h-5 md:w-6 md:h-6" />}
-                  Simpan Catatan
+                <button type="submit" disabled={isSubmitting} className="flex-[2] bg-primary text-white py-3 rounded-xl font-bold text-sm shadow-xl shadow-primary/20 hover:bg-primary-hover transition-all flex items-center justify-center gap-2">
+                  {isSubmitting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Check className="w-4 h-4" />}
+                  Simpan Catatan Kas
                 </button>
               </div>
             </form>

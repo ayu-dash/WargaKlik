@@ -70,7 +70,7 @@ export default function AdminWarga() {
   );
 
   return (
-    <div className="space-y-6 md:space-y-10 animate-fade-in relative pb-10 font-sans px-4 sm:px-0">
+    <div className="space-y-6 md:space-y-10 pb-10 relative px-4 sm:px-0">
       <div className="fixed inset-0 community-grid opacity-20 pointer-events-none -z-10" />
 
       {/* Header Section */}
@@ -254,8 +254,8 @@ export default function AdminWarga() {
       {/* Modal - Friendly Style */}
       {isModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 md:p-6 bg-slate-900/60 backdrop-blur-sm">
-          <div className="bg-white rounded-[2rem] md:rounded-[3rem] w-full max-w-2xl p-6 md:p-14 shadow-2xl animate-in fade-in zoom-in duration-300 overflow-y-auto max-h-[90vh]">
-            <div className="flex justify-between items-center mb-6 md:mb-10 pb-4 md:pb-6 border-b border-slate-100">
+          <div className="bg-white rounded-[2rem] md:rounded-[2.5rem] w-full max-w-xl p-6 md:p-8 shadow-2xl animate-in fade-in zoom-in duration-300 overflow-y-auto max-h-[90vh]">
+            <div className="flex justify-between items-center mb-4 md:mb-6 pb-3 md:pb-4 border-b border-slate-100">
               <h3 className="font-bold text-xl md:text-3xl text-slate-900 tracking-tight flex items-center gap-3 md:gap-4">
                 <UserPlus className="w-7 h-7 md:w-10 md:h-10 text-primary" /> Tambah Warga
               </h3>
@@ -298,35 +298,35 @@ export default function AdminWarga() {
                    <h4 className="text-[10px] md:text-xs font-black text-slate-400 uppercase tracking-[0.2em]">Data Akun & Akses</h4>
                 </div>
                 
-                <div className="space-y-6">
-                  <div className="space-y-2 md:space-y-3">
+                <div className="space-y-4">
+                  <div className="space-y-1">
                     <label className="block text-xs md:text-sm font-bold text-slate-700 ml-1">Nama Lengkap Pengguna</label>
                     <input 
                       type="text" 
                       required 
-                      className="w-full bg-slate-50 border border-slate-200 p-4 md:p-5 text-slate-700 font-bold outline-none focus:border-primary rounded-xl md:rounded-[1.5rem] text-sm md:text-base"
+                      className="w-full bg-slate-50 border border-slate-200 p-3 md:p-4 text-slate-700 font-bold outline-none focus:border-primary rounded-xl md:rounded-2xl text-sm md:text-base"
                       placeholder="Gunakan nama asli" 
                       value={formData.name} 
                       onChange={e => setFormData({...formData, name: e.target.value})} 
                     />
                   </div>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
-                    <div className="space-y-2 md:space-y-3">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
+                    <div className="space-y-1">
                       <label className="block text-xs md:text-sm font-bold text-slate-700 ml-1">Alamat Email</label>
                       <input 
                         type="email" 
                         required 
-                        className="w-full bg-slate-50 border border-slate-200 p-4 md:p-5 text-slate-700 font-bold outline-none focus:border-primary rounded-xl md:rounded-[1.5rem] text-sm md:text-base"
+                        className="w-full bg-slate-50 border border-slate-200 p-3 md:p-4 text-slate-700 font-bold outline-none focus:border-primary rounded-xl md:rounded-2xl text-sm md:text-base"
                         placeholder="email@warga.com" 
                         value={formData.email} 
                         onChange={e => setFormData({...formData, email: e.target.value})} 
                       />
                     </div>
-                    <div className="space-y-2 md:space-y-3">
+                    <div className="space-y-1">
                       <label className="block text-xs md:text-sm font-bold text-slate-700 ml-1">Nomor WhatsApp</label>
                       <input 
                         type="text" 
-                        className="w-full bg-slate-50 border border-slate-200 p-4 md:p-5 text-slate-700 font-bold outline-none focus:border-primary rounded-xl md:rounded-[1.5rem] text-sm md:text-base"
+                        className="w-full bg-slate-50 border border-slate-200 p-3 md:p-4 text-slate-700 font-bold outline-none focus:border-primary rounded-xl md:rounded-2xl text-sm md:text-base"
                         placeholder="08123456789" 
                         value={formData.no_telepon} 
                         onChange={e => setFormData({...formData, no_telepon: e.target.value})} 
@@ -334,29 +334,29 @@ export default function AdminWarga() {
                     </div>
                   </div>
                 </div>
-                <div className="p-4 md:p-6 bg-amber-50 rounded-xl md:rounded-[1.5rem] border border-amber-100 flex gap-3 md:gap-4">
-                   <AlertCircle className="w-5 h-5 md:w-6 md:h-6 text-amber-600 shrink-0 mt-0.5" />
-                   <p className="text-xs md:text-sm font-medium text-amber-700 leading-relaxed">
+                <div className="p-3 md:p-4 bg-amber-50 rounded-xl md:rounded-2xl border border-amber-100 flex gap-3">
+                   <AlertCircle className="w-5 h-5 text-amber-600 shrink-0 mt-0.5" />
+                   <p className="text-[11px] md:text-sm font-medium text-amber-700 leading-relaxed">
                      Kata sandi awal adalah <strong className="font-black">password123</strong>. 
                      Warga wajib mengganti kata sandi demi keamanan saat pertama kali masuk ke sistem.
                    </p>
                 </div>
               </div>
 
-              <div className="pt-6 md:pt-8 flex flex-col sm:flex-row gap-3 md:gap-4">
+              <div className="pt-2 md:pt-4 flex flex-col-reverse sm:flex-row gap-3">
                 <button 
                   type="button" 
                   onClick={() => setIsModalOpen(false)} 
-                  className="w-full sm:flex-1 py-4 md:py-5 bg-slate-100 text-slate-700 font-bold rounded-xl md:rounded-[1.5rem] hover:bg-slate-200 transition-all text-base md:text-lg"
+                  className="w-full sm:flex-1 py-3 md:py-4 bg-slate-100 text-slate-700 font-bold rounded-xl md:rounded-2xl hover:bg-slate-200 transition-all text-sm"
                 >
                   Batalkan
                 </button>
                 <button 
                   type="submit" 
                   disabled={isSubmitting} 
-                  className="w-full sm:flex-[2] bg-primary text-white py-4 md:py-5 rounded-xl md:rounded-[1.5rem] font-bold text-lg md:text-xl shadow-xl shadow-primary/20 hover:bg-primary-hover transition-all flex items-center justify-center gap-2 md:gap-3"
+                  className="w-full sm:flex-[2] bg-primary text-white py-3 md:py-4 rounded-xl md:rounded-2xl font-bold text-base shadow-xl shadow-primary/20 hover:bg-primary-hover transition-all flex items-center justify-center gap-2"
                 >
-                  {isSubmitting ? <Loader2 className="w-6 h-6 md:w-7 md:h-7 animate-spin" /> : <Check className="w-6 h-6 md:w-7 md:h-7" />}
+                  {isSubmitting ? <Loader2 className="w-5 h-5 animate-spin" /> : <Check className="w-5 h-5" />}
                   Simpan Data Warga
                 </button>
               </div>
