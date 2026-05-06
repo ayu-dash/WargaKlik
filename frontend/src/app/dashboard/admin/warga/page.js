@@ -392,37 +392,37 @@ export default function AdminWarga() {
 
       {/* Modal - Friendly Style */}
       {isModalOpen && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 md:p-6 bg-slate-900/60 backdrop-blur-sm">
-          <div className="bg-white rounded-[2rem] md:rounded-[2.5rem] w-full max-w-xl p-6 md:p-8 shadow-2xl animate-in fade-in zoom-in duration-300 overflow-y-auto max-h-[90vh]">
-            <div className="flex justify-between items-center mb-4 md:mb-6 pb-3 md:pb-4 border-b border-slate-100">
-              <h3 className="font-bold text-xl md:text-3xl text-slate-900 tracking-tight flex items-center gap-3 md:gap-4">
-                {editingId ? <Edit className="w-7 h-7 md:w-10 md:h-10 text-primary" /> : <UserPlus className="w-7 h-7 md:w-10 md:h-10 text-primary" />}
-                {editingId ? 'Edit Data Warga' : 'Tambah Warga'}
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
+          <div className="bg-white rounded-[2rem] w-full max-w-2xl p-6 md:p-7 shadow-2xl animate-in fade-in zoom-in duration-300">
+            <div className="flex justify-between items-center mb-5 pb-3 border-b border-slate-100">
+              <h3 className="font-bold text-xl md:text-2xl text-slate-900 tracking-tight flex items-center gap-3">
+                {editingId ? <Edit className="w-6 h-6 text-primary" /> : <UserPlus className="w-6 h-6 text-primary" />}
+                {editingId ? 'Edit Data Warga' : 'Tambah Warga Baru'}
               </h3>
-              <button onClick={() => setIsModalOpen(false)} className="w-10 h-10 md:w-12 md:h-12 bg-slate-100 rounded-full flex items-center justify-center text-slate-400 hover:text-slate-900 transition-colors">
-                <X className="w-5 h-5 md:w-7 md:h-7" />
+              <button onClick={() => setIsModalOpen(false)} className="w-8 h-8 bg-slate-100 rounded-full flex items-center justify-center text-slate-400 hover:text-slate-900 transition-colors">
+                <X className="w-5 h-5" />
               </button>
             </div>
             
-            <form onSubmit={handleSave} className="space-y-6 md:space-y-10">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
-                <div className="space-y-2 md:space-y-3">
-                  <label className="block text-xs md:text-sm font-bold text-slate-700 ml-1">Nomor Rumah (Blok)</label>
+            <form onSubmit={handleSave} className="space-y-5">
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-1.5">
+                  <label className="block text-xs font-bold text-slate-600 ml-1">Nomor Rumah (Blok)</label>
                   <input 
                     type="text" 
                     required 
-                    className="w-full bg-slate-50 border border-slate-200 p-4 md:p-5 text-slate-900 font-black text-lg md:text-xl outline-none focus:border-primary rounded-xl md:rounded-[1.5rem]"
-                    placeholder="Contoh: A-01" 
+                    className="w-full bg-slate-50 border border-slate-200 px-4 py-3 text-slate-900 font-black text-lg outline-none focus:border-primary rounded-xl uppercase"
+                    placeholder="A-01" 
                     value={formData.no_rumah} 
-                    onChange={e => setFormData({...formData, no_rumah: e.target.value})} 
+                    onChange={e => setFormData({...formData, no_rumah: e.target.value.toUpperCase()})} 
                   />
                 </div>
-                <div className="space-y-2 md:space-y-3">
-                  <label className="block text-xs md:text-sm font-bold text-slate-700 ml-1">Nama Kepala Keluarga</label>
+                <div className="space-y-1.5">
+                  <label className="block text-xs font-bold text-slate-600 ml-1">Nama Kepala Keluarga</label>
                   <input 
                     type="text" 
                     required 
-                    className="w-full bg-slate-50 border border-slate-200 p-4 md:p-5 text-slate-900 font-bold text-base md:text-lg outline-none focus:border-primary rounded-xl md:rounded-[1.5rem]"
+                    className="w-full bg-slate-50 border border-slate-200 px-4 py-3 text-slate-900 font-bold text-sm outline-none focus:border-primary rounded-xl"
                     placeholder="Nama Lengkap KK" 
                     value={formData.kepala_keluarga} 
                     onChange={e => setFormData({...formData, kepala_keluarga: e.target.value})} 
@@ -430,25 +430,25 @@ export default function AdminWarga() {
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
-                <div className="space-y-2 md:space-y-3">
-                  <label className="block text-xs md:text-sm font-bold text-slate-700 ml-1">Status Rumah</label>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-1.5">
+                  <label className="block text-xs font-bold text-slate-600 ml-1">Status Rumah</label>
                   <select 
-                    className="w-full bg-slate-50 border border-slate-200 p-4 md:p-5 text-slate-900 font-bold text-base md:text-lg outline-none focus:border-primary rounded-xl md:rounded-[1.5rem] appearance-none cursor-pointer"
+                    className="w-full bg-slate-50 border border-slate-200 px-4 py-3 text-slate-900 font-bold text-sm outline-none focus:border-primary rounded-xl appearance-none cursor-pointer"
                     value={formData.status_rumah}
                     onChange={e => setFormData({...formData, status_rumah: e.target.value})}
                   >
                     <option value="tetap">Rumah Tetap (Milik)</option>
                     <option value="kontrak">Kontrak / Sewa</option>
-                    <option value="kosong">Kosong (Tidak Berpenghuni)</option>
+                    <option value="kosong">Kosong</option>
                   </select>
                 </div>
-                <div className="space-y-2 md:space-y-3">
-                  <label className="block text-xs md:text-sm font-bold text-slate-700 ml-1">Jumlah Anggota Keluarga</label>
+                <div className="space-y-1.5">
+                  <label className="block text-xs font-bold text-slate-600 ml-1">Jumlah Anggota Keluarga</label>
                   <input 
                     type="number" 
                     min="1"
-                    className="w-full bg-slate-50 border border-slate-200 p-4 md:p-5 text-slate-900 font-bold text-base md:text-lg outline-none focus:border-primary rounded-xl md:rounded-[1.5rem]"
+                    className="w-full bg-slate-50 border border-slate-200 px-4 py-3 text-slate-900 font-bold text-sm outline-none focus:border-primary rounded-xl"
                     value={formData.jumlah_anggota} 
                     onChange={e => setFormData({...formData, jumlah_anggota: parseInt(e.target.value)})} 
                   />
@@ -456,10 +456,10 @@ export default function AdminWarga() {
               </div>
 
               {editingId && (
-                <div className="space-y-2 md:space-y-3">
-                  <label className="block text-xs md:text-sm font-bold text-slate-700 ml-1">Status Keaktifan</label>
+                <div className="space-y-1.5">
+                  <label className="block text-xs font-bold text-slate-600 ml-1">Status Keaktifan</label>
                   <select 
-                    className="w-full bg-slate-50 border border-slate-200 p-4 md:p-5 text-slate-900 font-bold text-base md:text-lg outline-none focus:border-primary rounded-xl md:rounded-[1.5rem] appearance-none cursor-pointer"
+                    className="w-full bg-slate-50 border border-slate-200 px-4 py-3 text-slate-900 font-bold text-sm outline-none focus:border-primary rounded-xl appearance-none cursor-pointer"
                     value={formData.status}
                     onChange={e => setFormData({...formData, status: e.target.value})}
                   >
@@ -469,72 +469,62 @@ export default function AdminWarga() {
                 </div>
               )}
 
-              <div className="space-y-6 pt-6 border-t border-slate-100">
-                <div className="flex items-center gap-3 mb-4">
-                   <div className="w-7 h-7 md:w-8 md:h-8 rounded-full bg-blue-50 flex items-center justify-center">
-                      <ShieldCheck className="w-3.5 h-3.5 md:w-4 md:h-4 text-blue-600" />
-                   </div>
-                   <h4 className="text-[10px] md:text-xs font-black text-slate-400 uppercase tracking-[0.2em]">Data Akun & Akses</h4>
+              <div className="space-y-4 pt-4 border-t border-slate-100">
+                <div className="flex items-center gap-2 mb-1">
+                   <ShieldCheck className="w-4 h-4 text-primary" />
+                   <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Akun & Kontak</h4>
                 </div>
                 
-                <div className="space-y-4">
-                  <div className="space-y-1">
-                    <label className="block text-xs md:text-sm font-bold text-slate-700 ml-1">Nama Lengkap Pengguna</label>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-1.5 col-span-2">
+                    <label className="block text-xs font-bold text-slate-600 ml-1">Nama Lengkap Pengguna</label>
                     <input 
                       type="text" 
                       required 
-                      className="w-full bg-slate-50 border border-slate-200 p-3 md:p-4 text-slate-700 font-bold outline-none focus:border-primary rounded-xl md:rounded-2xl text-sm md:text-base"
-                      placeholder="Gunakan nama asli" 
+                      className="w-full bg-slate-50 border border-slate-200 px-4 py-2.5 text-slate-700 font-bold outline-none focus:border-primary rounded-xl text-sm"
+                      placeholder="Nama asli sesuai KTP" 
                       value={formData.name} 
                       onChange={e => setFormData({...formData, name: e.target.value})} 
                     />
                   </div>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
-                    <div className="space-y-1">
-                      <label className="block text-xs md:text-sm font-bold text-slate-700 ml-1">Alamat Email</label>
-                      <input 
-                        type="email" 
-                        required 
-                        className="w-full bg-slate-50 border border-slate-200 p-3 md:p-4 text-slate-700 font-bold outline-none focus:border-primary rounded-xl md:rounded-2xl text-sm md:text-base"
-                        placeholder="email@warga.com" 
-                        value={formData.email} 
-                        onChange={e => setFormData({...formData, email: e.target.value})} 
-                      />
-                    </div>
-                    <div className="space-y-1">
-                      <label className="block text-xs md:text-sm font-bold text-slate-700 ml-1">Nomor WhatsApp</label>
-                      <input 
-                        type="text" 
-                        className="w-full bg-slate-50 border border-slate-200 p-3 md:p-4 text-slate-700 font-bold outline-none focus:border-primary rounded-xl md:rounded-2xl text-sm md:text-base"
-                        placeholder="08123456789" 
-                        value={formData.no_telepon} 
-                        onChange={e => setFormData({...formData, no_telepon: e.target.value})} 
-                      />
-                    </div>
+                  <div className="space-y-1.5">
+                    <label className="block text-xs font-bold text-slate-600 ml-1">Email</label>
+                    <input 
+                      type="email" 
+                      required 
+                      className="w-full bg-slate-50 border border-slate-200 px-4 py-2.5 text-slate-700 font-bold outline-none focus:border-primary rounded-xl text-sm"
+                      placeholder="email@warga.com" 
+                      value={formData.email} 
+                      onChange={e => setFormData({...formData, email: e.target.value})} 
+                    />
                   </div>
-                </div>
-                <div className="p-3 md:p-4 bg-amber-50 rounded-xl md:rounded-2xl border border-amber-100 flex gap-3">
-                   <AlertCircle className="w-5 h-5 text-amber-600 shrink-0 mt-0.5" />
-                   <p className="text-[11px] md:text-sm font-medium text-amber-700 leading-relaxed">
-                     Warga yang ditambahkan harus melakukan <strong className="font-black">Aktivasi Akun</strong> menggunakan email atau nomor WhatsApp untuk mengatur kata sandi mereka sebelum login.
-                   </p>
+                  <div className="space-y-1.5">
+                    <label className="block text-xs font-bold text-slate-600 ml-1">WhatsApp</label>
+                    <input 
+                      type="text" 
+                      className="w-full bg-slate-50 border border-slate-200 px-4 py-2.5 text-slate-700 font-bold outline-none focus:border-primary rounded-xl text-sm"
+                      placeholder="08123456789" 
+                      value={formData.no_telepon} 
+                      onChange={e => setFormData({...formData, no_telepon: e.target.value})} 
+                    />
+                  </div>
                 </div>
               </div>
 
-              <div className="pt-2 md:pt-4 flex flex-col-reverse sm:flex-row gap-3">
+              <div className="flex gap-3 pt-2">
                 <button 
                   type="button" 
                   onClick={() => setIsModalOpen(false)} 
-                  className="w-full sm:flex-1 py-3 md:py-4 bg-slate-100 text-slate-700 font-bold rounded-xl md:rounded-2xl hover:bg-slate-200 transition-all text-sm"
+                  className="flex-1 py-3 bg-slate-100 text-slate-700 font-bold rounded-xl hover:bg-slate-200 transition-all text-sm"
                 >
-                  Batalkan
+                  Batal
                 </button>
                 <button 
                   type="submit" 
                   disabled={isSubmitting} 
-                  className="w-full sm:flex-[2] bg-primary text-white py-3 md:py-4 rounded-xl md:rounded-2xl font-bold text-base shadow-xl shadow-primary/20 hover:bg-primary-hover transition-all flex items-center justify-center gap-2"
+                  className="flex-[2] bg-primary text-white py-3 rounded-xl font-bold text-sm shadow-xl shadow-primary/20 hover:bg-primary-hover transition-all flex items-center justify-center gap-2"
                 >
-                  {isSubmitting ? <Loader2 className="w-5 h-5 animate-spin" /> : <Check className="w-5 h-5" />}
+                  {isSubmitting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Check className="w-4 h-4" />}
                   {editingId ? 'Simpan Perubahan' : 'Simpan Data Warga'}
                 </button>
               </div>
