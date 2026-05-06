@@ -255,10 +255,24 @@ export default function TagihanList() {
         ) : (
           <div className="bg-white border border-dashed border-slate-200 p-12 md:p-20 text-center rounded-3xl md:rounded-[3rem] flex flex-col items-center">
             <div className="w-16 h-16 md:w-24 md:h-24 bg-slate-50 rounded-full flex items-center justify-center mb-6 shadow-inner">
-              <ShieldCheck className="w-8 h-8 md:w-12 md:h-12 text-slate-300" />
+              {statusFilter === 'lunas' ? (
+                <Receipt className="w-8 h-8 md:w-12 md:h-12 text-slate-300" />
+              ) : statusFilter === 'belum_bayar' ? (
+                <ShieldCheck className="w-8 h-8 md:w-12 md:h-12 text-primary/40" />
+              ) : (
+                <Receipt className="w-8 h-8 md:w-12 md:h-12 text-slate-200" />
+              )}
             </div>
-            <h3 className="text-xl md:text-2xl font-black text-slate-900 mb-2">Semua Aman!</h3>
-            <p className="text-sm md:text-base text-slate-500 font-medium max-w-sm">Anda tidak memiliki tagihan yang perlu dibayar saat ini. Terima kasih atas partisipasi Anda!</p>
+            <h3 className="text-xl md:text-2xl font-black text-slate-900 mb-2">
+              {statusFilter === 'lunas' ? 'Belum Ada Pelunasan' : 
+               statusFilter === 'belum_bayar' ? 'Semua Terbayar!' : 
+               'Belum Ada Tagihan'}
+            </h3>
+            <p className="text-sm md:text-base text-slate-500 font-medium max-w-sm">
+              {statusFilter === 'lunas' ? 'Anda belum memiliki riwayat tagihan yang sudah lunas.' :
+               statusFilter === 'belum_bayar' ? 'Hebat! Semua tagihan Anda sudah terlunasi dengan baik.' :
+               'Data tagihan Anda belum tersedia atau sedang dalam proses pembuatan.'}
+            </p>
           </div>
         )}
       </div>
