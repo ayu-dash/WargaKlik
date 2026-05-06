@@ -24,6 +24,7 @@ export default function AdminWarga() {
     no_telepon: ''
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [editingId, setEditingId] = useState(null);
 
   // Delete confirmation state
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
@@ -47,27 +48,57 @@ export default function AdminWarga() {
     }
   };
 
-  const handleCreate = async (e) => {
+  const handleSave = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
     try {
-      await api.post('/warga', {
+      const payload = {
         name: formData.name,
         email: formData.email,
         no_telepon: formData.no_telepon,
         no_rumah: formData.no_rumah,
         kepala_keluarga: formData.kepala_keluarga,
-      });
+      };
+
+      if (editingId) {
+        await api.put(`/warga/${editingId}`, payload);
+        toast.success('Data warga berhasil diperbarui');
+      } else {
+        await api.post('/warga', payload);
+        toast.success('Data warga berhasil ditambahkan');
+      }
       
-      toast.success('Data warga berhasil ditambahkan');
       setIsModalOpen(false);
       fetchWarga();
-      setFormData({ no_rumah: '', kepala_keluarga: '', status: 'aktif', name: '', email: '', no_telepon: '' });
+      resetForm();
     } catch (err) {
-      toast.error(err.message || 'Gagal menambahkan warga');
+      toast.error(err.response?.data?.message || 'Gagal menyimpan data warga');
     } finally {
       setIsSubmitting(false);
     }
+  };
+
+  const resetForm = () => {
+    setFormData({ no_rumah: '', kepala_keluarga: '', status: 'aktif', name: '', email: '', no_telepon: '' });
+    setEditingId(null);
+  };
+
+  const openCreateModal = () => {
+    resetForm();
+    setIsModalOpen(true);
+  };
+
+  const openEditModal = (item) => {
+    setEditingId(item.id);
+    setFormData({
+      no_rumah: item.no_rumah,
+      kepala_keluarga: item.kepala_keluarga,
+      status: item.status,
+      name: item.user?.name || '',
+      email: item.user?.email || '',
+      no_telepon: item.no_telepon || ''
+    });
+    setIsModalOpen(true);
   };
 
   const confirmDelete = (id) => {
@@ -127,7 +158,7 @@ export default function AdminWarga() {
             </div>
             {hasRole(['rt', 'wakil_rt', 'sekretaris']) && (
               <button 
-                onClick={() => setIsModalOpen(true)}
+                onClick={openCreateModal}
                 className="w-full sm:w-auto bg-primary text-white px-6 md:px-8 py-3.5 md:py-4.5 font-bold rounded-xl md:rounded-[1.5rem] shadow-xl shadow-primary/20 hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-2 md:gap-3 whitespace-nowrap text-sm md:text-base"
               >
                 <UserPlus className="w-5 h-5 md:w-6 md:h-6" />
@@ -185,9 +216,11 @@ export default function AdminWarga() {
                           </Link>
                         {hasRole(['rt', 'wakil_rt', 'sekretaris']) && (
                           <>
-                            <button className="w-9 h-9 flex items-center justify-center bg-slate-50 text-slate-400 rounded-xl hover:bg-blue-600 hover:text-white transition-all shadow-sm">
-                              <Edit className="w-4 h-4" />
-                            </button>
+                             <button 
+                               onClick={() => openEditModal(item)}
+                               className="w-9 h-9 flex items-center justify-center bg-slate-50 text-slate-400 rounded-xl hover:bg-blue-600 hover:text-white transition-all shadow-sm">
+                               <Edit className="w-4 h-4" />
+                             </button>
                             <button 
                               onClick={() => confirmDelete(item.id)}
                               className="w-9 h-9 flex items-center justify-center bg-slate-50 text-slate-400 rounded-xl hover:bg-danger hover:text-white transition-all shadow-sm">
@@ -265,9 +298,11 @@ export default function AdminWarga() {
                               </Link>
                               {hasRole(['rt', 'wakil_rt', 'sekretaris']) && (
                                 <>
-                                  <button className="w-12 h-12 flex items-center justify-center bg-slate-100 text-slate-500 rounded-2xl hover:bg-blue-600 hover:text-white transition-all shadow-sm">
-                                    <Edit className="w-5 h-5" />
-                                  </button>
+                                   <button 
+                                     onClick={() => openEditModal(item)}
+                                     className="w-12 h-12 flex items-center justify-center bg-slate-100 text-slate-500 rounded-2xl hover:bg-blue-600 hover:text-white transition-all shadow-sm">
+                                     <Edit className="w-5 h-5" />
+                                   </button>
                                   <button 
                                     onClick={() => confirmDelete(item.id)}
                                     className="w-12 h-12 flex items-center justify-center bg-slate-100 text-slate-500 rounded-2xl hover:bg-danger hover:text-white transition-all shadow-sm">
@@ -301,14 +336,15 @@ export default function AdminWarga() {
           <div className="bg-white rounded-[2rem] md:rounded-[2.5rem] w-full max-w-xl p-6 md:p-8 shadow-2xl animate-in fade-in zoom-in duration-300 overflow-y-auto max-h-[90vh]">
             <div className="flex justify-between items-center mb-4 md:mb-6 pb-3 md:pb-4 border-b border-slate-100">
               <h3 className="font-bold text-xl md:text-3xl text-slate-900 tracking-tight flex items-center gap-3 md:gap-4">
-                <UserPlus className="w-7 h-7 md:w-10 md:h-10 text-primary" /> Tambah Warga
+                {editingId ? <Edit className="w-7 h-7 md:w-10 md:h-10 text-primary" /> : <UserPlus className="w-7 h-7 md:w-10 md:h-10 text-primary" />}
+                {editingId ? 'Edit Data Warga' : 'Tambah Warga'}
               </h3>
               <button onClick={() => setIsModalOpen(false)} className="w-10 h-10 md:w-12 md:h-12 bg-slate-100 rounded-full flex items-center justify-center text-slate-400 hover:text-slate-900 transition-colors">
                 <X className="w-5 h-5 md:w-7 md:h-7" />
               </button>
             </div>
             
-            <form onSubmit={handleCreate} className="space-y-6 md:space-y-10">
+            <form onSubmit={handleSave} className="space-y-6 md:space-y-10">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
                 <div className="space-y-2 md:space-y-3">
                   <label className="block text-xs md:text-sm font-bold text-slate-700 ml-1">Nomor Rumah (Blok)</label>
@@ -400,7 +436,7 @@ export default function AdminWarga() {
                   className="w-full sm:flex-[2] bg-primary text-white py-3 md:py-4 rounded-xl md:rounded-2xl font-bold text-base shadow-xl shadow-primary/20 hover:bg-primary-hover transition-all flex items-center justify-center gap-2"
                 >
                   {isSubmitting ? <Loader2 className="w-5 h-5 animate-spin" /> : <Check className="w-5 h-5" />}
-                  Simpan Data Warga
+                  {editingId ? 'Simpan Perubahan' : 'Simpan Data Warga'}
                 </button>
               </div>
             </form>
