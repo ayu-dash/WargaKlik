@@ -35,7 +35,7 @@ const getAllTagihan = async (req, res) => {
         { 
           model: Warga, 
           as: 'warga',
-          attributes: ['id', 'no_rumah', 'kepala_keluarga']
+          attributes: ['id', 'no_rumah', 'kepala_keluarga', 'is_active']
         },
         {
           model: Pembayaran,

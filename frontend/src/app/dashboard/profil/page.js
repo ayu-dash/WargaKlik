@@ -22,6 +22,7 @@ export default function ProfilPage() {
   // Profile edit
   const [editData, setEditData] = useState({
     name: '',
+    email: '',
     no_telepon: ''
   });
   const [savingProfile, setSavingProfile] = useState(false);
@@ -36,6 +37,7 @@ export default function ProfilPage() {
       if (res.data.success) {
         setEditData({
           name: res.data.data.name || '',
+          email: res.data.data.email || '',
           no_telepon: res.data.data.no_telepon || ''
         });
       }
@@ -173,18 +175,18 @@ export default function ProfilPage() {
                 </div>
                 <div className="space-y-2 md:space-y-3">
                   <label className="block text-[10px] md:text-sm font-black text-slate-400 uppercase tracking-widest ml-1">Alamat Email</label>
-                  <div className="relative opacity-60">
+                  <div className="relative group">
                     <div className="absolute inset-y-0 left-4 md:left-5 flex items-center pointer-events-none">
-                      <Mail className="h-4.5 w-4.5 md:h-5 md:w-5 text-slate-400" />
+                      <Mail className="h-4.5 w-4.5 md:h-5 md:w-5 text-slate-400 group-focus-within:text-primary transition-colors" />
                     </div>
                     <input 
                       type="email" 
-                      className="w-full bg-slate-100 border border-slate-200 py-3.5 md:py-5 pl-12 md:pl-14 pr-4 md:pr-6 text-slate-500 font-bold text-base md:text-lg rounded-xl md:rounded-2xl cursor-not-allowed" 
-                      value={user?.email || ''} 
-                      disabled 
+                      className="w-full bg-slate-50 border border-slate-200 py-3.5 md:py-5 pl-12 md:pl-14 pr-4 md:pr-6 text-slate-900 font-bold text-base md:text-lg focus:border-primary transition-all rounded-xl md:rounded-2xl outline-none" 
+                      value={editData.email}
+                      onChange={e => setEditData({...editData, email: e.target.value})} 
                     />
                   </div>
-                  <p className="text-[10px] md:text-xs text-slate-400 font-medium ml-1">Email adalah identitas masuk dan tidak dapat diubah.</p>
+                  <p className="text-[10px] md:text-xs text-slate-400 font-medium ml-1">Perhatian: Mengubah email akan mengubah ID masuk (login) Anda selanjutnya.</p>
                 </div>
               </div>
 

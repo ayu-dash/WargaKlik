@@ -1,4 +1,5 @@
-const { Warga, User, WargaIuran } = require('../models');
+const { Warga, User, WargaIuran, Tagihan } = require('../models');
+const sequelize = require('../config/database');
 const { success, error, paginate } = require('../utils/response');
 const bcrypt = require('bcryptjs');
 
@@ -14,6 +15,19 @@ const getAllWarga = async (req, res) => {
     const { count, rows } = await Warga.findAndCountAll({
       limit,
       offset,
+      attributes: {
+        include: [
+          [
+            sequelize.literal(`(
+              SELECT COUNT(*)
+              FROM tagihan AS t
+              WHERE t.warga_id = Warga.id
+              AND t.status = 'belum_bayar'
+            )`),
+            'unpaid_count'
+          ]
+        ]
+      },
       include: [
         {
           model: User,
@@ -124,10 +138,15 @@ const updateWarga = async (req, res) => {
 
     // Update User
     if (warga.user) {
-      await warga.user.update({
-        name: name || warga.user.name,
-        no_telepon: no_telepon || warga.user.no_telepon
-      });
+      const userUpdate = {};
+      if (name) userUpdate.name = name;
+      if (no_telepon !== undefined) userUpdate.no_telepon = no_telepon;
+      if (email && email !== warga.user.email) {
+        const existing = await User.findOne({ where: { email } });
+        if (existing) return error(res, 'Email sudah digunakan oleh akun lain', 400);
+        userUpdate.email = email;
+      }
+      await warga.user.update(userUpdate);
     }
 
     // Update Warga
@@ -155,11 +174,24 @@ const deleteWarga = async (req, res) => {
     const warga = await Warga.findByPk(req.params.id);
     if (!warga) return error(res, 'Warga tidak ditemukan', 404);
 
+    // Check for outstanding bills
+    const outstandingBills = await Tagihan.count({
+      where: {
+        warga_id: warga.id,
+        status: 'belum_bayar'
+      }
+    });
+
+    if (outstandingBills > 0) {
+      return error(res, `Warga ini memiliki ${outstandingBills} tagihan yang belum lunas. Data tidak dapat dihapus sampai semua tunggakan diselesaikan.`, 400);
+    }
+
     // Soft delete via is_active
     await warga.update({ is_active: false });
 
     return success(res, null, 'Warga berhasil dinonaktifkan');
   } catch (err) {
+    console.error('Delete warga error:', err);
     return error(res, 'Gagal menghapus warga', 500);
   }
 };

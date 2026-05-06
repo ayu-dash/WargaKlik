@@ -249,9 +249,14 @@ const changePassword = async (req, res) => {
  */
 const updateProfile = async (req, res) => {
   try {
-    const { name, no_telepon } = req.body;
+    const { name, no_telepon, email } = req.body;
     const user = await User.findByPk(req.user.id);
 
+    if (email && email !== user.email) {
+      const existing = await User.findOne({ where: { email } });
+      if (existing) return error(res, 'Email sudah digunakan oleh akun lain', 400);
+      user.email = email;
+    }
     if (name) user.name = name;
     if (no_telepon !== undefined) user.no_telepon = no_telepon;
     await user.save();
