@@ -11,7 +11,6 @@ const ROLES = {
 
 const TAGIHAN_STATUS = {
   BELUM_BAYAR: 'belum_bayar',
-  SEBAGIAN: 'sebagian',
   LUNAS: 'lunas'
 };
 

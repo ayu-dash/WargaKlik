@@ -37,7 +37,7 @@ const Tagihan = sequelize.define('Tagihan', {
     defaultValue: 0
   },
   status: {
-    type: DataTypes.ENUM('belum_bayar', 'sebagian', 'lunas'),
+    type: DataTypes.ENUM('belum_bayar', 'lunas'),
     defaultValue: 'belum_bayar'
   }
 }, {

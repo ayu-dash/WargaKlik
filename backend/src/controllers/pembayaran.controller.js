@@ -107,7 +107,7 @@ const createMidtransTransaction = async (req, res) => {
         id: `TAGIHAN-${tagihan.id}`,
         price: amount,
         quantity: 1,
-        name: `Iuran RT ${tagihan.bulan}/${tagihan.tahun} ${tagihan.status === 'sebagian' ? '(Sisa)' : ''}`
+        name: `Iuran RT ${tagihan.bulan}/${tagihan.tahun}`
       });
     }
 
@@ -257,8 +257,6 @@ const createManualPayment = async (req, res) => {
 
         if (toPay >= parseFloat(tagihan.total_nominal)) {
           await tagihan.update({ status: 'lunas' }, { transaction: t });
-        } else {
-          await tagihan.update({ status: 'sebagian' }, { transaction: t });
         }
 
         await KasHarian.create({

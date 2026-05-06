@@ -113,15 +113,12 @@ export default function TagihanList() {
       setIsPaying(false);
     }
   };
-
   const getStatusBadge = (status) => {
     switch (status) {
       case 'lunas':
-        return <span className="inline-flex items-center gap-1 bg-emerald-50 text-primary px-3 py-1.5 md:px-4 md:py-2 rounded-full text-[9px] md:text-[10px] font-black uppercase tracking-widest border border-emerald-100"><CheckCircle2 className="w-3 md:w-3.5 h-3 md:h-3.5" /> Lunas</span>;
+        return <span className="inline-flex items-center gap-1 bg-emerald-50 text-primary px-3 py-1.5 md:px-4 md:py-2 rounded-full text-[9px] md:text-[10px] font-black uppercase tracking-widest border border-emerald-100"><CheckCircle2 className="w-3 md:w-3.5 h-3 md:h-3.5" /> Sudah Lunas</span>;
       case 'belum_bayar':
         return <span className="inline-flex items-center gap-1 bg-red-50 text-danger px-3 py-1.5 md:px-4 md:py-2 rounded-full text-[9px] md:text-[10px] font-black uppercase tracking-widest border border-red-100"><AlertCircle className="w-3 md:w-3.5 h-3 md:h-3.5" /> Belum Bayar</span>;
-      case 'sebagian':
-        return <span className="inline-flex items-center gap-1 bg-amber-50 text-amber-700 px-3 py-1.5 md:px-4 md:py-2 rounded-full text-[9px] md:text-[10px] font-black uppercase tracking-widest border border-amber-100"><Clock className="w-3 md:w-3.5 h-3 md:h-3.5" /> Sebagian</span>;
       default:
         return <span className="bg-slate-100 text-slate-500 px-3 py-1.5 md:px-4 md:py-2 rounded-full text-[9px] md:text-[10px] font-black uppercase tracking-widest">{status}</span>;
     }
@@ -178,7 +175,6 @@ export default function TagihanList() {
               >
                 <option value="all">Semua Tagihan</option>
                 <option value="belum_bayar">Belum Lunas</option>
-                <option value="sebagian">Terbayar Sebagian</option>
                 <option value="lunas">Sudah Lunas</option>
               </select>
             </div>
@@ -227,10 +223,7 @@ export default function TagihanList() {
                       </div>
                     )}
 
-                    <div className={`w-12 h-12 md:w-16 md:h-16 rounded-xl md:rounded-[1.2rem] flex items-center justify-center shadow-md transition-transform group-hover:scale-110 shrink-0 ${item.status === 'lunas' ? 'bg-emerald-50 text-primary' :
-                      item.status === 'belum_bayar' ? 'bg-red-50 text-danger' :
-                        'bg-amber-50 text-amber-600'
-                      }`}>
+                    <div className={`w-12 h-12 md:w-16 md:h-16 rounded-xl md:rounded-[1.2rem] flex items-center justify-center shadow-md transition-transform group-hover:scale-110 shrink-0 ${item.status === 'lunas' ? 'bg-emerald-50 text-primary' : 'bg-red-50 text-danger'}`}>
                       <Receipt className="w-6 h-6 md:w-8 md:h-8" />
                     </div>
 
@@ -239,12 +232,7 @@ export default function TagihanList() {
                         Iuran {getBulanName(item.bulan)} {item.tahun}
                       </h3>
                       <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-4">
-                        <div className="flex flex-col">
-                          <span className="font-black text-primary text-base md:text-lg">{formatRupiah(remaining)}</span>
-                          {item.status === 'sebagian' && (
-                            <span className="text-[10px] font-bold text-slate-400">Total: {formatRupiah(item.total_nominal)}</span>
-                          )}
-                        </div>
+                        <span className="font-black text-primary text-base md:text-lg">{formatRupiah(remaining)}</span>
                         <div className="flex items-center gap-1 text-[10px] md:text-xs font-bold text-slate-400">
                           <Calendar className="w-3 h-3 md:w-3.5 md:h-3.5" />
                           <span className="hidden xs:inline">Jatuh Tempo:</span> 10 {getBulanName(item.bulan)} {item.tahun}

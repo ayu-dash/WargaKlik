@@ -53,7 +53,7 @@ export default function DashboardHome() {
       try {
         if (hasRole('warga')) {
           const [tagihanRes, pengumumanRes] = await Promise.all([
-            api.get('/tagihan?status=belum_bayar,sebagian'),
+            api.get('/tagihan?status=belum_bayar'),
             api.get('/pengumuman?limit=3')
           ]);
           
@@ -80,7 +80,7 @@ export default function DashboardHome() {
           const [kasRes, wargaRes, tagihanRes, statsRes] = await Promise.all([
             api.get('/kas?limit=1'),
             api.get('/warga?status=aktif'),
-            api.get('/tagihan?status=belum_bayar,sebagian'),
+            api.get('/tagihan?status=belum_bayar'),
             api.get('/kas/stats')
           ]);
 
