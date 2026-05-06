@@ -60,7 +60,7 @@ export default function TagihanDetail() {
     setIsPaying(true);
     try {
       const res = await api.post('/pembayaran/midtrans/snap', {
-        tagihan_id: tagihan.id
+        tagihan_ids: [tagihan.id]
       });
       
       if (res.data.success) {

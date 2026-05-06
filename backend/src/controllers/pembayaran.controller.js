@@ -55,8 +55,9 @@ const getAllPembayaran = async (req, res) => {
  */
 const createMidtransTransaction = async (req, res) => {
   try {
-    const { tagihan_ids } = req.body; // Can be a single ID or an array
-    const ids = Array.isArray(tagihan_ids) ? tagihan_ids : [tagihan_ids];
+    const { tagihan_ids, tagihan_id } = req.body;
+    const rawIds = tagihan_ids || tagihan_id;
+    const ids = Array.isArray(rawIds) ? rawIds : [rawIds];
     
     if (!ids || ids.length === 0) return error(res, 'Tagihan ID tidak boleh kosong', 400);
 

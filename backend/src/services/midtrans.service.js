@@ -19,7 +19,7 @@ const createTransaction = async (orderId, grossAmount, customerDetails, itemDeta
 
   const transaction = await snap.createTransaction(parameter);
   return {
-    snap_token: transaction.token,
+    token: transaction.token,
     redirect_url: transaction.redirect_url
   };
 };

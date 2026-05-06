@@ -232,7 +232,7 @@ export default function TagihanList() {
                         Iuran {getBulanName(item.bulan)} {item.tahun}
                       </h3>
                       <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-4">
-                        <span className="font-black text-primary text-base md:text-lg">{formatRupiah(remaining)}</span>
+                        <span className="font-black text-primary text-base md:text-lg">{formatRupiah(item.total_nominal)}</span>
                         <div className="flex items-center gap-1 text-[10px] md:text-xs font-bold text-slate-400">
                           <Calendar className="w-3 h-3 md:w-3.5 md:h-3.5" />
                           <span className="hidden xs:inline">Jatuh Tempo:</span> 10 {getBulanName(item.bulan)} {item.tahun}
