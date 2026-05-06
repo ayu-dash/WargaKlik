@@ -109,6 +109,11 @@ export default function DetailTagihanWarga({ params }) {
 
   const handleSubmitPembayaran = async (e) => {
     e.preventDefault();
+    if (!selectedTagihan.length) {
+      toast.error('Pilih minimal satu tagihan untuk dibayar');
+      return;
+    }
+
     try {
       setIsSubmitting(true);
       const ids = selectedTagihan.map(t => t.id);

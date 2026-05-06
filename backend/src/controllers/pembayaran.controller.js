@@ -215,10 +215,22 @@ const midtransWebhook = async (req, res) => {
  */
 const createManualPayment = async (req, res) => {
   try {
-    const { tagihan_ids, jumlah_bayar, tanggal_bayar, catatan } = req.body;
+    let { tagihan_ids, jumlah_bayar, tanggal_bayar, catatan } = req.body;
+    
+    if (!tanggal_bayar) {
+      tanggal_bayar = new Date().toISOString().split('T')[0];
+    } else {
+      try {
+        tanggal_bayar = new Date(tanggal_bayar).toISOString().split('T')[0];
+      } catch (e) {
+        tanggal_bayar = new Date().toISOString().split('T')[0];
+      }
+    }
+
     const ids = Array.isArray(tagihan_ids) ? tagihan_ids : [tagihan_ids];
     
-    if (!ids || ids.length === 0) return error(res, 'Tagihan ID wajib diisi', 400);
+    if (!ids || ids.length === 0) return error(res, 'Pilih minimal satu tagihan untuk dibayar', 400);
+    if (!jumlah_bayar || parseFloat(jumlah_bayar) <= 0) return error(res, 'Jumlah bayar tidak valid', 400);
 
     let bukti_url = null;
     if (req.file) {
@@ -244,6 +256,7 @@ const createManualPayment = async (req, res) => {
 
         const toPay = Math.min(remainingPayment, parseFloat(tagihan.total_nominal));
         
+        console.log(`Processing payment for tagihan ${tagihan.id}: ${toPay}`);
         const pembayaran = await Pembayaran.create({
           tagihan_id: tagihan.id,
           dicatat_oleh: req.user.id,
@@ -252,7 +265,7 @@ const createManualPayment = async (req, res) => {
           tanggal_bayar,
           status: 'success',
           bukti_url,
-          catatan: ids.length > 1 ? `${catatan} (Pembayaran Rapel)` : catatan
+          catatan: ids.length > 1 ? `${catatan || ''} (Pembayaran Rapel)`.trim() : catatan
         }, { transaction: t });
 
         if (toPay >= parseFloat(tagihan.total_nominal)) {
