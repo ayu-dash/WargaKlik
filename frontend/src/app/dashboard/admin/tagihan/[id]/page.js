@@ -50,7 +50,7 @@ export default function DetailTagihanWarga({ params }) {
   const fetchData = async () => {
     try {
       setLoading(true);
-      const res = await api.get(`/tagihan?warga_id=${wargaId}`);
+      const res = await api.get(`/tagihan?warga_id=${wargaId}&limit=100`);
       setTagihan(res.data.data);
       if (res.data.data.length > 0) {
         setWarga(res.data.data[0].warga);

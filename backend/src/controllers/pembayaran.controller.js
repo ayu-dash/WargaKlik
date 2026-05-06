@@ -191,6 +191,7 @@ const midtransWebhook = async (req, res) => {
               title: 'Pembayaran Berhasil',
               message: `Pembayaran iuran bulan ${tagihan.bulan}/${tagihan.tahun} sebesar Rp ${Number(pembayaran.jumlah_bayar).toLocaleString('id-ID')} telah berhasil.`,
               type: 'pembayaran',
+              amount: pembayaran.jumlah_bayar,
               refId: pembayaran.id,
               refType: 'pembayaran',
               channels: ['inapp', 'email']
@@ -295,6 +296,7 @@ const createManualPayment = async (req, res) => {
             ? `Pembayaran iuran manual (Rapel) untuk periode [${periods}] sebesar Rp ${Number(totalPaid).toLocaleString('id-ID')} telah dicatat oleh pengurus.`
             : `Pembayaran iuran manual bulan ${firstTagihan.bulan}/${firstTagihan.tahun} sebesar Rp ${Number(totalPaid).toLocaleString('id-ID')} telah dicatat oleh pengurus.`,
           type: 'pembayaran',
+          amount: totalPaid,
           channels: ['inapp', 'email']
         }).catch(err => console.error('Delayed notification error:', err));
       }

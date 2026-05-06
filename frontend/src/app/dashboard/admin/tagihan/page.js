@@ -12,6 +12,7 @@ export default function AdminTagihan() {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [filter, setFilter] = useState('semua');
+  const [stats, setStats] = useState({ total_warga: 0, total_unpaid: 0, efficiency: 0 });
 
   // Modal Generate
   const [isGenerateModalOpen, setIsGenerateModalOpen] = useState(false);
@@ -31,8 +32,13 @@ export default function AdminTagihan() {
   const fetchData = async () => {
     try {
       setLoading(true);
-      const res = await api.get('/tagihan');
+      const res = await api.get('/tagihan?limit=100');
       setTagihan(res.data.data);
+      setStats({
+        total_warga: res.data.pagination.total_warga || Object.keys(res.data.data.reduce((acc, curr) => { acc[curr.warga_id] = true; return acc; }, {})).length,
+        total_unpaid: res.data.pagination.total_unpaid || 0,
+        efficiency: Math.round((res.data.pagination.total_lunas / (res.data.pagination.total || 1)) * 100) || 0
+      });
     } catch (err) {
       toast.error('Gagal mengambil data tagihan');
     } finally {
@@ -119,7 +125,7 @@ export default function AdminTagihan() {
             </div>
             <div>
               <div className="text-slate-400 font-black text-[10px] md:text-xs uppercase tracking-[0.2em]">Total Warga</div>
-              <div className="text-2xl md:text-4xl font-black text-slate-900 tracking-tight">{Object.keys(groupedTagihan).length} Rumah</div>
+              <div className="text-2xl md:text-4xl font-black text-slate-900 tracking-tight">{stats.total_warga} Rumah</div>
             </div>
           </div>
 
@@ -130,9 +136,7 @@ export default function AdminTagihan() {
             <div>
               <div className="text-slate-400 font-black text-[10px] md:text-xs uppercase tracking-[0.2em]">Total Tunggakan</div>
               <div className="text-2xl md:text-4xl font-black text-danger tracking-tight">
-                {formatRupiah(Object.values(groupedTagihan).reduce((acc, g) =>
-                  acc + g.items.filter(t => t.status !== 'lunas').reduce((s, t) => s + parseFloat(t.total_nominal), 0)
-                  , 0))}
+                {formatRupiah(stats.total_unpaid)}
               </div>
             </div>
           </div>
@@ -144,7 +148,7 @@ export default function AdminTagihan() {
             <div>
               <div className="text-slate-400 font-black text-[10px] md:text-xs uppercase tracking-[0.2em]">Efisiensi Penagihan</div>
               <div className="text-2xl md:text-4xl font-black text-secondary tracking-tight">
-                {Math.round((tagihan.filter(t => t.status === 'lunas').length / (tagihan.length || 1)) * 100)}% Lunas
+                {stats.efficiency}% Lunas
               </div>
             </div>
           </div>
@@ -218,7 +222,7 @@ export default function AdminTagihan() {
 
                     <div className="space-y-6 md:space-y-8 flex-grow mb-8 relative z-10">
                       <div className="flex justify-between items-end">
-                        <span className="text-[10px] md:text-xs font-black text-slate-400 uppercase tracking-[0.2em]">Tunggakan</span>
+                        <span className="text-[10px] md:text-xs font-black text-slate-400 uppercase tracking-[0.2em]">Total Tunggakan</span>
                         <span className={`text-2xl md:text-4xl font-black tracking-tighter ${totalUnpaid > 0 ? 'text-slate-900' : 'text-primary'}`}>
                           {formatRupiah(totalUnpaid)}
                         </span>

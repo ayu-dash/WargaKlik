@@ -39,15 +39,24 @@ const sendOtp = async (email, otpCode, purpose = 'aktivasi') => {
 const sendPaymentConfirmation = async (email, paymentData) => {
   const html = `
     <div style="font-family: 'Inter', sans-serif; max-width: 480px; margin: 0 auto; padding: 32px; background: #1e293b; color: #f1f5f9; border-radius: 16px;">
-      <h2 style="color: #10b981;">${APP_NAME}</h2>
-      <h3 style="color: #f1f5f9;">Pembayaran Berhasil ✅</h3>
-      <div style="background: #0f172a; padding: 20px; border-radius: 12px; margin-bottom: 16px;">
-        <p style="margin: 4px 0; color: #94a3b8;">Tagihan: <strong style="color: #f1f5f9;">${paymentData.bulan}/${paymentData.tahun}</strong></p>
-        <p style="margin: 4px 0; color: #94a3b8;">Jumlah: <strong style="color: #10b981;">Rp ${Number(paymentData.jumlah).toLocaleString('id-ID')}</strong></p>
-        <p style="margin: 4px 0; color: #94a3b8;">Metode: <strong style="color: #f1f5f9;">${paymentData.metode}</strong></p>
-        <p style="margin: 4px 0; color: #94a3b8;">Tanggal: <strong style="color: #f1f5f9;">${paymentData.tanggal}</strong></p>
+      <h2 style="color: #10b981; margin-bottom: 4px;">${APP_NAME}</h2>
+      <p style="color: #94a3b8; margin-bottom: 24px;">Pembayaran Berhasil ✅</p>
+      
+      <div style="background: #0f172a; padding: 32px 24px; border-radius: 16px; text-align: center; margin-bottom: 24px; border: 1px solid #10b981;">
+        <div style="color: #94a3b8; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px;">Total Dibayar</div>
+        <div style="font-size: 36px; font-weight: 800; color: #10b981;">Rp ${Number(paymentData.jumlah || 0).toLocaleString('id-ID')}</div>
       </div>
-      <p style="color: #64748b; font-size: 12px;">Terima kasih atas pembayaran Anda.</p>
+
+      <div style="background: #0f172a; padding: 20px; border-radius: 12px; margin-bottom: 16px;">
+        ${paymentData.customMessage ? `
+          <p style="color: #f1f5f9; font-weight: 600; line-height: 1.5; margin: 0;">${paymentData.customMessage}</p>
+        ` : `
+          <p style="margin: 4px 0; color: #94a3b8;">Tagihan: <strong style="color: #f1f5f9;">${paymentData.bulan}/${paymentData.tahun}</strong></p>
+          <p style="margin: 4px 0; color: #94a3b8;">Metode: <strong style="color: #f1f5f9;">${paymentData.metode}</strong></p>
+          <p style="margin: 4px 0; color: #94a3b8;">Tanggal: <strong style="color: #f1f5f9;">${paymentData.tanggal}</strong></p>
+        `}
+      </div>
+      <p style="color: #64748b; font-size: 12px; text-align: center;">Simpan email ini sebagai bukti pembayaran digital Anda.</p>
     </div>
   `;
 
@@ -83,4 +92,25 @@ const sendReminder = async (email, reminderData) => {
   });
 };
 
-module.exports = { sendOtp, sendPaymentConfirmation, sendReminder };
+/**
+ * Send generic system notification email
+ */
+const sendGenericNotification = async (email, title, message) => {
+  const html = `
+    <div style="font-family: 'Inter', sans-serif; max-width: 480px; margin: 0 auto; padding: 32px; background: #1e293b; color: #f1f5f9; border-radius: 16px;">
+      <h2 style="color: #3b82f6;">${APP_NAME}</h2>
+      <h3 style="color: #f1f5f9;">${title}</h3>
+      <p style="color: #94a3b8; line-height: 1.6;">${message}</p>
+      <p style="color: #64748b; font-size: 12px; margin-top: 24px;">Ini adalah pesan otomatis dari sistem ${APP_NAME}.</p>
+    </div>
+  `;
+
+  await transporter.sendMail({
+    from: `"${APP_NAME}" <${FROM_EMAIL}>`,
+    to: email,
+    subject: `${APP_NAME} - ${title}`,
+    html
+  });
+};
+
+module.exports = { sendOtp, sendPaymentConfirmation, sendReminder, sendGenericNotification };

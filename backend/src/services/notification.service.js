@@ -9,7 +9,7 @@ const waService = require('./whatsapp.service');
  *   channels: ['inapp', 'email', 'whatsapp'] (default: ['inapp'])
  */
 const notify = async (userId, opts) => {
-  const { title, message, type = 'sistem', refId = null, refType = null, channels = ['inapp'] } = opts;
+  const { title, message, type = 'sistem', refId = null, refType = null, amount = 0, channels = ['inapp'] } = opts;
 
   // 1. Always create in-app notification
   await Notifikasi.create({
@@ -29,7 +29,23 @@ const notify = async (userId, opts) => {
     // 2. Send email
     if (channels.includes('email') && user.email) {
       try {
-        await mailService.sendReminder(user.email, { bulan: '', tahun: '', total: message });
+        if (type === 'pembayaran') {
+          // If it's a payment, use the confirmation template
+          await mailService.sendPaymentConfirmation(user.email, {
+            bulan: 'Periode',
+            tahun: 'Terlampir',
+            jumlah: amount,
+            metode: 'Manual/Online',
+            tanggal: new Date().toLocaleDateString('id-ID'),
+            customMessage: message
+          });
+        } else if (type === 'tagihan') {
+          // For reminders
+          await mailService.sendReminder(user.email, { bulan: '', tahun: '', total: message });
+        } else {
+          // Generic system notification
+          await mailService.sendGenericNotification(user.email, title, message);
+        }
       } catch (err) {
         console.error('Email notification error:', err.message);
       }

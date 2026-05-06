@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import api from '@/utils/api';
 import { useAuth } from '@/contexts/AuthContext';
-import { Users, Search, Plus, UserPlus, Check, X, Edit, Trash2, Loader2, Receipt, Home, ShieldCheck, AlertCircle } from 'lucide-react';
+import { Users, Search, Plus, UserPlus, Check, X, Edit, Trash2, Loader2, Receipt, Home, ShieldCheck, AlertCircle, Settings } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 import Link from 'next/link';
 
@@ -146,10 +146,16 @@ export default function AdminWarga() {
                       </div>
                       
                       <div className="flex items-center gap-2">
-                        <Link href={`/dashboard/admin/warga/${item.id}`}
-                          className="w-9 h-9 flex items-center justify-center bg-slate-50 text-slate-400 rounded-xl hover:bg-primary hover:text-white transition-all shadow-sm">
-                          <Receipt className="w-4 h-4" />
-                        </Link>
+                          <Link href={`/dashboard/admin/tagihan/${item.id}`}
+                            className="w-9 h-9 flex items-center justify-center bg-emerald-50 text-primary rounded-xl hover:bg-primary hover:text-white transition-all shadow-sm"
+                            title="Detail Tagihan">
+                            <Receipt className="w-4 h-4" />
+                          </Link>
+                          <Link href={`/dashboard/admin/warga/${item.id}`}
+                            className="w-9 h-9 flex items-center justify-center bg-slate-50 text-slate-400 rounded-xl hover:bg-slate-200 transition-all shadow-sm"
+                            title="Pengaturan Iuran">
+                            <Settings className="w-4 h-4" />
+                          </Link>
                         {hasRole(['rt', 'wakil_rt', 'sekretaris']) && (
                           <>
                             <button className="w-9 h-9 flex items-center justify-center bg-slate-50 text-slate-400 rounded-xl hover:bg-blue-600 hover:text-white transition-all shadow-sm">
@@ -218,10 +224,15 @@ export default function AdminWarga() {
                           </td>
                           <td className="p-8">
                             <div className="flex items-center justify-end gap-3">
-                              <Link href={`/dashboard/admin/warga/${item.id}`}
-                                className="w-12 h-12 flex items-center justify-center bg-slate-100 text-slate-500 rounded-2xl hover:bg-primary hover:text-white transition-all shadow-sm"
-                                title="Atur Iuran">
+                              <Link href={`/dashboard/admin/tagihan/${item.id}`}
+                                className="w-12 h-12 flex items-center justify-center bg-emerald-50 text-primary rounded-2xl hover:bg-primary hover:text-white transition-all shadow-sm"
+                                title="Detail Tagihan">
                                 <Receipt className="w-5 h-5" />
+                              </Link>
+                              <Link href={`/dashboard/admin/warga/${item.id}`}
+                                className="w-12 h-12 flex items-center justify-center bg-slate-50 text-slate-400 rounded-2xl hover:bg-slate-200 transition-all shadow-sm"
+                                title="Pengaturan Iuran">
+                                <Settings className="w-5 h-5" />
                               </Link>
                               {hasRole(['rt', 'wakil_rt', 'sekretaris']) && (
                                 <>

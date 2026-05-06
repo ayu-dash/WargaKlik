@@ -12,12 +12,13 @@ const getAllTagihan = async (req, res) => {
     const offset = (page - 1) * limit;
     
     // Filters
-    const { status, bulan, tahun } = req.query;
+    const { status, bulan, tahun, warga_id } = req.query;
     let where = {};
     
     if (status) where.status = status;
     if (bulan) where.bulan = bulan;
     if (tahun) where.tahun = tahun;
+    if (warga_id) where.warga_id = warga_id;
 
     // Role check: if warga, only see their own tagihan
     if (req.user.role === 'warga') {
@@ -46,10 +47,30 @@ const getAllTagihan = async (req, res) => {
       order: [['tahun', 'DESC'], ['bulan', 'DESC'], ['id', 'DESC']]
     });
 
+    // Calculate global stats (all pages)
+    const [summary, totalLunas, totalWarga] = await Promise.all([
+      Tagihan.findOne({
+        where: { ...where, status: { [Op.ne]: 'lunas' } },
+        attributes: [
+          [Tagihan.sequelize.fn('SUM', Tagihan.sequelize.col('total_nominal')), 'total_unpaid']
+        ],
+        raw: true
+      }),
+      Tagihan.count({ where: { ...where, status: 'lunas' } }),
+      Tagihan.count({
+        distinct: true,
+        col: 'warga_id',
+        where
+      })
+    ]);
+
     return paginate(res, rows, {
       total: count,
       page,
-      total_pages: Math.ceil(count / limit)
+      total_pages: Math.ceil(count / limit),
+      total_unpaid: parseFloat(summary?.total_unpaid || 0),
+      total_lunas: totalLunas,
+      total_warga: totalWarga
     });
   } catch (err) {
     console.error('Get tagihan error:', err);

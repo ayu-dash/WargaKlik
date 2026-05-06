@@ -72,8 +72,8 @@ export default function DashboardHome() {
           }
 
           setData({
-            totalTagihan,
-            menunggakCount,
+            totalTagihan: tagihanRes.data.pagination?.total_unpaid || 0,
+            menunggakCount: tagihanRes.data.pagination?.total || 0,
             pengumuman: pengumumanRes.data.success ? pengumumanRes.data.data : []
           });
         } else {
@@ -89,7 +89,8 @@ export default function DashboardHome() {
             kasMasuk: kasRes.data.success ? kasRes.data.pagination.summary.masuk : 0,
             kasKeluar: kasRes.data.success ? kasRes.data.pagination.summary.keluar : 0,
             totalWarga: wargaRes.data.success ? wargaRes.data.pagination.total : 0,
-            totalMenunggak: tagihanRes.data.success ? tagihanRes.data.pagination.total : 0,
+            totalMenunggak: tagihanRes.data.success ? tagihanRes.data.pagination.total_warga : 0,
+            totalUnpaid: tagihanRes.data.success ? tagihanRes.data.pagination.total_unpaid : 0,
             chartData: statsRes.data.success ? statsRes.data.data : []
           });
         }
@@ -293,7 +294,7 @@ export default function DashboardHome() {
                   </div>
                   <div>
                     <div className="text-[10px] font-black text-slate-400 uppercase tracking-[0.15em] mb-0.5 md:mb-1">Total Tunggakan</div>
-                    <div className="text-lg md:text-2xl font-black text-danger truncate">{data?.totalMenunggak || 0} Rumah</div>
+                    <div className="text-lg md:text-2xl font-black text-danger truncate">{formatRupiah(data?.totalUnpaid || 0)}</div>
                   </div>
                 </div>
               </>
@@ -365,7 +366,7 @@ export default function DashboardHome() {
                       <p className="text-slate-500 text-sm md:text-base font-medium leading-relaxed">Ada {data?.totalMenunggak || 0} warga yang belum melunasi tagihan iuran bulan ini.</p>
                     </div>
                     <div className="p-4 md:p-6 bg-slate-50 rounded-xl md:rounded-[1.5rem] border border-slate-100">
-                       <div className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Total Tunggakan</div>
+                       <div className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Daftar Penagihan</div>
                        <div className="text-2xl md:text-3xl font-black text-danger">{data?.totalMenunggak || 0} Rumah</div>
                     </div>
                   </div>
