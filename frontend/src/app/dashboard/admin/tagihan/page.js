@@ -204,7 +204,7 @@ export default function AdminTagihan() {
                     <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-full blur-3xl -mr-16 -mt-16 group-hover:scale-125 transition-transform duration-500"></div>
 
                     <div className="flex items-start gap-4 md:gap-5 mb-6 md:mb-8 border-b border-slate-50 pb-6 relative z-10">
-                      <div className="w-12 h-12 md:w-16 md:h-16 bg-slate-900 rounded-xl md:rounded-2xl flex items-center justify-center text-white font-black text-lg md:text-2xl shadow-xl">
+                      <div className="w-12 h-12 md:w-16 md:h-16 bg-slate-900 rounded-xl md:rounded-2xl flex items-center justify-center text-white font-black text-lg md:text-sm shadow-xl uppercase">
                         {group.warga.no_rumah}
                       </div>
                       <div>
