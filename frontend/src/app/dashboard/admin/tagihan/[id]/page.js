@@ -142,7 +142,8 @@ export default function DetailTagihanWarga({ params }) {
   const totalTunggakan = unpaidItems.reduce((sum, t) => sum + parseFloat(t.total_nominal), 0);
 
   return (
-    <div className="space-y-6 md:space-y-10 animate-fade-in relative pb-20 font-sans max-w-6xl mx-auto px-4 sm:px-0">
+    <>
+      <div className="space-y-6 md:space-y-10 animate-fade-in relative pb-20 font-sans max-w-6xl mx-auto px-4 sm:px-0">
       <div className="fixed inset-0 community-grid opacity-20 pointer-events-none -z-10" />
 
       {/* Navigation & Header */}
@@ -366,10 +367,11 @@ export default function DetailTagihanWarga({ params }) {
           )}
         </div>
       </div>
-
+      </div>
+      
       {/* Manual Payment Terminal (Modal) */}
       {isModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 md:p-6 bg-slate-900/60 backdrop-blur-sm">
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 md:p-6 bg-slate-900/60 backdrop-blur-sm">
           <div className="bg-white rounded-3xl md:rounded-[2.5rem] w-full max-w-xl p-8 md:p-14 shadow-2xl animate-in fade-in zoom-in duration-300 relative overflow-hidden max-h-[90vh] overflow-y-auto">
             <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-full blur-3xl -mr-16 -mt-16"></div>
 
@@ -434,6 +436,6 @@ export default function DetailTagihanWarga({ params }) {
           </div>
         </div>
       )}
-    </div>
+    </>
   );
 }
