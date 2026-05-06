@@ -53,13 +53,19 @@ export default function AdminLaporan() {
     }
   };
 
+  const [approvingId, setApprovingId] = useState(null);
+  
   const handleApprove = async (id) => {
+    setApprovingId(id);
     try {
-      await api.put(`/laporan/${id}/approve`);
-      toast.success('Laporan disetujui');
+      await api.put(`/laporan/${id}/approve`, {});
+      toast.success('Laporan berhasil disetujui');
       fetchLaporan();
     } catch (err) {
-      toast.error('Gagal menyetujui laporan');
+      console.error('Approve error:', err);
+      toast.error(err.message || 'Gagal menyetujui laporan');
+    } finally {
+      setApprovingId(null);
     }
   };
 
@@ -157,12 +163,18 @@ export default function AdminLaporan() {
                     </button>
                   )}
 
-                  {item.status === 'draft' && hasRole(['rt', 'wakil_rt', 'bendahara']) && (
+                  {item.status === 'draft' && hasRole(['rt', 'wakil_rt']) && (
                     <button 
                       onClick={() => handleApprove(item.id)}
-                      className="flex-1 bg-primary text-white py-3 md:py-4 rounded-xl md:rounded-2xl font-bold flex items-center justify-center gap-2 text-xs md:text-sm hover:bg-primary-hover transition-all shadow-lg shadow-primary/20"
+                      disabled={approvingId === item.id}
+                      className="flex-1 bg-primary text-white py-3 md:py-4 rounded-xl md:rounded-2xl font-bold flex items-center justify-center gap-2 text-xs md:text-sm hover:bg-primary-hover transition-all shadow-lg shadow-primary/20 disabled:opacity-50 disabled:cursor-not-allowed"
                     >
-                      <CheckCircle className="w-4 h-4 md:w-5 md:h-5" /> Setujui
+                      {approvingId === item.id ? (
+                        <Loader2 className="w-4 h-4 md:w-5 md:h-5 animate-spin" />
+                      ) : (
+                        <CheckCircle className="w-4 h-4 md:w-5 md:h-5" />
+                      )}
+                      {approvingId === item.id ? 'Memproses...' : 'Setujui'}
                     </button>
                   )}
                 </div>

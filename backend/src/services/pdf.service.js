@@ -195,7 +195,7 @@ const generateLaporanTunggakan = async (bulan, tahun) => {
       status: { [Op.ne]: 'lunas' } 
     },
     include: [{ model: Warga, as: 'warga' }],
-    order: [sequelize.literal('CAST(SUBSTRING(no_rumah FROM \'[0-9]+\') AS INTEGER) ASC')]
+    order: [[{ model: Warga, as: 'warga' }, 'no_rumah', 'ASC']]
   });
 
   const doc = new PDFDocument({ margin: 50, size: 'A4' });

@@ -20,7 +20,7 @@ const Laporan = sequelize.define('Laporan', {
     allowNull: false
   },
   jenis: {
-    type: DataTypes.ENUM('bulanan', 'tahunan'),
+    type: DataTypes.ENUM('bulanan', 'tahunan', 'tunggakan'),
     allowNull: false
   },
   status: {

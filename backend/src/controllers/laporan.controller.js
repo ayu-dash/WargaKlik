@@ -55,7 +55,7 @@ const generateLaporan = async (req, res) => {
 
     // Cek apakah laporan sudah ada
     const existing = await Laporan.findOne({
-      where: { jenis, tahun, bulan: jenis === 'bulanan' ? bulan : null }
+      where: { jenis, tahun, bulan: (jenis === 'bulanan' || jenis === 'tunggakan') ? bulan : null }
     });
 
     if (existing) {
@@ -94,11 +94,15 @@ const generateLaporan = async (req, res) => {
  */
 const approveLaporan = async (req, res) => {
   try {
-    const { komentar } = req.body;
+    const { komentar } = req.body || {};
     const laporan = await Laporan.findByPk(req.params.id);
 
     if (!laporan) return error(res, 'Laporan tidak ditemukan', 404);
     if (laporan.status === 'approved') return error(res, 'Laporan sudah disetujui', 400);
+
+    if (req.user.role !== 'rt' && req.user.role !== 'wakil_rt') {
+      return error(res, 'Hanya RT atau Wakil RT yang dapat menyetujui laporan resmi', 403);
+    }
 
     await laporan.update({
       status: 'approved',
@@ -109,7 +113,12 @@ const approveLaporan = async (req, res) => {
 
     return success(res, laporan, 'Laporan berhasil disetujui');
   } catch (err) {
-    return error(res, 'Gagal menyetujui laporan', 500);
+    console.error('Approve laporan error details:', {
+      error: err.message,
+      stack: err.stack,
+      user: req.user ? { id: req.user.id, role: req.user.role } : 'no user'
+    });
+    return error(res, `Gagal menyetujui laporan: ${err.message}`, 500);
   }
 };
 

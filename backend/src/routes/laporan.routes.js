@@ -14,7 +14,7 @@ router.post('/generate', bendaharaUp, laporanController.generateLaporan);
 // Bendahara/RT can delete their drafts
 router.delete('/:id', bendaharaUp, laporanController.deleteLaporan);
 
-// ONLY RT/Bendahara can approve
-router.put('/:id/approve', bendaharaUp, laporanController.approveLaporan);
+// ONLY RT can approve
+router.put('/:id/approve', rtOnly, laporanController.approveLaporan);
 
 module.exports = router;
