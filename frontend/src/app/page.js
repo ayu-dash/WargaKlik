@@ -196,7 +196,7 @@ export default function LandingPage() {
         <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-12 text-center md:text-left">
           <div className="space-y-4">
             <div className="flex items-center justify-center md:justify-start">
-              <img src="/logo.png" alt="WargaKlik Logo" className="h-12 w-auto brightness-0 invert" />
+              <img src="/logo.png" alt="WargaKlik Logo" className="h-20 w-auto brightness-0 invert" />
             </div>
             <p className="text-slate-400 max-w-xs leading-relaxed">
               Solusi digital untuk manajemen lingkungan yang lebih modern dan harmonis.

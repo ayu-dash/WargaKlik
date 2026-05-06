@@ -12,7 +12,7 @@ export default function AdminTagihan() {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [filter, setFilter] = useState('semua');
-  
+
   // Modal Generate
   const [isGenerateModalOpen, setIsGenerateModalOpen] = useState(false);
   const [wargaList, setWargaList] = useState([]);
@@ -68,7 +68,7 @@ export default function AdminTagihan() {
 
   const filteredTagihan = tagihan.filter(t => {
     const matchesFilter = filter === 'semua' || t.status === filter;
-    const matchesSearch = 
+    const matchesSearch =
       t.warga?.kepala_keluarga?.toLowerCase().includes(search.toLowerCase()) ||
       t.warga?.no_rumah?.toLowerCase().includes(search.toLowerCase());
     return matchesFilter && matchesSearch;
@@ -101,8 +101,8 @@ export default function AdminTagihan() {
           </p>
         </div>
 
-        <button 
-          onClick={() => setIsGenerateModalOpen(true)} 
+        <button
+          onClick={() => setIsGenerateModalOpen(true)}
           className="w-full md:w-auto bg-primary text-white px-8 py-4 md:py-5 font-black rounded-xl md:rounded-[2rem] shadow-xl shadow-primary/20 hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-3 text-base md:text-lg"
         >
           <Plus className="w-6 h-6" />
@@ -129,9 +129,9 @@ export default function AdminTagihan() {
           <div>
             <div className="text-slate-400 font-black text-[10px] md:text-xs uppercase tracking-[0.2em]">Total Tunggakan</div>
             <div className="text-2xl md:text-4xl font-black text-danger tracking-tight">
-              {formatRupiah(Object.values(groupedTagihan).reduce((acc, g) => 
+              {formatRupiah(Object.values(groupedTagihan).reduce((acc, g) =>
                 acc + g.items.filter(t => t.status !== 'lunas').reduce((s, t) => s + parseFloat(t.total_nominal), 0)
-              , 0))}
+                , 0))}
             </div>
           </div>
         </div>
@@ -163,16 +163,16 @@ export default function AdminTagihan() {
             onChange={(e) => setSearch(e.target.value)}
           />
         </div>
-        
+
         <div className="flex p-1 bg-slate-50 rounded-2xl md:rounded-[1.5rem] gap-1 w-full lg:w-auto overflow-x-auto no-scrollbar">
           {[
             { id: 'semua', label: 'Semua Status' },
             { id: 'belum_bayar', label: 'Belum Bayar' },
             { id: 'lunas', label: 'Sudah Lunas' }
           ].map((f) => (
-            <button 
+            <button
               key={f.id}
-              onClick={() => setFilter(f.id)} 
+              onClick={() => setFilter(f.id)}
               className={`flex-1 lg:flex-none px-4 md:px-8 py-3 md:py-4 rounded-xl md:rounded-[1.2rem] text-xs md:text-sm font-black uppercase tracking-widest transition-all whitespace-nowrap ${filter === f.id ? 'bg-white text-primary shadow-lg shadow-slate-200' : 'text-slate-400 hover:text-slate-600'}`}
             >
               {f.label}
@@ -193,11 +193,11 @@ export default function AdminTagihan() {
             Object.values(groupedTagihan).map((group) => {
               const unpaidItems = group.items.filter(t => t.status !== 'lunas');
               const totalUnpaid = unpaidItems.reduce((sum, t) => sum + parseFloat(t.total_nominal), 0);
-              
+
               return (
                 <div key={group.warga.id} className="bg-white border border-slate-100 rounded-[2rem] md:rounded-[2.5rem] p-6 md:p-8 shadow-xl shadow-slate-200/40 hover:shadow-2xl hover:scale-[1.02] transition-all group flex flex-col h-full relative overflow-hidden">
                   <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-full blur-3xl -mr-16 -mt-16 group-hover:scale-125 transition-transform duration-500"></div>
-                  
+
                   <div className="flex items-start gap-4 md:gap-5 mb-6 md:mb-8 border-b border-slate-50 pb-6 relative z-10">
                     <div className="w-12 h-12 md:w-16 md:h-16 bg-slate-900 rounded-xl md:rounded-2xl flex items-center justify-center text-white font-black text-lg md:text-2xl shadow-xl">
                       {group.warga.no_rumah}
@@ -214,7 +214,7 @@ export default function AdminTagihan() {
                       </div>
                     </div>
                   </div>
-                  
+
                   <div className="space-y-6 md:space-y-8 flex-grow mb-8 relative z-10">
                     <div className="flex justify-between items-end">
                       <span className="text-[10px] md:text-xs font-black text-slate-400 uppercase tracking-[0.2em]">Tunggakan</span>
@@ -222,7 +222,7 @@ export default function AdminTagihan() {
                         {formatRupiah(totalUnpaid)}
                       </span>
                     </div>
-                    
+
                     <div className="bg-slate-50 p-4 md:p-6 rounded-2xl md:rounded-[1.5rem] flex justify-between border border-slate-100">
                       <div className="text-center flex-1">
                         <div className="text-[9px] md:text-[10px] text-slate-400 font-black uppercase tracking-widest mb-1">Catatan</div>
@@ -238,7 +238,7 @@ export default function AdminTagihan() {
                     </div>
                   </div>
 
-                  <Link 
+                  <Link
                     href={`/dashboard/admin/tagihan/${group.warga.id}`}
                     className="w-full py-4 md:py-5 bg-slate-900 text-white font-black rounded-xl md:rounded-2xl text-center hover:bg-primary transition-all flex items-center justify-center gap-3 text-sm md:text-base shadow-xl shadow-slate-200 relative z-10"
                   >
@@ -268,15 +268,15 @@ export default function AdminTagihan() {
                 <X className="w-5 h-5" />
               </button>
             </div>
-            
+
             <div className="space-y-4">
               <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-1.5">
                   <label className="block text-[10px] font-bold text-slate-500 uppercase ml-1">Target Warga</label>
-                  <select 
+                  <select
                     className="w-full bg-slate-50 border border-slate-200 p-2.5 text-slate-700 font-bold outline-none focus:border-primary rounded-xl text-sm"
-                    value={genData.warga_id} 
-                    onChange={e => setGenData({...genData, warga_id: e.target.value})}
+                    value={genData.warga_id}
+                    onChange={e => setGenData({ ...genData, warga_id: e.target.value })}
                   >
                     <option value="">SELURUH WARGA</option>
                     {wargaList.map(w => (
@@ -286,11 +286,11 @@ export default function AdminTagihan() {
                 </div>
                 <div className="space-y-1.5">
                   <label className="block text-[10px] font-bold text-slate-500 uppercase ml-1">Tahun</label>
-                  <input 
-                    type="number" 
+                  <input
+                    type="number"
                     className="w-full bg-slate-50 border border-slate-200 p-2.5 text-slate-700 font-bold outline-none focus:border-primary rounded-xl text-sm"
-                    value={genData.tahun} 
-                    onChange={e => setGenData({...genData, tahun: e.target.value})} 
+                    value={genData.tahun}
+                    onChange={e => setGenData({ ...genData, tahun: e.target.value })}
                   />
                 </div>
               </div>
@@ -299,12 +299,12 @@ export default function AdminTagihan() {
                 <label className="block text-[10px] font-bold text-slate-500 uppercase ml-1">Bulan Penagihan</label>
                 <div className="grid grid-cols-4 gap-2">
                   {[...Array(12)].map((_, i) => (
-                    <button 
-                      key={i+1}
-                      onClick={() => setGenData({...genData, bulan: (i+1).toString()})}
-                      className={`py-2 text-[10px] font-black uppercase tracking-widest rounded-xl border transition-all ${genData.bulan === (i+1).toString() ? 'bg-primary border-primary text-white shadow-lg shadow-primary/20' : 'bg-white border-slate-200 text-slate-400 hover:bg-slate-50'}`}
+                    <button
+                      key={i + 1}
+                      onClick={() => setGenData({ ...genData, bulan: (i + 1).toString() })}
+                      className={`py-2 text-[10px] font-black uppercase tracking-widest rounded-xl border transition-all ${genData.bulan === (i + 1).toString() ? 'bg-primary border-primary text-white shadow-lg shadow-primary/20' : 'bg-white border-slate-200 text-slate-400 hover:bg-slate-50'}`}
                     >
-                      {getBulanName(i+1).substring(0, 3)}
+                      {getBulanName(i + 1).substring(0, 3)}
                     </button>
                   ))}
                 </div>
@@ -314,7 +314,7 @@ export default function AdminTagihan() {
                 <button type="button" onClick={() => setIsGenerateModalOpen(false)} className="flex-1 py-3 bg-slate-100 text-slate-700 font-bold rounded-xl hover:bg-slate-200 transition-all text-sm">
                   Batal
                 </button>
-                <button 
+                <button
                   onClick={handleGenerate}
                   disabled={isGenerating}
                   className="flex-[2] bg-primary text-white py-3 rounded-xl font-bold text-sm shadow-xl shadow-primary/20 hover:bg-primary-hover transition-all flex items-center justify-center gap-2"

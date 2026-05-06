@@ -2,14 +2,14 @@
 
 import { useState, useEffect, use } from 'react';
 import api from '@/utils/api';
-import { 
-  Receipt, 
-  ArrowLeft, 
-  User, 
-  HandCoins, 
-  Plus, 
-  Loader2, 
-  CheckCircle2, 
+import {
+  Receipt,
+  ArrowLeft,
+  User,
+  HandCoins,
+  Plus,
+  Loader2,
+  CheckCircle2,
   AlertCircle,
   X,
   Clock,
@@ -29,12 +29,12 @@ import Link from 'next/link';
 export default function DetailTagihanWarga({ params }) {
   const unwrappedParams = use(params);
   const wargaId = unwrappedParams.id;
-  
+
   const [tagihan, setTagihan] = useState([]);
   const [warga, setWarga] = useState(null);
   const [loading, setLoading] = useState(true);
   const [selectedIds, setSelectedIds] = useState([]);
-  
+
   // Modal Bayar Manual
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedTagihan, setSelectedTagihan] = useState([]);
@@ -66,7 +66,7 @@ export default function DetailTagihanWarga({ params }) {
   };
 
   const toggleSelect = (id) => {
-    setSelectedIds(prev => 
+    setSelectedIds(prev =>
       prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id]
     );
   };
@@ -117,7 +117,7 @@ export default function DetailTagihanWarga({ params }) {
         jumlah_bayar: jumlahBayar,
         catatan
       });
-      
+
       toast.success('Pembayaran berhasil dicatat');
       setIsModalOpen(false);
       setSelectedIds([]);
@@ -161,7 +161,7 @@ export default function DetailTagihanWarga({ params }) {
         </div>
 
         <div className="flex flex-col sm:flex-row items-center gap-3 md:gap-4 w-full md:w-auto">
-          <button 
+          <button
             onClick={handleGenerateFuture}
             disabled={isGenerating}
             className="w-full sm:w-auto bg-white border-2 border-slate-100 px-6 py-4 rounded-xl md:rounded-[1.5rem] font-bold text-slate-600 hover:border-primary/20 hover:text-primary transition-all flex items-center justify-center gap-2 shadow-sm text-sm"
@@ -169,10 +169,10 @@ export default function DetailTagihanWarga({ params }) {
             {isGenerating ? <Loader2 className="w-5 h-5 animate-spin" /> : <Plus className="w-5 h-5" />}
             Bulan Depan
           </button>
-          
+
           {selectedIds.length > 0 && (
-            <button 
-              onClick={() => openBayarModal(null)} 
+            <button
+              onClick={() => openBayarModal(null)}
               className="w-full sm:w-auto bg-primary text-white px-8 py-4 rounded-xl md:rounded-[1.5rem] font-black text-base md:text-lg shadow-xl shadow-primary/20 hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-3"
             >
               <HandCoins className="w-6 h-6" />
@@ -185,7 +185,7 @@ export default function DetailTagihanWarga({ params }) {
       {/* Resident Info Card - Optimized for Mobile */}
       <div className="bg-slate-900 text-white p-8 md:p-12 rounded-[2rem] md:rounded-[3.5rem] shadow-2xl shadow-slate-900/40 relative overflow-hidden">
         <div className="absolute top-0 right-0 w-64 h-64 bg-primary/10 rounded-full blur-3xl -mr-32 -mt-32"></div>
-        
+
         <div className="relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-8 md:gap-10">
           <div className="lg:col-span-7 flex flex-col sm:flex-row items-center sm:items-start text-center sm:text-left gap-6 md:gap-8">
             <div className="w-20 h-20 md:w-28 md:h-28 bg-white/10 border-4 border-white/5 rounded-3xl md:rounded-[2.5rem] flex items-center justify-center text-primary shadow-2xl shrink-0">
@@ -206,14 +206,14 @@ export default function DetailTagihanWarga({ params }) {
 
           <div className="lg:col-span-5 grid grid-cols-2 gap-4 md:gap-6">
             <div className="bg-white/5 border border-white/10 p-5 md:p-8 rounded-[1.5rem] md:rounded-[2.5rem] flex flex-col justify-center items-center text-center group hover:bg-white/10 transition-colors">
-               <div className="text-[9px] md:text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] mb-1.5">Tunggakan</div>
-               <div className="text-xl md:text-3xl font-black text-red-400 tracking-tighter">{formatRupiah(totalTunggakan)}</div>
+              <div className="text-[9px] md:text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] mb-1.5">Tunggakan</div>
+              <div className="text-xl md:text-3xl font-black text-red-400 tracking-tighter">{formatRupiah(totalTunggakan)}</div>
             </div>
             <div className="bg-white/5 border border-white/10 p-5 md:p-8 rounded-[1.5rem] md:rounded-[2.5rem] flex flex-col justify-center items-center text-center group hover:bg-white/10 transition-colors">
-               <div className="text-[9px] md:text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] mb-1.5">Kolektabilitas</div>
-               <div className={`text-lg md:text-2xl font-black tracking-tighter ${unpaidItems.length > 0 ? 'text-amber-400' : 'text-primary'}`}>
-                 {unpaidItems.length > 0 ? `${unpaidItems.length} Bulan` : 'Lancar'}
-               </div>
+              <div className="text-[9px] md:text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] mb-1.5">Kolektabilitas</div>
+              <div className={`text-lg md:text-2xl font-black tracking-tighter ${unpaidItems.length > 0 ? 'text-amber-400' : 'text-primary'}`}>
+                {unpaidItems.length > 0 ? `${unpaidItems.length} Bulan` : 'Lancar'}
+              </div>
             </div>
           </div>
         </div>
@@ -228,8 +228,8 @@ export default function DetailTagihanWarga({ params }) {
             </div>
             <h3 className="text-lg md:text-2xl font-black text-slate-900 tracking-tight">Catatan Tagihan</h3>
           </div>
-          
-          <button 
+
+          <button
             onClick={handleSelectAll}
             className="w-full sm:w-auto text-[10px] md:text-xs font-black text-primary uppercase tracking-[0.2em] px-6 py-3 bg-emerald-50 rounded-full hover:bg-emerald-100 transition-all border border-emerald-100"
           >
@@ -256,8 +256,8 @@ export default function DetailTagihanWarga({ params }) {
             <tbody className="divide-y divide-slate-50">
               {tagihan.length > 0 ? (
                 tagihan.map((item) => (
-                  <tr 
-                    key={item.id} 
+                  <tr
+                    key={item.id}
                     onClick={() => item.status !== 'lunas' && toggleSelect(item.id)}
                     className={`group transition-all cursor-pointer ${selectedIds.includes(item.id) ? 'bg-emerald-50/40' : 'hover:bg-slate-50/80'}`}
                   >
@@ -265,11 +265,11 @@ export default function DetailTagihanWarga({ params }) {
                       <div className="flex items-center justify-center">
                         {item.status !== 'lunas' ? (
                           <div className={`w-7 h-7 rounded-xl transition-all flex items-center justify-center border-2 ${selectedIds.includes(item.id) ? 'bg-primary border-primary shadow-lg shadow-primary/20' : 'bg-white border-slate-200 group-hover:border-primary/50'}`}>
-                             {selectedIds.includes(item.id) && <CheckCircle2 className="w-5 h-5 text-white" />}
+                            {selectedIds.includes(item.id) && <CheckCircle2 className="w-5 h-5 text-white" />}
                           </div>
                         ) : (
                           <div className="w-7 h-7 rounded-xl bg-slate-100 flex items-center justify-center border border-slate-200/50">
-                             <CheckCircle2 className="w-5 h-5 text-slate-300" />
+                            <CheckCircle2 className="w-5 h-5 text-slate-300" />
                           </div>
                         )}
                       </div>
@@ -292,7 +292,7 @@ export default function DetailTagihanWarga({ params }) {
                     </td>
                     <td className="p-8 text-right">
                       {item.status !== 'lunas' && (
-                        <button 
+                        <button
                           onClick={(e) => { e.stopPropagation(); openBayarModal(item); }}
                           className="bg-slate-900 text-white p-4 rounded-2xl shadow-xl shadow-slate-200 hover:bg-primary hover:-translate-y-1 transition-all"
                         >
@@ -320,8 +320,8 @@ export default function DetailTagihanWarga({ params }) {
         <div className="md:hidden divide-y divide-slate-50">
           {tagihan.length > 0 ? (
             tagihan.map((item) => (
-              <div 
-                key={item.id} 
+              <div
+                key={item.id}
                 onClick={() => item.status !== 'lunas' && toggleSelect(item.id)}
                 className={`p-6 space-y-4 transition-all ${selectedIds.includes(item.id) ? 'bg-emerald-50/50' : 'active:bg-slate-50'}`}
               >
@@ -347,11 +347,11 @@ export default function DetailTagihanWarga({ params }) {
                     <span className="bg-red-50 text-danger px-3 py-1.5 rounded-full text-[8px] font-black uppercase tracking-widest border border-red-100">Belum Bayar</span>
                   )}
                 </div>
-                
+
                 <div className="flex justify-between items-center bg-slate-50/50 p-4 rounded-xl border border-slate-100">
                   <div className="text-xl font-black text-primary tracking-tight">{formatRupiah(item.total_nominal)}</div>
                   {item.status !== 'lunas' && (
-                    <button 
+                    <button
                       onClick={(e) => { e.stopPropagation(); openBayarModal(item); }}
                       className="bg-slate-900 text-white px-4 py-2 rounded-xl font-bold text-xs flex items-center gap-2"
                     >
@@ -372,7 +372,7 @@ export default function DetailTagihanWarga({ params }) {
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 md:p-6 bg-slate-900/60 backdrop-blur-sm">
           <div className="bg-white rounded-3xl md:rounded-[2.5rem] w-full max-w-xl p-8 md:p-14 shadow-2xl animate-in fade-in zoom-in duration-300 relative overflow-hidden max-h-[90vh] overflow-y-auto">
             <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-full blur-3xl -mr-16 -mt-16"></div>
-            
+
             <div className="flex justify-between items-center mb-8 md:mb-10 pb-4 md:pb-6 border-b border-slate-100">
               <h3 className="font-bold text-xl md:text-3xl text-slate-900 tracking-tight flex items-center gap-3 md:gap-4">
                 <HandCoins className="w-7 h-7 md:w-9 md:h-9 text-primary" /> Validasi Bayar
@@ -381,7 +381,7 @@ export default function DetailTagihanWarga({ params }) {
                 <X className="w-5 h-5 md:w-6 md:h-6" />
               </button>
             </div>
-            
+
             <form onSubmit={handleSubmitPembayaran} className="space-y-6 md:space-y-8">
               <div className="bg-slate-50 p-6 md:p-8 rounded-2xl md:rounded-[2.5rem] border border-slate-100 space-y-4 md:space-y-6">
                 <div className="text-[9px] md:text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] border-b border-slate-200 pb-2">Rincian Pembayaran</div>
@@ -404,24 +404,24 @@ export default function DetailTagihanWarga({ params }) {
               <div className="space-y-4 md:space-y-6">
                 <div className="space-y-2">
                   <label className="block text-xs md:text-sm font-bold text-slate-700 ml-1">Catatan Validasi (Opsional)</label>
-                  <textarea 
-                    className="w-full bg-slate-50 border border-slate-200 p-4 md:p-5 text-base md:text-lg font-bold text-slate-900 outline-none focus:border-primary rounded-xl md:rounded-2xl h-24 md:h-32 resize-none" 
-                    placeholder="Contoh: Pembayaran tunai diterima..." 
-                    value={catatan} 
-                    onChange={e => setCatatan(e.target.value)} 
+                  <textarea
+                    className="w-full bg-slate-50 border border-slate-200 p-4 md:p-5 text-base md:text-lg font-bold text-slate-900 outline-none focus:border-primary rounded-xl md:rounded-2xl h-24 md:h-32 resize-none"
+                    placeholder="Contoh: Pembayaran tunai diterima..."
+                    value={catatan}
+                    onChange={e => setCatatan(e.target.value)}
                   />
                 </div>
 
                 <div className="flex flex-col-reverse sm:flex-row gap-3 md:gap-4">
-                  <button 
-                    type="button" 
+                  <button
+                    type="button"
                     onClick={() => setIsModalOpen(false)}
                     className="w-full sm:flex-1 py-4 md:py-5 bg-slate-100 text-slate-700 font-bold rounded-xl md:rounded-2xl hover:bg-slate-200 transition-all text-sm md:text-base"
                   >
                     Batal
                   </button>
-                  <button 
-                    type="submit" 
+                  <button
+                    type="submit"
                     disabled={isSubmitting}
                     className="w-full sm:flex-[2] bg-primary text-white py-4 md:py-5 rounded-xl md:rounded-2xl font-black text-lg md:text-xl shadow-xl shadow-primary/20 hover:bg-primary-hover transition-all flex items-center justify-center gap-3"
                   >
