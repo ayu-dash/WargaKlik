@@ -245,10 +245,6 @@ const createManualPayment = async (req, res) => {
     if (tagihanList.length === 0) return error(res, 'Tagihan tidak ditemukan', 404);
 
     await sequelize.transaction(async (t) => {
-      // Calculate how much to pay for each tagihan
-      // For simplicity in RT cases, we assume the user pays the full amount of each selected tagihan.
-      // If the provided jumlah_bayar is enough to cover all, we mark all as lunas.
-      
       let remainingPayment = parseFloat(jumlah_bayar);
 
       for (const tagihan of tagihanList) {
@@ -256,7 +252,6 @@ const createManualPayment = async (req, res) => {
 
         const toPay = Math.min(remainingPayment, parseFloat(tagihan.total_nominal));
         
-        console.log(`Processing payment for tagihan ${tagihan.id}: ${toPay}`);
         const pembayaran = await Pembayaran.create({
           tagihan_id: tagihan.id,
           dicatat_oleh: req.user.id,
@@ -283,20 +278,29 @@ const createManualPayment = async (req, res) => {
           dicatat_oleh: req.user.id
         }, { transaction: t });
 
-        if (tagihan.warga.user_id) {
-          await notificationService.notify(tagihan.warga.user_id, {
-            title: 'Pembayaran Diterima',
-            message: `Pembayaran iuran manual bulan ${tagihan.bulan}/${tagihan.tahun} sebesar Rp ${Number(toPay).toLocaleString('id-ID')} telah dicatat oleh pengurus.`,
-            type: 'pembayaran',
-            refId: pembayaran.id,
-            refType: 'pembayaran',
-            channels: ['inapp', 'email']
-          });
-        }
-
         remainingPayment -= toPay;
       }
     });
+
+    // Send consolidated notification outside transaction to improve speed and reliability
+    try {
+      const firstTagihan = tagihanList[0];
+      if (firstTagihan.warga.user_id) {
+        const totalPaid = tagihanList.reduce((sum, t) => sum + parseFloat(t.total_nominal), 0);
+        const periods = tagihanList.map(t => `${t.bulan}/${t.tahun}`).join(', ');
+        
+        notificationService.notify(firstTagihan.warga.user_id, {
+          title: 'Pembayaran Diterima',
+          message: tagihanList.length > 1 
+            ? `Pembayaran iuran manual (Rapel) untuk periode [${periods}] sebesar Rp ${Number(totalPaid).toLocaleString('id-ID')} telah dicatat oleh pengurus.`
+            : `Pembayaran iuran manual bulan ${firstTagihan.bulan}/${firstTagihan.tahun} sebesar Rp ${Number(totalPaid).toLocaleString('id-ID')} telah dicatat oleh pengurus.`,
+          type: 'pembayaran',
+          channels: ['inapp', 'email']
+        }).catch(err => console.error('Delayed notification error:', err));
+      }
+    } catch (notifyErr) {
+      console.error('Notification logic error:', notifyErr);
+    }
 
     return success(res, null, `Berhasil mencatat pembayaran untuk ${tagihanList.length} tagihan`, 201);
   } catch (err) {
