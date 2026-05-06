@@ -129,7 +129,10 @@ export default function TagihanList() {
 
   const totalSelected = tagihan
     .filter(t => selectedIds.includes(t.id))
-    .reduce((sum, t) => sum + parseFloat(t.total_nominal), 0);
+    .reduce((sum, t) => {
+      const paidAmount = t.pembayaran?.reduce((pSum, p) => pSum + parseFloat(p.jumlah_bayar), 0) || 0;
+      return sum + (parseFloat(t.total_nominal) - paidAmount);
+    }, 0);
 
   const handleSelectAll = () => {
     const unpaidIds = tagihan.filter(t => t.status !== 'lunas').map(t => t.id);
@@ -198,58 +201,68 @@ export default function TagihanList() {
           </div>
         ) : tagihan.length > 0 ? (
           <div className="grid grid-cols-1 gap-4 md:gap-6">
-            {tagihan.map((item) => (
-              <div
-                key={item.id}
-                onClick={() => item.status !== 'lunas' && toggleSelect(item.id)}
-                className={`bg-white p-5 md:p-8 rounded-[2rem] md:rounded-[2.5rem] border-2 flex flex-col md:flex-row md:items-center justify-between gap-6 md:gap-8 group transition-all cursor-pointer ${selectedIds.includes(item.id) ? 'border-primary ring-4 ring-primary/5 shadow-xl' : 'border-slate-100 hover:border-primary/20 hover:shadow-lg'
-                  }`}
-              >
-                <div className="flex items-center gap-4 md:gap-6">
-                  {item.status !== 'lunas' && (
-                    <div className="relative shrink-0">
-                      <input
-                        type="checkbox"
-                        className="peer sr-only"
-                        checked={selectedIds.includes(item.id)}
-                        readOnly
-                      />
-                      <div className="w-6 h-6 md:w-8 md:h-8 bg-slate-100 rounded-md md:rounded-lg peer-checked:bg-primary transition-all flex items-center justify-center">
-                        <Check className={`w-4 h-4 md:w-5 md:h-5 text-white transition-all ${selectedIds.includes(item.id) ? 'scale-100' : 'scale-0'}`} />
+            {tagihan.map((item) => {
+              const paidAmount = item.pembayaran?.reduce((sum, p) => sum + parseFloat(p.jumlah_bayar), 0) || 0;
+              const remaining = parseFloat(item.total_nominal) - paidAmount;
+              
+              return (
+                <div
+                  key={item.id}
+                  onClick={() => item.status !== 'lunas' && toggleSelect(item.id)}
+                  className={`bg-white p-5 md:p-8 rounded-[2rem] md:rounded-[2.5rem] border-2 flex flex-col md:flex-row md:items-center justify-between gap-6 md:gap-8 group transition-all cursor-pointer ${selectedIds.includes(item.id) ? 'border-primary ring-4 ring-primary/5 shadow-xl' : 'border-slate-100 hover:border-primary/20 hover:shadow-lg'
+                    }`}
+                >
+                  <div className="flex items-center gap-4 md:gap-6">
+                    {item.status !== 'lunas' && (
+                      <div className="relative shrink-0">
+                        <input
+                          type="checkbox"
+                          className="peer sr-only"
+                          checked={selectedIds.includes(item.id)}
+                          readOnly
+                        />
+                        <div className="w-6 h-6 md:w-8 md:h-8 bg-slate-100 rounded-md md:rounded-lg peer-checked:bg-primary transition-all flex items-center justify-center">
+                          <Check className={`w-4 h-4 md:w-5 md:h-5 text-white transition-all ${selectedIds.includes(item.id) ? 'scale-100' : 'scale-0'}`} />
+                        </div>
+                      </div>
+                    )}
+
+                    <div className={`w-12 h-12 md:w-16 md:h-16 rounded-xl md:rounded-[1.2rem] flex items-center justify-center shadow-md transition-transform group-hover:scale-110 shrink-0 ${item.status === 'lunas' ? 'bg-emerald-50 text-primary' :
+                      item.status === 'belum_bayar' ? 'bg-red-50 text-danger' :
+                        'bg-amber-50 text-amber-600'
+                      }`}>
+                      <Receipt className="w-6 h-6 md:w-8 md:h-8" />
+                    </div>
+
+                    <div className="space-y-0.5 md:space-y-1">
+                      <h3 className="font-black text-slate-900 text-lg md:text-2xl tracking-tight leading-tight">
+                        Iuran {getBulanName(item.bulan)} {item.tahun}
+                      </h3>
+                      <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-4">
+                        <div className="flex flex-col">
+                          <span className="font-black text-primary text-base md:text-lg">{formatRupiah(remaining)}</span>
+                          {item.status === 'sebagian' && (
+                            <span className="text-[10px] font-bold text-slate-400">Total: {formatRupiah(item.total_nominal)}</span>
+                          )}
+                        </div>
+                        <div className="flex items-center gap-1 text-[10px] md:text-xs font-bold text-slate-400">
+                          <Calendar className="w-3 h-3 md:w-3.5 md:h-3.5" />
+                          <span className="hidden xs:inline">Jatuh Tempo:</span> 10 {getBulanName(item.bulan)} {item.tahun}
+                        </div>
                       </div>
                     </div>
-                  )}
-
-                  <div className={`w-12 h-12 md:w-16 md:h-16 rounded-xl md:rounded-[1.2rem] flex items-center justify-center shadow-md transition-transform group-hover:scale-110 shrink-0 ${item.status === 'lunas' ? 'bg-emerald-50 text-primary' :
-                    item.status === 'belum_bayar' ? 'bg-red-50 text-danger' :
-                      'bg-amber-50 text-amber-600'
-                    }`}>
-                    <Receipt className="w-6 h-6 md:w-8 md:h-8" />
                   </div>
 
-                  <div className="space-y-0.5 md:space-y-1">
-                    <h3 className="font-black text-slate-900 text-lg md:text-2xl tracking-tight leading-tight">
-                      Iuran {getBulanName(item.bulan)} {item.tahun}
-                    </h3>
-                    <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-4">
-                      <span className="font-black text-primary text-base md:text-lg">{formatRupiah(item.total_nominal)}</span>
-                      <div className="flex items-center gap-1 text-[10px] md:text-xs font-bold text-slate-400">
-                        <Calendar className="w-3 h-3 md:w-3.5 md:h-3.5" />
-                        <span className="hidden xs:inline">Jatuh Tempo:</span> 10 {getBulanName(item.bulan)} {item.tahun}
-                      </div>
-                    </div>
+                  <div className="flex items-center justify-between md:justify-end gap-4 md:gap-6 border-t md:border-t-0 pt-4 md:pt-0 border-slate-50">
+                    {getStatusBadge(item.status)}
+
+                    <Link href={`/dashboard/tagihan/${item.id}`} className="w-10 h-10 md:w-12 md:h-12 rounded-full bg-slate-50 flex items-center justify-center text-slate-400 hover:bg-primary hover:text-white transition-all shadow-inner group/btn">
+                      <ArrowRight className="w-5 h-5 md:w-6 md:h-6 group-hover/btn:translate-x-1 transition-transform" />
+                    </Link>
                   </div>
                 </div>
-
-                <div className="flex items-center justify-between md:justify-end gap-4 md:gap-6 border-t md:border-t-0 pt-4 md:pt-0 border-slate-50">
-                  {getStatusBadge(item.status)}
-
-                  <Link href={`/dashboard/tagihan/${item.id}`} className="w-10 h-10 md:w-12 md:h-12 rounded-full bg-slate-50 flex items-center justify-center text-slate-400 hover:bg-primary hover:text-white transition-all shadow-inner group/btn">
-                    <ArrowRight className="w-5 h-5 md:w-6 md:h-6 group-hover/btn:translate-x-1 transition-transform" />
-                  </Link>
-                </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         ) : (
           <div className="bg-white border border-dashed border-slate-200 p-12 md:p-20 text-center rounded-3xl md:rounded-[3rem] flex flex-col items-center">

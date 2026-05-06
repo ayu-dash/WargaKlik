@@ -15,7 +15,13 @@ const getAllTagihan = async (req, res) => {
     const { status, bulan, tahun } = req.query;
     let where = {};
     
-    if (status) where.status = status;
+    if (status) {
+      if (status.includes(',')) {
+        where.status = { [Op.in]: status.split(',') };
+      } else {
+        where.status = status;
+      }
+    }
     if (bulan) where.bulan = bulan;
     if (tahun) where.tahun = tahun;
 

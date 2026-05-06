@@ -62,8 +62,12 @@ export default function DashboardHome() {
           
           if (tagihanRes.data.success) {
             tagihanRes.data.data.forEach(t => {
-              totalTagihan += parseFloat(t.total_nominal);
-              menunggakCount++;
+              const paidAmount = t.pembayaran?.reduce((sum, p) => sum + parseFloat(p.jumlah_bayar), 0) || 0;
+              const remaining = parseFloat(t.total_nominal) - paidAmount;
+              if (remaining > 0) {
+                totalTagihan += remaining;
+                menunggakCount++;
+              }
             });
           }
 
@@ -76,7 +80,7 @@ export default function DashboardHome() {
           const [kasRes, wargaRes, tagihanRes, statsRes] = await Promise.all([
             api.get('/kas?limit=1'),
             api.get('/warga?status=aktif'),
-            api.get('/tagihan?status=belum_bayar'),
+            api.get('/tagihan?status=belum_bayar,sebagian'),
             api.get('/kas/stats')
           ]);
 

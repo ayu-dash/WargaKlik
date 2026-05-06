@@ -63,7 +63,13 @@ const createMidtransTransaction = async (req, res) => {
     const tagihanList = await Tagihan.findAll({
       where: { id: ids },
       include: [
-        { model: Warga, as: 'warga', include: [{ model: User, as: 'user' }] }
+        { model: Warga, as: 'warga', include: [{ model: User, as: 'user' }] },
+        { 
+          model: Pembayaran, 
+          as: 'pembayaran', 
+          where: { status: 'success' }, 
+          required: false 
+        }
       ]
     });
 
@@ -85,21 +91,27 @@ const createMidtransTransaction = async (req, res) => {
     }
 
     // Generate unique order ID for this bulk transaction
-    // Use a prefix to distinguish bulk payments if needed
     const orderId = `RAPEL-${Date.now()}-${wargaId}`;
     let totalGrossAmount = 0;
     const itemDetails = [];
 
     for (const tagihan of tagihanList) {
-      const amount = Math.round(parseFloat(tagihan.total_nominal));
+      const paidAmount = tagihan.pembayaran?.reduce((sum, p) => sum + parseFloat(p.jumlah_bayar), 0) || 0;
+      const remaining = parseFloat(tagihan.total_nominal) - paidAmount;
+      
+      if (remaining <= 0) continue;
+
+      const amount = Math.round(remaining);
       totalGrossAmount += amount;
       itemDetails.push({
         id: `TAGIHAN-${tagihan.id}`,
         price: amount,
         quantity: 1,
-        name: `Iuran RT ${tagihan.bulan}/${tagihan.tahun}`
+        name: `Iuran RT ${tagihan.bulan}/${tagihan.tahun} ${tagihan.status === 'sebagian' ? '(Sisa)' : ''}`
       });
     }
+
+    if (totalGrossAmount <= 0) return error(res, 'Total pembayaran tidak valid', 400);
 
     const customerDetails = {
       first_name: tagihanList[0].warga.kepala_keluarga,
