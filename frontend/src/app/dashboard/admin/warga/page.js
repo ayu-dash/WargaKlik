@@ -6,6 +6,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { Users, Search, Plus, UserPlus, Check, X, Edit, Trash2, Loader2, Receipt, Home, ShieldCheck, AlertCircle, Settings } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 import Link from 'next/link';
+import ConfirmModal from '@/components/ConfirmModal';
 
 export default function AdminWarga() {
   const { hasRole } = useAuth();
@@ -23,6 +24,11 @@ export default function AdminWarga() {
     no_telepon: ''
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Delete confirmation state
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [deletingId, setDeletingId] = useState(null);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   useEffect(() => {
     fetchWarga();
@@ -61,6 +67,27 @@ export default function AdminWarga() {
       toast.error(err.message || 'Gagal menambahkan warga');
     } finally {
       setIsSubmitting(false);
+    }
+  };
+
+  const confirmDelete = (id) => {
+    setDeletingId(id);
+    setIsDeleteModalOpen(true);
+  };
+
+  const handleDelete = async () => {
+    if (!deletingId) return;
+    setIsDeleting(true);
+    try {
+      await api.delete(`/warga/${deletingId}`);
+      toast.success('Data warga berhasil dihapus');
+      setIsDeleteModalOpen(false);
+      fetchWarga();
+    } catch (err) {
+      toast.error('Gagal menghapus warga');
+    } finally {
+      setIsDeleting(false);
+      setDeletingId(null);
     }
   };
 
@@ -161,7 +188,9 @@ export default function AdminWarga() {
                             <button className="w-9 h-9 flex items-center justify-center bg-slate-50 text-slate-400 rounded-xl hover:bg-blue-600 hover:text-white transition-all shadow-sm">
                               <Edit className="w-4 h-4" />
                             </button>
-                            <button className="w-9 h-9 flex items-center justify-center bg-slate-50 text-slate-400 rounded-xl hover:bg-danger hover:text-white transition-all shadow-sm">
+                            <button 
+                              onClick={() => confirmDelete(item.id)}
+                              className="w-9 h-9 flex items-center justify-center bg-slate-50 text-slate-400 rounded-xl hover:bg-danger hover:text-white transition-all shadow-sm">
                               <Trash2 className="w-4 h-4" />
                             </button>
                           </>
@@ -239,7 +268,9 @@ export default function AdminWarga() {
                                   <button className="w-12 h-12 flex items-center justify-center bg-slate-100 text-slate-500 rounded-2xl hover:bg-blue-600 hover:text-white transition-all shadow-sm">
                                     <Edit className="w-5 h-5" />
                                   </button>
-                                  <button className="w-12 h-12 flex items-center justify-center bg-slate-100 text-slate-500 rounded-2xl hover:bg-danger hover:text-white transition-all shadow-sm">
+                                  <button 
+                                    onClick={() => confirmDelete(item.id)}
+                                    className="w-12 h-12 flex items-center justify-center bg-slate-100 text-slate-500 rounded-2xl hover:bg-danger hover:text-white transition-all shadow-sm">
                                     <Trash2 className="w-5 h-5" />
                                   </button>
                                 </>
@@ -376,6 +407,16 @@ export default function AdminWarga() {
           </div>
         </div>
       )}
+      {/* Custom Delete Confirmation Modal */}
+      <ConfirmModal 
+        isOpen={isDeleteModalOpen}
+        onClose={() => setIsDeleteModalOpen(false)}
+        onConfirm={handleDelete}
+        isLoading={isDeleting}
+        title="Hapus Data Warga"
+        message="Apakah Anda yakin ingin menghapus data warga ini? Seluruh data akun dan history tagihan akan ikut terhapus."
+        confirmText="Ya, Hapus Sekarang"
+      />
     </>
   );
 }

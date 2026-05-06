@@ -77,11 +77,12 @@ export default function DashboardHome() {
             pengumuman: pengumumanRes.data.success ? pengumumanRes.data.data : []
           });
         } else {
-          const [kasRes, wargaRes, tagihanRes, statsRes] = await Promise.all([
+          const [kasRes, wargaRes, tagihanRes, statsRes, pengumumanRes] = await Promise.all([
             api.get('/kas?limit=1'),
             api.get('/warga?status=aktif'),
             api.get('/tagihan?status=belum_bayar'),
-            api.get('/kas/stats')
+            api.get('/kas/stats'),
+            api.get('/pengumuman')
           ]);
 
           setData({
@@ -91,6 +92,7 @@ export default function DashboardHome() {
             totalWarga: wargaRes.data.success ? wargaRes.data.pagination.total : 0,
             totalMenunggak: tagihanRes.data.success ? tagihanRes.data.pagination.total_warga : 0,
             totalUnpaid: tagihanRes.data.success ? tagihanRes.data.pagination.total_unpaid : 0,
+            totalPengumuman: pengumumanRes.data.success ? pengumumanRes.data.pagination.total : 0,
             chartData: statsRes.data.success ? statsRes.data.data : []
           });
         }
@@ -311,15 +313,15 @@ export default function DashboardHome() {
                     <div className="text-lg md:text-2xl font-black text-slate-900 truncate">{data?.totalWarga || 0} Keluarga</div>
                   </div>
                 </div>
-                <div className="bg-white p-5 md:p-8 rounded-2xl md:rounded-[2rem] border border-slate-100 shadow-sm space-y-3 md:space-y-4 hover:shadow-lg transition-all group">
+                <Link href="/dashboard/pengumuman" className="bg-white p-5 md:p-8 rounded-2xl md:rounded-[2rem] border border-slate-100 shadow-sm space-y-3 md:space-y-4 hover:shadow-lg transition-all group">
                   <div className="w-10 h-10 md:w-14 md:h-14 bg-blue-50 rounded-xl md:rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform">
                     <Megaphone className="w-5 h-5 md:w-7 md:h-7 text-blue-600" />
                   </div>
                   <div>
                     <div className="text-[10px] font-black text-slate-400 uppercase tracking-[0.15em] mb-0.5 md:mb-1">Pengumuman</div>
-                    <div className="text-lg md:text-2xl font-black text-slate-900 truncate">Informasi Aktif</div>
+                    <div className="text-lg md:text-2xl font-black text-slate-900 truncate">{data?.totalPengumuman || 0} Informasi Aktif</div>
                   </div>
-                </div>
+                </Link>
               </>
             )}
           </div>

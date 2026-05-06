@@ -6,6 +6,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { Megaphone, Calendar, Plus, Edit, Trash2, Eye, EyeOff, Loader2, X, Check, Bell, AlertTriangle, Info, User } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 import { formatDate } from '@/utils/format';
+import ConfirmModal from '@/components/ConfirmModal';
 
 export default function PengumumanPage() {
   const { hasRole } = useAuth();
@@ -23,6 +24,11 @@ export default function PengumumanPage() {
     is_published: true
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
+  
+  // Delete confirmation state
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [deletingId, setDeletingId] = useState(null);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const isPengurus = hasRole(['rt', 'wakil_rt', 'sekretaris', 'bendahara']);
 
@@ -81,14 +87,24 @@ export default function PengumumanPage() {
     }
   };
 
-  const handleDelete = async (id) => {
-    if (!confirm('Hapus pengumuman ini?')) return;
+  const confirmDelete = (id) => {
+    setDeletingId(id);
+    setIsDeleteModalOpen(true);
+  };
+
+  const handleDelete = async () => {
+    if (!deletingId) return;
+    setIsDeleting(true);
     try {
-      await api.delete(`/pengumuman/${id}`);
+      await api.delete(`/pengumuman/${deletingId}`);
       toast.success('Pengumuman berhasil dihapus');
+      setIsDeleteModalOpen(false);
       fetchPengumuman();
     } catch (err) {
       toast.error('Gagal menghapus pengumuman');
+    } finally {
+      setIsDeleting(false);
+      setDeletingId(null);
     }
   };
 
@@ -172,7 +188,7 @@ export default function PengumumanPage() {
                       className="w-10 h-10 md:w-12 md:h-12 flex items-center justify-center bg-slate-50 text-slate-400 hover:text-blue-600 hover:bg-blue-50 transition-all rounded-xl md:rounded-2xl">
                       <Edit className="w-4.5 h-4.5 md:w-5 md:h-5" />
                     </button>
-                    <button onClick={() => handleDelete(item.id)}
+                    <button onClick={() => confirmDelete(item.id)}
                       className="w-10 h-10 md:w-12 md:h-12 flex items-center justify-center bg-slate-50 text-slate-400 hover:text-danger hover:bg-red-50 transition-all rounded-xl md:rounded-2xl">
                       <Trash2 className="w-4.5 h-4.5 md:w-5 md:h-5" />
                     </button>
@@ -293,6 +309,16 @@ export default function PengumumanPage() {
           </div>
         </div>
       )}
+      {/* Custom Delete Confirmation Modal */}
+      <ConfirmModal 
+        isOpen={isDeleteModalOpen}
+        onClose={() => setIsDeleteModalOpen(false)}
+        onConfirm={handleDelete}
+        isLoading={isDeleting}
+        title="Hapus Pengumuman"
+        message="Apakah Anda yakin ingin menghapus pengumuman ini? Informasi ini tidak akan lagi terlihat oleh warga."
+        confirmText="Ya, Hapus Sekarang"
+      />
     </div>
   );
 }

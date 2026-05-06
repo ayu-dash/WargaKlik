@@ -5,6 +5,7 @@ import api from '@/utils/api';
 import { WalletCards, Plus, Edit, Trash2, Loader2, Check, X, ShieldCheck, CreditCard, Calendar, Activity } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 import { formatRupiah } from '@/utils/format';
+import ConfirmModal from '@/components/ConfirmModal';
 
 export default function AdminIuran() {
   const [iuran, setIuran] = useState([]);
@@ -19,6 +20,11 @@ export default function AdminIuran() {
     is_active: true
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Delete confirmation state
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [deletingId, setDeletingId] = useState(null);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   useEffect(() => {
     fetchIuran();
@@ -50,6 +56,27 @@ export default function AdminIuran() {
       toast.error(err.message || 'Gagal menambahkan iuran');
     } finally {
       setIsSubmitting(false);
+    }
+  };
+
+  const confirmDelete = (id) => {
+    setDeletingId(id);
+    setIsDeleteModalOpen(true);
+  };
+
+  const handleDelete = async () => {
+    if (!deletingId) return;
+    setIsDeleting(true);
+    try {
+      await api.delete(`/iuran/${deletingId}`);
+      toast.success('Jenis iuran berhasil dihapus');
+      setIsDeleteModalOpen(false);
+      fetchIuran();
+    } catch (err) {
+      toast.error('Gagal menghapus iuran. Pastikan iuran tidak sedang digunakan oleh warga.');
+    } finally {
+      setIsDeleting(false);
+      setDeletingId(null);
     }
   };
 
@@ -95,7 +122,9 @@ export default function AdminIuran() {
                     <button className="w-10 h-10 md:w-12 md:h-12 flex items-center justify-center bg-slate-50 text-slate-400 rounded-xl md:rounded-2xl hover:bg-blue-50 hover:text-blue-600 transition-all border border-transparent hover:border-blue-100">
                       <Edit className="w-5 h-5" />
                     </button>
-                    <button className="w-10 h-10 md:w-12 md:h-12 flex items-center justify-center bg-slate-50 text-slate-400 rounded-xl md:rounded-2xl hover:bg-red-50 hover:text-danger transition-all border border-transparent hover:border-red-100">
+                    <button 
+                      onClick={() => confirmDelete(item.id)}
+                      className="w-10 h-10 md:w-12 md:h-12 flex items-center justify-center bg-slate-50 text-slate-400 rounded-xl md:rounded-2xl hover:bg-red-50 hover:text-danger transition-all border border-transparent hover:border-red-100">
                       <Trash2 className="w-5 h-5" />
                     </button>
                   </div>
@@ -205,6 +234,16 @@ export default function AdminIuran() {
           </div>
         </div>
       )}
+      {/* Custom Delete Confirmation Modal */}
+      <ConfirmModal 
+        isOpen={isDeleteModalOpen}
+        onClose={() => setIsDeleteModalOpen(false)}
+        onConfirm={handleDelete}
+        isLoading={isDeleting}
+        title="Hapus Master Iuran"
+        message="Apakah Anda yakin ingin menghapus jenis iuran ini? Data tagihan yang sudah ada mungkin akan terpengaruh."
+        confirmText="Ya, Hapus Sekarang"
+      />
     </div>
   );
 }
