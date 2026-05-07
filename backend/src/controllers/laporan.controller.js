@@ -73,7 +73,7 @@ const generateLaporan = async (req, res) => {
       return error(res, 'Jenis laporan tidak valid', 400);
     }
 
-    const isOfficial = ['rt', 'wakil_rt', 'bendahara'].includes(req.user.role);
+    const isOfficial = ['rt', 'wakil_rt'].includes(req.user.role);
     
     const laporan = await Laporan.create({
       jenis,

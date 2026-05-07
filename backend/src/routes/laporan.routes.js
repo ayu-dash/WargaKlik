@@ -8,11 +8,11 @@ router.use(authenticate);
 // Everyone can view reports (warga only sees approved ones, logic handled in controller)
 router.get('/', laporanController.getAllLaporan);
 
-// Pengurus (Sekretaris, Bendahara, RT) can generate
-router.post('/generate', pengurusOnly, laporanController.generateLaporan);
+// Bendahara, RT, Wakil RT can generate
+router.post('/generate', bendaharaUp, laporanController.generateLaporan);
 
-// Pengurus can delete their drafts
-router.delete('/:id', pengurusOnly, laporanController.deleteLaporan);
+// Bendahara, RT, Wakil RT can delete their drafts
+router.delete('/:id', bendaharaUp, laporanController.deleteLaporan);
 
 // ONLY RT can approve
 router.put('/:id/approve', rtOnly, laporanController.approveLaporan);
