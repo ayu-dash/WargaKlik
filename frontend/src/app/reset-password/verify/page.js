@@ -90,7 +90,7 @@ function ResetVerifyForm() {
           <p className="text-slate-500 font-medium mb-6">Akses tidak valid. Sesi Anda mungkin telah berakhir.</p>
           <button 
             onClick={() => router.push('/reset-password')}
-            className="w-full bg-amber-500 text-white font-bold py-3.5 rounded-xl hover:scale-[1.01] transition-all"
+            className="w-full bg-primary text-white font-bold py-3.5 rounded-xl hover:scale-[1.01] transition-all"
           >
             Kembali ke Reset Password
           </button>
@@ -104,7 +104,7 @@ function ResetVerifyForm() {
       <div className="w-full max-w-[460px] bg-white border border-slate-200 rounded-3xl md:rounded-[2.5rem] p-8 md:p-12 shadow-2xl shadow-slate-200 text-center animate-fade-in relative overflow-hidden">
         
         <h1 className="text-2xl md:text-3xl font-bold text-slate-900 tracking-tight mb-4">
-          Verifikasi <span className="text-amber-500">Akun Anda</span>
+          Verifikasi <span className="text-primary">Akun Anda</span>
         </h1>
         <p className="text-sm md:text-base text-slate-500 font-medium leading-relaxed mb-8">
           Kami telah mengirimkan kode verifikasi ke email atau WhatsApp Anda.
@@ -123,7 +123,7 @@ function ResetVerifyForm() {
                 value={digit}
                 onChange={(e) => handleChange(index, e.target.value)}
                 onKeyDown={(e) => handleKeyDown(index, e)}
-                className="w-12 h-14 sm:w-14 sm:h-16 text-center text-2xl font-bold text-amber-500 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20 focus:bg-white transition-all shadow-sm"
+                className="w-12 h-14 sm:w-14 sm:h-16 text-center text-2xl font-bold text-primary bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 focus:bg-white transition-all shadow-sm"
               />
             ))}
           </div>
@@ -131,7 +131,7 @@ function ResetVerifyForm() {
           <button
             type="submit"
             disabled={isSubmitting || otp.join('').length < 6}
-            className="w-full bg-amber-500 text-white py-3.5 md:py-4.5 rounded-xl md:rounded-2xl font-bold text-base md:text-lg shadow-xl shadow-amber-500/20 hover:scale-[1.01] active:scale-[0.99] disabled:opacity-50 disabled:hover:scale-100 disabled:cursor-not-allowed transition-all"
+            className="w-full bg-primary text-white py-3.5 md:py-4.5 rounded-xl md:rounded-2xl font-bold text-base md:text-lg shadow-xl shadow-primary/20 hover:scale-[1.01] active:scale-[0.99] disabled:opacity-50 disabled:hover:scale-100 disabled:cursor-not-allowed transition-all"
           >
             {isSubmitting ? (
               <Loader2 className="w-6 h-6 animate-spin mx-auto" />
@@ -146,7 +146,7 @@ function ResetVerifyForm() {
               type="button"
               onClick={handleResendOtp}
               disabled={countdown > 0 || isSubmitting}
-              className="text-amber-500 font-bold hover:underline disabled:text-slate-400 disabled:no-underline disabled:cursor-not-allowed ml-1"
+              className="text-primary font-bold hover:underline disabled:text-slate-400 disabled:no-underline disabled:cursor-not-allowed ml-1"
             >
               {countdown > 0 ? `Kirim Ulang (${countdown}s)` : 'Kirim Ulang'}
             </button>
@@ -161,7 +161,7 @@ export default function ResetVerifyPage() {
   return (
     <Suspense fallback={
       <div className="min-h-screen flex items-center justify-center bg-[#f8fafc] p-4">
-        <Loader2 className="w-8 h-8 animate-spin text-amber-500" />
+        <Loader2 className="w-8 h-8 animate-spin text-primary" />
       </div>
     }>
       <ResetVerifyForm />

@@ -54,7 +54,8 @@ const notify = async (userId, opts) => {
     // 3. Send WhatsApp
     if (channels.includes('whatsapp') && user.no_telepon) {
       try {
-        await waService.sendMessage(user.no_telepon, `*${title}*\n\n${message}`);
+        const templates = require('../utils/templates');
+        await waService.sendMessage(user.no_telepon, templates.waGenericMessage(title, message));
       } catch (err) {
         console.error('WA notification error:', err.message);
       }

@@ -29,11 +29,11 @@ export default function ResetPassword() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4 md:p-6 bg-[#f8fafc] relative selection:bg-amber-500/20 selection:text-amber-600 overflow-hidden font-sans">
+    <div className="min-h-screen flex items-center justify-center p-4 md:p-6 bg-[#f8fafc] relative selection:bg-primary/20 selection:text-primary overflow-hidden font-sans">
       <div className="fixed inset-0 community-grid opacity-40 pointer-events-none -z-10" />
       
       {/* Back to Login */}
-      <Link href="/login" className="absolute top-6 left-6 md:top-8 md:left-8 flex items-center gap-2 md:gap-3 text-slate-500 hover:text-amber-500 transition-all text-xs md:text-sm font-bold group">
+      <Link href="/login" className="absolute top-6 left-6 md:top-8 md:left-8 flex items-center gap-2 md:gap-3 text-slate-500 hover:text-primary transition-all text-xs md:text-sm font-bold group">
         <ArrowLeft className="w-4 h-4 md:w-5 md:h-5 group-hover:-translate-x-1 transition-transform" />
         Kembali ke Login
       </Link>
@@ -42,11 +42,11 @@ export default function ResetPassword() {
         <div className="bg-white border border-slate-200 rounded-3xl md:rounded-[2.5rem] p-8 md:p-12 shadow-2xl shadow-slate-200 relative overflow-hidden">
           {/* Header */}
           <div className="text-center mb-8 md:mb-10">
-            <div className="inline-flex items-center justify-center w-16 h-16 md:w-20 md:h-20 bg-amber-50 rounded-2xl mb-4 md:mb-6 shadow-inner">
-              <KeyRound className="w-8 h-8 md:w-10 md:h-10 text-amber-500" />
+            <div className="inline-flex items-center justify-center w-16 h-16 md:w-20 md:h-20 bg-emerald-50 rounded-2xl mb-4 md:mb-6 shadow-inner">
+              <KeyRound className="w-8 h-8 md:w-10 md:h-10 text-primary" />
             </div>
             <h1 className="text-2xl md:text-3xl font-bold text-slate-900 tracking-tight mb-2">
-              Lupa <span className="text-amber-500">Kata Sandi?</span>
+              Lupa <span className="text-primary">Kata Sandi?</span>
             </h1>
             <p className="text-sm md:text-base text-slate-500 font-medium leading-relaxed">
               Masukkan email atau nomor telepon yang terdaftar. Kami akan mengirimkan kode OTP untuk mereset kata sandi Anda.
@@ -58,11 +58,11 @@ export default function ResetPassword() {
               <label className="block text-xs md:text-sm font-bold text-slate-700 ml-1">Email atau Nomor Telepon</label>
               <div className="relative group">
                 <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                  <Mail className="h-4.5 w-4.5 md:h-5 md:w-5 text-slate-400 group-focus-within:text-amber-500 transition-colors" />
+                  <Mail className="h-4.5 w-4.5 md:h-5 md:w-5 text-slate-400 group-focus-within:text-primary transition-colors" />
                 </div>
                 <input
                   type="text"
-                  className="w-full bg-slate-50 border border-slate-200 py-3.5 md:py-4 pl-11 md:pl-12 pr-4 text-slate-900 font-medium outline-none focus:border-amber-500 focus:bg-white transition-all rounded-xl md:rounded-2xl text-sm md:text-base"
+                  className="w-full bg-slate-50 border border-slate-200 py-3.5 md:py-4 pl-11 md:pl-12 pr-4 text-slate-900 font-medium outline-none focus:border-primary focus:bg-white transition-all rounded-xl md:rounded-2xl text-sm md:text-base"
                   placeholder="Email atau No. Telepon"
                   value={identifier}
                   onChange={(e) => setIdentifier(e.target.value)}
@@ -74,7 +74,7 @@ export default function ResetPassword() {
             <button
               type="submit"
               disabled={isSubmitting}
-              className="w-full group bg-amber-500 text-white py-3.5 md:py-4.5 rounded-xl md:rounded-2xl font-bold text-base md:text-lg shadow-xl shadow-amber-500/20 hover:bg-amber-600 hover:scale-[1.01] active:scale-[0.99] transition-all flex items-center justify-center gap-2"
+              className="w-full group bg-primary text-white py-3.5 md:py-4.5 rounded-xl md:rounded-2xl font-bold text-base md:text-lg shadow-xl shadow-primary/20 hover:scale-[1.01] active:scale-[0.99] transition-all flex items-center justify-center gap-2"
             >
               {isSubmitting ? (
                 <Loader2 className="w-5 h-5 md:w-6 md:h-6 animate-spin" />
@@ -88,7 +88,7 @@ export default function ResetPassword() {
           <div className="mt-8 md:mt-10 pt-6 md:pt-8 border-t border-slate-100 text-center">
             <p className="text-xs md:text-sm text-slate-500 font-medium">
               Ingat kata sandi Anda? <br />
-              <Link href="/login" className="text-amber-500 hover:text-amber-600 hover:underline font-bold mt-1.5 md:mt-2 inline-block text-sm md:text-base">
+              <Link href="/login" className="text-primary hover:underline font-bold mt-1.5 md:mt-2 inline-block text-sm md:text-base">
                 Kembali untuk Masuk
               </Link>
             </p>

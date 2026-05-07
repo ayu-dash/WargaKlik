@@ -195,7 +195,7 @@ const midtransWebhook = async (req, res) => {
               amount: pembayaran.jumlah_bayar,
               refId: pembayaran.id,
               refType: 'pembayaran',
-              channels: ['inapp', 'email']
+              channels: ['inapp', 'email', 'whatsapp']
             });
           }
         }
@@ -298,7 +298,7 @@ const createManualPayment = async (req, res) => {
             : `Pembayaran iuran manual bulan ${firstTagihan.bulan}/${firstTagihan.tahun} sebesar Rp ${Number(totalPaid).toLocaleString('id-ID')} telah dicatat oleh pengurus.`,
           type: 'pembayaran',
           amount: totalPaid,
-          channels: ['inapp', 'email']
+          channels: ['inapp', 'email', 'whatsapp']
         }).catch(err => console.error('Delayed notification error:', err));
       }
     } catch (notifyErr) {
