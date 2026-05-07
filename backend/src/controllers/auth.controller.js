@@ -341,4 +341,41 @@ const getMe = async (req, res) => {
   }
 };
 
-module.exports = { login, refreshToken, activate, verifyOtp, forgotPassword, resetPassword, changePassword, updateProfile, getMe };
+/**
+ * POST /api/auth/validate-otp
+ * Check if OTP is valid without consuming it yet
+ */
+const validateOtp = async (req, res) => {
+  try {
+    const { identifier, email, otp_code } = req.body;
+    const loginId = identifier || email;
+    if (!loginId || !otp_code) {
+      return error(res, 'Email/Nomor Telepon dan kode OTP wajib diisi', 400);
+    }
+
+    const user = await User.findOne({ 
+      where: { 
+        [Op.or]: [
+          { email: loginId },
+          { no_telepon: loginId }
+        ] 
+      } 
+    });
+    if (!user) return error(res, 'User tidak ditemukan', 404);
+
+    if (user.otp_code !== otp_code) {
+      return error(res, 'Kode OTP salah', 400);
+    }
+
+    if (isOtpExpired(user.otp_expiry)) {
+      return error(res, 'Kode OTP sudah kadaluarsa', 400);
+    }
+
+    return success(res, null, 'Kode OTP valid');
+  } catch (err) {
+    console.error('Validate OTP error:', err);
+    return error(res, 'Gagal validasi OTP', 500);
+  }
+};
+
+module.exports = { login, refreshToken, activate, verifyOtp, forgotPassword, resetPassword, changePassword, updateProfile, getMe, validateOtp };

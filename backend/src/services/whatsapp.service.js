@@ -81,7 +81,8 @@ class WhatsAppService {
   }
 
   async sendOtpWA(phone, otpCode, purpose = 'aktivasi') {
-    const msg = `*Iuran RT - OTP*\n\nKode: *${otpCode}*\n\nJangan bagikan kode ini.`;
+    const action = purpose === 'aktivasi' ? 'Aktivasi Akun' : 'Reset Password';
+    const msg = `*[IURAN RT - KEAMANAN AKUN]*\n\nyth. Bapak/Ibu,\nBerikut adalah Kode OTP Anda untuk proses *${action}*:\n\n*${otpCode}*\n\n *PENTING:*\n- Kode ini hanya berlaku selama 10 menit.\n- Demi keamanan, *JANGAN* memberikan kode ini kepada siapapun, termasuk pihak pengurus RT.\n- Jika Anda tidak merasa melakukan permintaan ini, harap abaikan pesan ini.\n\nTerima kasih,\nSistem Iuran RT`;
     return this.sendMessage(phone, msg);
   }
 }

@@ -13,15 +13,25 @@ const sendOtp = async (email, otpCode, purpose = 'aktivasi') => {
 
   const html = `
     <div style="font-family: 'Inter', sans-serif; max-width: 480px; margin: 0 auto; padding: 32px; background: #1e293b; color: #f1f5f9; border-radius: 16px;">
-      <h2 style="color: #10b981; margin-bottom: 8px;">${APP_NAME}</h2>
-      <p style="color: #94a3b8; margin-bottom: 24px;">
-        ${purpose === 'aktivasi' ? 'Gunakan kode berikut untuk mengaktifkan akun Anda:' : 'Gunakan kode berikut untuk mereset password Anda:'}
-      </p>
-      <div style="background: #0f172a; padding: 24px; border-radius: 12px; text-align: center; margin-bottom: 24px;">
-        <span style="font-size: 32px; font-weight: 700; letter-spacing: 8px; color: #10b981;">${otpCode}</span>
+      <h2 style="color: #10b981; margin-bottom: 8px; text-align: center;">${APP_NAME}</h2>
+      <div style="background: #0f172a; padding: 32px 24px; border-radius: 12px; margin-top: 24px; border: 1px solid #334155;">
+        <p style="color: #e2e8f0; margin-bottom: 16px; font-size: 15px;">Halo Bapak/Ibu,</p>
+        <p style="color: #94a3b8; margin-bottom: 24px; line-height: 1.6;">
+          Berikut adalah Kode OTP Anda untuk proses <strong>${purpose === 'aktivasi' ? 'Aktivasi Akun' : 'Reset Password'}</strong>:
+        </p>
+        <div style="background: #1e293b; padding: 20px; border-radius: 12px; text-align: center; margin-bottom: 24px; border: 1px dashed #10b981;">
+          <span style="font-size: 36px; font-weight: 800; letter-spacing: 8px; color: #10b981;">${otpCode}</span>
+        </div>
+        <div style="background: rgba(239, 68, 68, 0.1); border-left: 4px solid #ef4444; padding: 12px 16px; border-radius: 4px; margin-bottom: 16px;">
+          <p style="color: #fca5a5; font-size: 13px; margin: 0; line-height: 1.5;">
+            <strong>⚠️ PERHATIAN:</strong><br/>
+            Kode ini bersifat rahasia dan hanya berlaku selama <strong>10 menit</strong>. Jangan pernah memberikan kode ini kepada siapa pun, termasuk pihak pengurus RT.
+          </p>
+        </div>
+        <p style="color: #64748b; font-size: 12px; margin-top: 24px; line-height: 1.5; text-align: center;">
+          Jika Anda tidak merasa melakukan permintaan ini, abaikan email ini dan pastikan akun Anda tetap aman.
+        </p>
       </div>
-      <p style="color: #94a3b8; font-size: 14px;">Kode ini berlaku selama <strong>10 menit</strong>.</p>
-      <p style="color: #64748b; font-size: 12px; margin-top: 24px;">Jika Anda tidak merasa melakukan permintaan ini, abaikan email ini.</p>
     </div>
   `;
 
