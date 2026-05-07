@@ -166,7 +166,7 @@ export default function DashboardHome() {
           </div>
           <h1 className="text-3xl sm:text-4xl md:text-5xl font-black text-slate-900 tracking-tight leading-tight">
             Selamat Datang, <br />
-            <span className="text-primary">{user?.name}!</span> 👋
+            <span className="text-primary">{user?.name}!</span>
           </h1>
           <p className="text-slate-500 text-base md:text-lg font-medium max-w-md leading-relaxed">
             {hasRole('warga') 

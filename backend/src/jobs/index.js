@@ -5,4 +5,4 @@ const setupSendReminder = require('./sendReminder');
 setupGenerateTagihan();
 setupSendReminder();
 
-console.log('✅ All cron jobs initialized');
+console.log('All cron jobs initialized');

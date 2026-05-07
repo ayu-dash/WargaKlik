@@ -10,24 +10,24 @@ async function start() {
   try {
     // Test database connection
     await sequelize.authenticate();
-    console.log('✅ Database connected successfully');
+    console.log('Database connected successfully');
 
     // Sync models
     await sequelize.sync({ alter: true });
-    console.log('✅ Database synced');
+    console.log('Database synced');
 
     // Initialize WhatsApp
     waService.init();
-    console.log('✅ WhatsApp service initialized');
+    console.log('WhatsApp service initialized');
 
     // Initialize cron jobs
     require('./jobs');
-    console.log('✅ Cron jobs initialized');
+    console.log('Cron jobs initialized');
 
     // Start server
     const server = app.listen(PORT, () => {
-      console.log(`🚀 Server running on port ${PORT}`);
-      console.log(`📍 Environment: ${process.env.NODE_ENV || 'development'}`);
+      console.log(`Server running on port ${PORT}`);
+      console.log(`Environment: ${process.env.NODE_ENV || 'development'}`);
     });
 
     // Graceful shutdown
@@ -37,9 +37,9 @@ async function start() {
       if (waService.client) {
         try {
           await waService.client.destroy();
-          console.log('✅ WhatsApp client destroyed');
+          console.log('WhatsApp client destroyed');
         } catch (e) {
-          console.error('❌ Error destroying WA client:', e.message);
+          console.error('Error destroying WA client:', e.message);
         }
       }
       process.exit(0);
@@ -49,7 +49,7 @@ async function start() {
     process.on('SIGTERM', shutdown);
 
   } catch (error) {
-    console.error('❌ Failed to start server:', error);
+    console.error('Failed to start server:', error);
     process.exit(1);
   }
 }

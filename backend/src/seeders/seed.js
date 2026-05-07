@@ -73,7 +73,7 @@ async function seed() {
     await IuranMaster.create({ nama: 'Iuran Keamanan', nominal: 30000, periode: 'bulanan', is_active: true });
     await IuranMaster.create({ nama: 'Iuran Sosial', nominal: 20000, periode: 'bulanan', is_active: true });
 
-    console.log('✅ Seed completed successfully');
+    console.log('Seed completed successfully');
     console.log('');
     console.log('Login credentials (all passwords: password123):');
     console.log('  RT:         rt@iuranrt.com');
@@ -83,7 +83,7 @@ async function seed() {
 
     process.exit(0);
   } catch (error) {
-    console.error('❌ Seed failed:', error);
+    console.error('Seed failed:', error);
     process.exit(1);
   }
 }

@@ -41,12 +41,12 @@ class WhatsAppService {
     });
 
     this.client.on('ready', () => {
-      console.log('✅ WhatsApp Client is READY!');
+      console.log('WhatsApp Client is READY!');
       this.isReady = true;
     });
 
     this.client.on('disconnected', (reason) => {
-      console.warn('❌ WhatsApp Client was disconnected:', reason);
+      console.warn('WhatsApp Client was disconnected:', reason);
       this.isReady = false;
       this.isInitialized = false;
       // Jangan langsung retry jika sering crash
@@ -54,7 +54,7 @@ class WhatsAppService {
     });
 
     this.client.initialize().catch(err => {
-      console.error('❌ Failed to initialize WhatsApp client:', err.message);
+      console.error('Failed to initialize WhatsApp client:', err.message);
       this.isInitialized = false;
     });
   }
@@ -72,10 +72,10 @@ class WhatsAppService {
       if (!formattedNumber.endsWith('@c.us')) formattedNumber += '@c.us';
 
       await this.client.sendMessage(formattedNumber, message);
-      console.log(`✅ Message sent to ${phoneNumber}`);
+      console.log(`Message sent to ${phoneNumber}`);
       return true;
     } catch (error) {
-      console.error(`❌ Send error: ${error.message}`);
+      console.error(`Send error: ${error.message}`);
       return false;
     }
   }

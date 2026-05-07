@@ -49,7 +49,7 @@ module.exports = {
     return `
     <div style="font-family: 'Inter', sans-serif; max-width: 480px; margin: 0 auto; padding: 32px; background: #1e293b; color: #f1f5f9; border-radius: 16px;">
       <h2 style="color: #10b981; margin-bottom: 4px;">${APP_NAME}</h2>
-      <p style="color: #94a3b8; margin-bottom: 24px;">Pembayaran Berhasil ✅</p>
+      <p style="color: #94a3b8; margin-bottom: 24px;">Pembayaran Berhasil</p>
       
       <div style="background: #0f172a; padding: 32px 24px; border-radius: 16px; text-align: center; margin-bottom: 24px; border: 1px solid #10b981;">
         <div style="color: #94a3b8; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px;">Total Dibayar</div>

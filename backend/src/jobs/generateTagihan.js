@@ -101,14 +101,13 @@ const setupGenerateTagihan = () => {
         created++;
       }
 
-      console.log(`✅ [CRON] Tagihan generated: ${created} created, ${skipped} skipped`);
+      console.log(`[CRON] Tagihan generated: ${created} created, ${skipped} skipped`);
     } catch (err) {
-      console.error('❌ [CRON] Generate tagihan error:', err);
+      console.error('[CRON] Generate tagihan error:', err);
     }
   });
 
-  console.log('📅 Cron: Generate tagihan scheduled (1st of every month, 00:01)');
+  console.log('Cron: Generate tagihan scheduled (1st of every month, 00:01)');
 };
 
 module.exports = setupGenerateTagihan;
-

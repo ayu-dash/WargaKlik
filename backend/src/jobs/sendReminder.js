@@ -40,13 +40,13 @@ const setupSendReminder = () => {
         sent++;
       }
 
-      console.log(`✅ [CRON] Reminders sent: ${sent}`);
+      console.log(`[CRON] Reminders sent: ${sent}`);
     } catch (err) {
-      console.error('❌ [CRON] Send reminder error:', err);
+      console.error('[CRON] Send reminder error:', err);
     }
   });
 
-  console.log('📅 Cron: Send reminder scheduled (10th & 20th of every month, 09:00)');
+  console.log('Cron: Send reminder scheduled (10th & 20th of every month, 09:00)');
 };
 
 module.exports = setupSendReminder;
