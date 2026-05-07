@@ -8,7 +8,7 @@ import { toast } from 'react-hot-toast';
 import { Lock, Mail, Loader2, ArrowLeft, ShieldCheck, ChevronRight, UserCircle2 } from 'lucide-react';
 
 export default function Login() {
-  const [email, setEmail] = useState('');
+  const [identifier, setIdentifier] = useState('');
   const [password, setPassword] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { login } = useAuth();
@@ -16,14 +16,14 @@ export default function Login() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!email || !password) {
-      toast.error('Email dan password wajib diisi');
+    if (!identifier || !password) {
+      toast.error('Email/Nomor Telepon dan password wajib diisi');
       return;
     }
 
     setIsSubmitting(true);
     try {
-      await login(email, password);
+      await login(identifier, password);
       toast.success('Selamat Datang! Login berhasil');
       router.push('/dashboard');
     } catch (err) {
@@ -54,23 +54,23 @@ export default function Login() {
               Masuk ke Portal <span className="text-primary">Warga</span>
             </h1>
             <p className="text-sm md:text-base text-slate-500 font-medium leading-relaxed">
-              Silakan masukkan email dan kata sandi Anda untuk mengakses dashboard RT.
+              Silakan masukkan email atau nomor telepon dan kata sandi Anda untuk mengakses dashboard RT.
             </p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-4 md:space-y-6">
             <div className="space-y-2 md:space-y-3">
-              <label className="block text-xs md:text-sm font-bold text-slate-700 ml-1">Alamat Email</label>
+              <label className="block text-xs md:text-sm font-bold text-slate-700 ml-1">Email atau Nomor Telepon</label>
               <div className="relative group">
                 <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                   <Mail className="h-4.5 w-4.5 md:h-5 md:w-5 text-slate-400 group-focus-within:text-primary transition-colors" />
                 </div>
                 <input
-                  type="email"
+                  type="text"
                   className="w-full bg-slate-50 border border-slate-200 py-3.5 md:py-4 pl-11 md:pl-12 pr-4 text-slate-900 font-medium outline-none focus:border-primary focus:bg-white transition-all rounded-xl md:rounded-2xl text-sm md:text-base"
-                  placeholder="nama@email.com"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="Email atau No. Telepon"
+                  value={identifier}
+                  onChange={(e) => setIdentifier(e.target.value)}
                   required
                 />
               </div>

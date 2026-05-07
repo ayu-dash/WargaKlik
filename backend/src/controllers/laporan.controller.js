@@ -73,13 +73,17 @@ const generateLaporan = async (req, res) => {
       return error(res, 'Jenis laporan tidak valid', 400);
     }
 
+    const isOfficial = ['rt', 'wakil_rt', 'bendahara'].includes(req.user.role);
+    
     const laporan = await Laporan.create({
       jenis,
-      bulan: jenis === 'bulanan' ? bulan : null,
+      bulan: (jenis === 'bulanan' || jenis === 'tunggakan') ? bulan : null,
       tahun,
       file_url: fileUrl,
       pembuat_id: req.user.id,
-      status: 'draft' // Butuh approval RT
+      status: isOfficial ? 'approved' : 'draft',
+      penyetuju_id: isOfficial ? req.user.id : null,
+      disetujui_at: isOfficial ? new Date() : null
     });
 
     return success(res, laporan, 'Laporan berhasil digenerate', 201);

@@ -1,5 +1,6 @@
 const { snap } = require('../config/midtrans');
 const crypto = require('crypto');
+const env = require('../config/env');
 
 /**
  * Create Midtrans Snap transaction
@@ -13,7 +14,7 @@ const createTransaction = async (orderId, grossAmount, customerDetails, itemDeta
     customer_details: customerDetails,
     item_details: itemDetails,
     callbacks: {
-      finish: `${process.env.FRONTEND_URL}/dashboard/tagihan`
+      finish: `${env.frontendUrl}/dashboard/tagihan`
     }
   };
 

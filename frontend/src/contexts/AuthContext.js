@@ -34,8 +34,8 @@ export const AuthProvider = ({ children }) => {
     initAuth();
   }, []);
 
-  const login = async (email, password) => {
-    const res = await api.post('/auth/login', { email, password });
+  const login = async (identifier, password) => {
+    const res = await api.post('/auth/login', { identifier, password });
     if (res.data.success) {
       const { user: userData, accessToken, refreshToken } = res.data.data;
       Cookies.set('token', accessToken, { expires: 1/24 });

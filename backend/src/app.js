@@ -3,6 +3,7 @@ const cors = require('cors');
 const helmet = require('helmet');
 const morgan = require('morgan');
 const path = require('path');
+const env = require('./config/env');
 
 const app = express();
 
@@ -11,7 +12,7 @@ app.use(helmet());
 
 // CORS
 app.use(cors({
-  origin: process.env.FRONTEND_URL || 'http://localhost:3000',
+  origin: env.frontendUrl,
   credentials: true
 }));
 

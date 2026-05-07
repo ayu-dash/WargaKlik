@@ -54,7 +54,7 @@ export default function Sidebar({ isOpen, setIsOpen }) {
       title: 'Laporan Keuangan',
       items: [
         { name: 'Catatan Kas', path: '/dashboard/admin/kas', icon: History, show: hasRole(['rt', 'wakil_rt', 'bendahara']) },
-        { name: 'Laporan Resmi', path: hasRole(['warga']) ? '/dashboard/laporan' : '/dashboard/admin/laporan', icon: FileText, show: hasRole(['warga', 'rt', 'wakil_rt', 'sekretaris']) },
+        { name: 'Laporan Resmi', path: hasRole(['warga']) ? '/dashboard/laporan' : '/dashboard/admin/laporan', icon: FileText, show: hasRole(['warga', 'rt', 'wakil_rt', 'sekretaris', 'bendahara']) },
       ]
     },
     {

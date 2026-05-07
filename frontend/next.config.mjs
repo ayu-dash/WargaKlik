@@ -1,6 +1,11 @@
 /** @type {import('next').NextConfig} */
+const isNgrok = process.env.NEXT_PUBLIC_USE_NGROK === 'true';
+const ngrokUrl = process.env.NEXT_PUBLIC_NGROK_API_URL ? new URL(process.env.NEXT_PUBLIC_NGROK_API_URL).hostname : '';
+
 const nextConfig = {
-  allowedDevOrigins: ['cef3-2001-448a-2040-927b-421a-58ff-fe39-ef74.ngrok-free.app']
+  ...(isNgrok && ngrokUrl && {
+    allowedDevOrigins: [ngrokUrl]
+  })
 };
 
 export default nextConfig;

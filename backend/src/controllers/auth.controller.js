@@ -1,6 +1,7 @@
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-const { User, Warga } = require('../models');
+const { User, Warga, sequelize } = require('../models');
+const { Op } = require('sequelize');
 const { success, error } = require('../utils/response');
 const { generateOtp, getOtpExpiry, isOtpExpired } = require('../utils/otp');
 const mailService = require('../services/mail.service');
@@ -28,19 +29,29 @@ const generateTokens = (user) => {
  */
 const login = async (req, res) => {
   try {
-    const { email, password } = req.body;
-    if (!email || !password) {
-      return error(res, 'Email dan password wajib diisi', 400);
+    const { identifier, email, password } = req.body;
+    const loginId = identifier || email; // Support both for backward compatibility
+
+    if (!loginId || !password) {
+      return error(res, 'Email/Nomor Telepon dan password wajib diisi', 400);
     }
 
-    const user = await User.findOne({ where: { email } });
+    const user = await User.findOne({ 
+      where: { 
+        [Op.or]: [
+          { email: loginId },
+          { no_telepon: loginId }
+        ] 
+      } 
+    });
+
     if (!user) {
-      return error(res, 'Email atau password salah', 401);
+      return error(res, 'Email/Nomor Telepon atau password salah', 401);
     }
 
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
-      return error(res, 'Email atau password salah', 401);
+      return error(res, 'Email/Nomor Telepon atau password salah', 401);
     }
 
     const tokens = generateTokens(user);

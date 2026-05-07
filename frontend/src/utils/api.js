@@ -1,11 +1,15 @@
 import axios from 'axios';
 import Cookies from 'js-cookie';
 
+const isNgrok = process.env.NEXT_PUBLIC_USE_NGROK === 'true';
+
 const api = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api',
+  baseURL: isNgrok 
+    ? process.env.NEXT_PUBLIC_NGROK_API_URL 
+    : process.env.NEXT_PUBLIC_LOCAL_API_URL || 'http://localhost:5000/api',
   headers: {
     'Content-Type': 'application/json',
-    'ngrok-skip-browser-warning': 'true'
+    ...(isNgrok && { 'ngrok-skip-browser-warning': 'true' })
   },
 });
 
