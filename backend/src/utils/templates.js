@@ -5,7 +5,7 @@ module.exports = {
   // ==========================================
   // WHATSAPP TEMPLATES
   // ==========================================
-  
+
   waOtpMessage: (otpCode, purpose) => {
     const action = purpose === 'aktivasi' ? 'Aktivasi Akun' : 'Reset Password';
     return `*[IURAN RT - KEAMANAN AKUN]*\n\nyth. Bapak/Ibu,\nBerikut adalah Kode OTP Anda untuk proses *${action}*:\n\n*${otpCode}*\n\n *PENTING:*\n- Kode ini hanya berlaku selama 10 menit.\n- Demi keamanan, *JANGAN* memberikan kode ini kepada siapapun, termasuk pihak pengurus RT.\n- Jika Anda tidak merasa melakukan permintaan ini, harap abaikan pesan ini.\n\nTerima kasih,\nSistem Iuran RT`;
@@ -24,7 +24,7 @@ module.exports = {
     <div style="font-family: 'Inter', sans-serif; max-width: 480px; margin: 0 auto; padding: 32px; background: #1e293b; color: #f1f5f9; border-radius: 16px;">
       <h2 style="color: #10b981; margin-bottom: 8px; text-align: center;">${APP_NAME}</h2>
       <div style="background: #0f172a; padding: 32px 24px; border-radius: 12px; margin-top: 24px; border: 1px solid #334155;">
-        <p style="color: #e2e8f0; margin-bottom: 16px; font-size: 15px;">Halo Bapak/Ibu,</p>
+        <p style="color: #e2e8f0; margin-bottom: 16px; font-size: 15px;">yth. Bapak/Ibu,</p>
         <p style="color: #94a3b8; margin-bottom: 24px; line-height: 1.6;">
           Berikut adalah Kode OTP Anda untuk proses <strong>${purpose === 'aktivasi' ? 'Aktivasi Akun' : 'Reset Password'}</strong>:
         </p>
