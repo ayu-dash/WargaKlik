@@ -101,10 +101,18 @@ const refreshToken = async (req, res) => {
  */
 const activate = async (req, res) => {
   try {
-    const { email } = req.body;
-    if (!email) return error(res, 'Email wajib diisi', 400);
+    const { identifier, email } = req.body;
+    const loginId = identifier || email;
+    if (!loginId) return error(res, 'Email/Nomor Telepon wajib diisi', 400);
 
-    const user = await User.findOne({ where: { email } });
+    const user = await User.findOne({ 
+      where: { 
+        [Op.or]: [
+          { email: loginId },
+          { no_telepon: loginId }
+        ] 
+      } 
+    });
     if (!user) return error(res, 'User tidak ditemukan', 404);
 
     const otpCode = generateOtp();
@@ -113,7 +121,7 @@ const activate = async (req, res) => {
     await user.save();
 
     // Send OTP via email and WhatsApp
-    try { await mailService.sendOtp(user.email, otpCode, 'aktivasi'); } catch (e) { console.error('Mail OTP error:', e.message); }
+    try { if (user.email) await mailService.sendOtp(user.email, otpCode, 'aktivasi'); } catch (e) { console.error('Mail OTP error:', e.message); }
     if (user.no_telepon) {
       try { await waService.sendOtpWA(user.no_telepon, otpCode, 'aktivasi'); } catch (e) { console.error('WA OTP error:', e.message); }
     }
@@ -131,12 +139,20 @@ const activate = async (req, res) => {
  */
 const verifyOtp = async (req, res) => {
   try {
-    const { email, otp_code, password } = req.body;
-    if (!email || !otp_code || !password) {
-      return error(res, 'Email, kode OTP, dan password baru wajib diisi', 400);
+    const { identifier, email, otp_code, password } = req.body;
+    const loginId = identifier || email;
+    if (!loginId || !otp_code || !password) {
+      return error(res, 'Email/Nomor Telepon, kode OTP, dan password baru wajib diisi', 400);
     }
 
-    const user = await User.findOne({ where: { email } });
+    const user = await User.findOne({ 
+      where: { 
+        [Op.or]: [
+          { email: loginId },
+          { no_telepon: loginId }
+        ] 
+      } 
+    });
     if (!user) return error(res, 'User tidak ditemukan', 404);
 
     if (user.otp_code !== otp_code) {
@@ -175,10 +191,18 @@ const verifyOtp = async (req, res) => {
  */
 const forgotPassword = async (req, res) => {
   try {
-    const { email } = req.body;
-    if (!email) return error(res, 'Email wajib diisi', 400);
+    const { identifier, email } = req.body;
+    const loginId = identifier || email;
+    if (!loginId) return error(res, 'Email/Nomor Telepon wajib diisi', 400);
 
-    const user = await User.findOne({ where: { email } });
+    const user = await User.findOne({ 
+      where: { 
+        [Op.or]: [
+          { email: loginId },
+          { no_telepon: loginId }
+        ] 
+      } 
+    });
     if (!user) return error(res, 'User tidak ditemukan', 404);
 
     const otpCode = generateOtp();
@@ -186,7 +210,7 @@ const forgotPassword = async (req, res) => {
     user.otp_expiry = getOtpExpiry();
     await user.save();
 
-    try { await mailService.sendOtp(user.email, otpCode, 'reset'); } catch (e) { console.error('Mail error:', e.message); }
+    try { if (user.email) await mailService.sendOtp(user.email, otpCode, 'reset'); } catch (e) { console.error('Mail error:', e.message); }
     if (user.no_telepon) {
       try { await waService.sendOtpWA(user.no_telepon, otpCode, 'reset'); } catch (e) { console.error('WA error:', e.message); }
     }
@@ -203,12 +227,20 @@ const forgotPassword = async (req, res) => {
  */
 const resetPassword = async (req, res) => {
   try {
-    const { email, otp_code, password } = req.body;
-    if (!email || !otp_code || !password) {
-      return error(res, 'Email, kode OTP, dan password baru wajib diisi', 400);
+    const { identifier, email, otp_code, password } = req.body;
+    const loginId = identifier || email;
+    if (!loginId || !otp_code || !password) {
+      return error(res, 'Email/Nomor Telepon, kode OTP, dan password baru wajib diisi', 400);
     }
 
-    const user = await User.findOne({ where: { email } });
+    const user = await User.findOne({ 
+      where: { 
+        [Op.or]: [
+          { email: loginId },
+          { no_telepon: loginId }
+        ] 
+      } 
+    });
     if (!user) return error(res, 'User tidak ditemukan', 404);
 
     if (user.otp_code !== otp_code) return error(res, 'Kode OTP salah', 400);

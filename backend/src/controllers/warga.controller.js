@@ -131,7 +131,7 @@ const createWarga = async (req, res) => {
 const updateWarga = async (req, res) => {
   try {
     const { id } = req.params;
-    const { name, no_telepon, no_rumah, no_kk, jumlah_anggota, status_rumah, is_active } = req.body;
+    const { name, email, no_telepon, no_rumah, no_kk, jumlah_anggota, status_rumah, is_active } = req.body;
 
     const warga = await Warga.findByPk(id, { include: ['user'] });
     if (!warga) return error(res, 'Warga tidak ditemukan', 404);

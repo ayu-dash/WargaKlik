@@ -110,7 +110,7 @@ export default function AdminWarga() {
     setFormData({
       no_rumah: item.no_rumah,
       kepala_keluarga: item.kepala_keluarga,
-      status: item.status,
+      status: item.is_active ? 'aktif' : 'pindah',
       name: item.user?.name || '',
       email: item.user?.email || '',
       no_telepon: item.user?.no_telepon || '',

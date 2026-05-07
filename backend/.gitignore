@@ -5,3 +5,17 @@ scratch/*
 !uploads/.gitkeep
 .wwebjs_auth/
 .wwebjs_cache/
+
+# Logs
+*.log
+backend.log
+
+# Temporary and test scripts
+qr.txt
+check_schema.js
+check_users.js
+
+# Agent and temporary docs
+AGENTS.md
+claude.md
+cluade.md

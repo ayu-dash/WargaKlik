@@ -10,7 +10,7 @@ import { useAuth } from '@/contexts/AuthContext';
 
 export default function Activate() {
   const [step, setStep] = useState(1);
-  const [email, setEmail] = useState('');
+  const [identifier, setIdentifier] = useState('');
   const [otp, setOtp] = useState('');
   const [password, setPassword] = useState('');
   const [passwordConfirm, setPasswordConfirm] = useState('');
@@ -20,11 +20,11 @@ export default function Activate() {
 
   const handleRequestOtp = async (e) => {
     e.preventDefault();
-    if (!email) return toast.error('Email wajib diisi');
+    if (!identifier) return toast.error('Email atau Nomor Telepon wajib diisi');
 
     setIsSubmitting(true);
     try {
-      const res = await api.post('/auth/activate', { email });
+      const res = await api.post('/auth/activate', { identifier });
       toast.success(res.data.message);
       setStep(2);
     } catch (err) {
@@ -49,7 +49,7 @@ export default function Activate() {
     setIsSubmitting(true);
     try {
       const res = await api.post('/auth/verify-otp', {
-        email,
+        identifier,
         otp_code: otp,
         password
       });
@@ -78,24 +78,24 @@ export default function Activate() {
           </div>
           <h1 className="text-3xl font-bold text-white mb-2">Aktivasi Akun</h1>
           <p className="text-slate-400">
-            {step === 1 ? 'Masukkan email yang terdaftar pada pengurus RT' : 'Masukkan OTP dan buat password baru'}
+            {step === 1 ? 'Masukkan email atau nomor telepon yang terdaftar pada pengurus RT' : 'Masukkan OTP dan buat password baru'}
           </p>
         </div>
 
         {step === 1 ? (
           <form onSubmit={handleRequestOtp} className="space-y-6 relative z-10">
             <div>
-              <label className="block text-xs md:text-sm font-bold text-slate-700 ml-1">Email Terdaftar</label>
+              <label className="block text-xs md:text-sm font-bold text-slate-700 ml-1">Email / Nomor Telepon Terdaftar</label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                   <Mail className="h-5 w-5 text-slate-500" />
                 </div>
                 <input
-                  type="email"
+                  type="text"
                   className="w-full bg-slate-50 border border-slate-200 py-3.5 md:py-4 pl-11 md:pl-12 pr-4 text-slate-900 font-medium outline-none focus:border-primary focus:bg-white transition-all rounded-xl md:rounded-2xl text-sm md:text-base"
-                  placeholder="email@example.com"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="Email atau No. Telepon"
+                  value={identifier}
+                  onChange={(e) => setIdentifier(e.target.value)}
                   required
                 />
               </div>

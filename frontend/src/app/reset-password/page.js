@@ -9,7 +9,7 @@ import api from '@/utils/api';
 
 export default function ResetPassword() {
   const [step, setStep] = useState(1);
-  const [email, setEmail] = useState('');
+  const [identifier, setIdentifier] = useState('');
   const [otp, setOtp] = useState('');
   const [password, setPassword] = useState('');
   const [passwordConfirm, setPasswordConfirm] = useState('');
@@ -18,11 +18,11 @@ export default function ResetPassword() {
 
   const handleRequestOtp = async (e) => {
     e.preventDefault();
-    if (!email) return toast.error('Email wajib diisi');
+    if (!identifier) return toast.error('Email atau Nomor Telepon wajib diisi');
 
     setIsSubmitting(true);
     try {
-      const res = await api.post('/auth/forgot-password', { email });
+      const res = await api.post('/auth/forgot-password', { identifier });
       toast.success(res.data.message);
       setStep(2);
     } catch (err) {
@@ -47,7 +47,7 @@ export default function ResetPassword() {
     setIsSubmitting(true);
     try {
       await api.post('/auth/reset-password', {
-        email,
+        identifier,
         otp_code: otp,
         password
       });
@@ -72,24 +72,24 @@ export default function ResetPassword() {
           </div>
           <h1 className="text-3xl font-bold text-white mb-2">Reset Password</h1>
           <p className="text-slate-400">
-            {step === 1 ? 'Masukkan email Anda untuk menerima kode OTP' : 'Masukkan OTP dan buat password baru'}
+            {step === 1 ? 'Masukkan email atau nomor telepon Anda untuk menerima kode OTP' : 'Masukkan OTP dan buat password baru'}
           </p>
         </div>
 
         {step === 1 ? (
           <form onSubmit={handleRequestOtp} className="space-y-6 relative z-10">
             <div>
-              <label className="block text-sm font-medium text-slate-300 mb-2">Email</label>
+               <label className="block text-sm font-medium text-slate-300 mb-2">Email / No. Telepon</label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                   <Mail className="h-5 w-5 text-slate-500" />
                 </div>
                 <input
-                  type="email"
+                   type="text"
                   className="input-field pl-10"
-                  placeholder="email@example.com"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="Email atau Nomor Telepon"
+                  value={identifier}
+                  onChange={(e) => setIdentifier(e.target.value)}
                   required
                 />
               </div>
