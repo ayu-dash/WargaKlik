@@ -53,9 +53,9 @@ export default function Activate() {
         otp_code: otp,
         password
       });
-      
+
       toast.success('Akun berhasil diaktifkan!');
-      
+
       // Auto login logic handled in context via cookies if we want, but let's just redirect to login
       // Actually API returns tokens on verify, but context needs to refresh.
       // Redirecting to login is safer flow.
@@ -85,14 +85,14 @@ export default function Activate() {
         {step === 1 ? (
           <form onSubmit={handleRequestOtp} className="space-y-6 relative z-10">
             <div>
-              <label className="block text-sm font-medium text-slate-300 mb-2">Email Terdaftar</label>
+              <label className="block text-xs md:text-sm font-bold text-slate-700 ml-1">Email Terdaftar</label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                   <Mail className="h-5 w-5 text-slate-500" />
                 </div>
                 <input
                   type="email"
-                  className="input-field pl-10"
+                  className="w-full bg-slate-50 border border-slate-200 py-3.5 md:py-4 pl-11 md:pl-12 pr-4 text-slate-900 font-medium outline-none focus:border-primary focus:bg-white transition-all rounded-xl md:rounded-2xl text-sm md:text-base"
                   placeholder="email@example.com"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
@@ -179,7 +179,7 @@ export default function Activate() {
                 'Aktifkan Akun'
               )}
             </button>
-            
+
             <button
               type="button"
               onClick={() => setStep(1)}
