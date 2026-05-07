@@ -14,8 +14,11 @@ backend.log
 qr.txt
 check_schema.js
 check_users.js
+create_db.js
+create_browser_test_user.js
 
 # Agent and temporary docs
 AGENTS.md
-claude.md
-cluade.md
+CLAUDE.md
+*.sqlite
+__tests__/

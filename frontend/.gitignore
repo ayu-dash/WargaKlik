@@ -39,3 +39,9 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# AI & Dev Metadata
+CLAUDE.md
+AGENTS.md
+*.sqlite
+*.log
