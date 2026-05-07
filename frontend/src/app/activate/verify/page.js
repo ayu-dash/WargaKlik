@@ -85,14 +85,14 @@ function ActivateVerifyForm() {
 
   if (!identifier) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-white p-4">
-        <div className="w-full max-w-md p-8 text-center shadow-sm rounded-xl border border-slate-100">
-          <p className="text-slate-600 mb-4">Akses tidak valid. Email atau Nomor Telepon tidak ditemukan.</p>
+      <div className="min-h-screen flex items-center justify-center p-4 md:p-6 bg-[#f8fafc]">
+        <div className="w-full max-w-[460px] bg-white border border-slate-200 rounded-3xl p-8 text-center shadow-xl">
+          <p className="text-slate-500 font-medium mb-6">Akses tidak valid. Sesi Anda mungkin telah berakhir.</p>
           <button 
             onClick={() => router.push('/activate')}
-            className="px-6 py-2 bg-[#003B8C] text-white rounded-md hover:bg-blue-800 transition-colors"
+            className="w-full bg-primary text-white font-bold py-3.5 rounded-xl hover:scale-[1.01] transition-all"
           >
-            Kembali
+            Kembali ke Aktivasi
           </button>
         </div>
       </div>
@@ -100,16 +100,19 @@ function ActivateVerifyForm() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-white p-4">
-      <div className="w-full max-w-lg text-center animate-fade-in">
-        <h1 className="text-3xl font-bold text-[#003B8C] mb-4">Verifikasi Akun Anda</h1>
-        <p className="text-slate-600 mb-8">
+    <div className="min-h-screen flex flex-col items-center justify-center p-4 md:p-6 bg-[#f8fafc] font-sans">
+      <div className="w-full max-w-[460px] bg-white border border-slate-200 rounded-3xl md:rounded-[2.5rem] p-8 md:p-12 shadow-2xl shadow-slate-200 text-center animate-fade-in relative overflow-hidden">
+        
+        <h1 className="text-2xl md:text-3xl font-bold text-slate-900 tracking-tight mb-4">
+          Verifikasi <span className="text-primary">Akun Anda</span>
+        </h1>
+        <p className="text-sm md:text-base text-slate-500 font-medium leading-relaxed mb-8">
           Kami telah mengirimkan kode verifikasi ke email atau WhatsApp Anda.
-          Silakan masukkan 6 digit kode tersebut di bawah ini.
+          Silakan masukkan <span className="font-bold text-slate-700">6 digit</span> kode tersebut di bawah ini.
         </p>
 
         <form onSubmit={handleVerify} className="space-y-8">
-          <div className="flex justify-center gap-2 sm:gap-4" onPaste={handlePaste}>
+          <div className="flex justify-center gap-2 sm:gap-3" onPaste={handlePaste}>
             {otp.map((digit, index) => (
               <input
                 key={index}
@@ -120,7 +123,7 @@ function ActivateVerifyForm() {
                 value={digit}
                 onChange={(e) => handleChange(index, e.target.value)}
                 onKeyDown={(e) => handleKeyDown(index, e)}
-                className="w-12 h-14 sm:w-16 sm:h-16 text-center text-2xl font-bold text-slate-800 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#003B8C] focus:bg-white transition-all shadow-sm"
+                className="w-12 h-14 sm:w-14 sm:h-16 text-center text-2xl font-bold text-primary bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 focus:bg-white transition-all shadow-sm"
               />
             ))}
           </div>
@@ -128,7 +131,7 @@ function ActivateVerifyForm() {
           <button
             type="submit"
             disabled={isSubmitting || otp.join('').length < 6}
-            className="w-full py-4 bg-[#003B8C] hover:bg-blue-800 text-white font-semibold rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            className="w-full bg-primary text-white py-3.5 md:py-4.5 rounded-xl md:rounded-2xl font-bold text-base md:text-lg shadow-xl shadow-primary/20 hover:scale-[1.01] active:scale-[0.99] disabled:opacity-50 disabled:hover:scale-100 disabled:cursor-not-allowed transition-all"
           >
             {isSubmitting ? (
               <Loader2 className="w-6 h-6 animate-spin mx-auto" />
@@ -137,13 +140,13 @@ function ActivateVerifyForm() {
             )}
           </button>
           
-          <div className="mt-6 text-sm text-slate-600">
+          <div className="mt-6 pt-6 border-t border-slate-100 text-sm md:text-base text-slate-500 font-medium">
             Belum menerima kode?{' '}
             <button 
               type="button"
               onClick={handleResendOtp}
               disabled={countdown > 0 || isSubmitting}
-              className="font-semibold text-[#003B8C] hover:text-blue-800 disabled:text-slate-400 disabled:cursor-not-allowed"
+              className="text-primary font-bold hover:underline disabled:text-slate-400 disabled:no-underline disabled:cursor-not-allowed ml-1"
             >
               {countdown > 0 ? `Kirim Ulang (${countdown}s)` : 'Kirim Ulang'}
             </button>
@@ -157,8 +160,8 @@ function ActivateVerifyForm() {
 export default function ActivateVerifyPage() {
   return (
     <Suspense fallback={
-      <div className="min-h-screen flex items-center justify-center bg-white p-4">
-        <Loader2 className="w-8 h-8 animate-spin text-[#003B8C]" />
+      <div className="min-h-screen flex items-center justify-center bg-[#f8fafc] p-4">
+        <Loader2 className="w-8 h-8 animate-spin text-primary" />
       </div>
     }>
       <ActivateVerifyForm />

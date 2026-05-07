@@ -1,18 +1,17 @@
 'use client';
 
-import { useState, useEffect, Suspense } from 'react';
+import { useState, useEffect, Suspense, useRef } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { toast } from 'react-hot-toast';
-import { KeyRound, Key, Lock, Loader2 } from 'lucide-react';
+import { Loader2 } from 'lucide-react';
 import api from '@/utils/api';
 
 function ResetVerifyForm() {
   const searchParams = useSearchParams();
   const identifier = searchParams.get('identifier');
   
-  const [otp, setOtp] = useState('');
-  const [password, setPassword] = useState('');
-  const [passwordConfirm, setPasswordConfirm] = useState('');
+  const [otp, setOtp] = useState(['', '', '', '', '', '']);
+  const inputRefs = useRef([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [countdown, setCountdown] = useState(60);
   const router = useRouter();
@@ -23,6 +22,37 @@ function ResetVerifyForm() {
       return () => clearTimeout(timer);
     }
   }, [countdown]);
+
+  const handleChange = (index, value) => {
+    if (isNaN(value)) return;
+    const newOtp = [...otp];
+    newOtp[index] = value.slice(-1);
+    setOtp(newOtp);
+
+    if (value !== '' && index < 5) {
+      inputRefs.current[index + 1]?.focus();
+    }
+  };
+
+  const handleKeyDown = (index, e) => {
+    if (e.key === 'Backspace' && index > 0 && otp[index] === '') {
+      inputRefs.current[index - 1]?.focus();
+    }
+  };
+
+  const handlePaste = (e) => {
+    e.preventDefault();
+    const pastedData = e.clipboardData.getData('text').slice(0, 6).replace(/\D/g, '');
+    if (pastedData) {
+      const newOtp = [...otp];
+      for (let i = 0; i < 6; i++) {
+        newOtp[i] = pastedData[i] || '';
+      }
+      setOtp(newOtp);
+      const nextIndex = Math.min(pastedData.length, 5);
+      inputRefs.current[nextIndex]?.focus();
+    }
+  };
 
   const handleResendOtp = async () => {
     try {
@@ -39,17 +69,15 @@ function ResetVerifyForm() {
 
   const handleVerify = async (e) => {
     e.preventDefault();
-    if (!otp || !password || !passwordConfirm) return toast.error('Semua field wajib diisi');
-    if (password !== passwordConfirm) return toast.error('Password dan konfirmasi tidak cocok');
-    if (password.length < 6) return toast.error('Password minimal 6 karakter');
+    const otpCode = otp.join('');
+    if (otpCode.length < 6) return toast.error('Silakan masukkan 6 digit kode OTP');
 
     setIsSubmitting(true);
     try {
-      await api.post('/auth/reset-password', { identifier, otp_code: otp, password });
-      toast.success('Password berhasil direset! Silakan login.');
-      router.push('/login');
+      await api.post('/auth/validate-otp', { identifier, otp_code: otpCode });
+      router.push(`/reset-password/set-password?identifier=${encodeURIComponent(identifier)}&otp=${encodeURIComponent(otpCode)}`);
     } catch (err) {
-      toast.error(err.message || 'Gagal verifikasi OTP');
+      toast.error(err.message || 'Kode OTP tidak valid');
     } finally {
       setIsSubmitting(false);
     }
@@ -57,15 +85,14 @@ function ResetVerifyForm() {
 
   if (!identifier) {
     return (
-      <div className="min-h-screen flex items-center justify-center p-4">
-        <div className="glass-card w-full max-w-md p-8 text-center">
-          <p className="text-slate-300 mb-4">Akses tidak valid. Email atau Nomor Telepon tidak ditemukan.</p>
+      <div className="min-h-screen flex items-center justify-center p-4 md:p-6 bg-[#f8fafc]">
+        <div className="w-full max-w-[460px] bg-white border border-slate-200 rounded-3xl p-8 text-center shadow-xl">
+          <p className="text-slate-500 font-medium mb-6">Akses tidak valid. Sesi Anda mungkin telah berakhir.</p>
           <button 
             onClick={() => router.push('/reset-password')}
-            className="btn-primary px-6 py-2 bg-amber-500 hover:bg-amber-600"
-            style={{ background: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)' }}
+            className="w-full bg-amber-500 text-white font-bold py-3.5 rounded-xl hover:scale-[1.01] transition-all"
           >
-            Kembali
+            Kembali ke Reset Password
           </button>
         </div>
       </div>
@@ -73,102 +100,57 @@ function ResetVerifyForm() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4">
-      <div className="glass-card w-full max-w-md p-8 animate-fade-in relative overflow-hidden">
-        <div className="absolute -top-10 -right-10 w-32 h-32 bg-amber-500 rounded-full mix-blend-multiply filter blur-2xl opacity-20"></div>
+    <div className="min-h-screen flex flex-col items-center justify-center p-4 md:p-6 bg-[#f8fafc] font-sans">
+      <div className="w-full max-w-[460px] bg-white border border-slate-200 rounded-3xl md:rounded-[2.5rem] p-8 md:p-12 shadow-2xl shadow-slate-200 text-center animate-fade-in relative overflow-hidden">
+        
+        <h1 className="text-2xl md:text-3xl font-bold text-slate-900 tracking-tight mb-4">
+          Verifikasi <span className="text-amber-500">Akun Anda</span>
+        </h1>
+        <p className="text-sm md:text-base text-slate-500 font-medium leading-relaxed mb-8">
+          Kami telah mengirimkan kode verifikasi ke email atau WhatsApp Anda.
+          Silakan masukkan <span className="font-bold text-slate-700">6 digit</span> kode tersebut di bawah ini.
+        </p>
 
-        <div className="text-center mb-8 relative z-10">
-          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-amber-500/10 mb-4 border border-amber-500/20">
-            <KeyRound className="w-8 h-8 text-amber-500" />
-          </div>
-          <h1 className="text-3xl font-bold text-white mb-2">Validasi OTP</h1>
-          <p className="text-slate-400">Masukkan OTP dan buat password baru</p>
-        </div>
-
-        <form onSubmit={handleVerify} className="space-y-5 relative z-10">
-          <div>
-            <label className="block text-sm font-medium text-slate-300 mb-2">Kode OTP</label>
-            <div className="relative">
-              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <Key className="h-5 w-5 text-slate-500" />
-              </div>
+        <form onSubmit={handleVerify} className="space-y-8">
+          <div className="flex justify-center gap-2 sm:gap-3" onPaste={handlePaste}>
+            {otp.map((digit, index) => (
               <input
+                key={index}
+                ref={(el) => (inputRefs.current[index] = el)}
                 type="text"
-                className="input-field pl-10 tracking-widest text-lg font-mono"
-                placeholder="123456"
-                maxLength={6}
-                value={otp}
-                onChange={(e) => setOtp(e.target.value.replace(/\D/g, ''))}
-                required
+                inputMode="numeric"
+                maxLength={1}
+                value={digit}
+                onChange={(e) => handleChange(index, e.target.value)}
+                onKeyDown={(e) => handleKeyDown(index, e)}
+                className="w-12 h-14 sm:w-14 sm:h-16 text-center text-2xl font-bold text-amber-500 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20 focus:bg-white transition-all shadow-sm"
               />
-            </div>
-            <div className="flex justify-between items-center mt-2">
-              <p className="text-xs text-slate-500">Cek email atau WhatsApp Anda</p>
-              <button 
-                type="button"
-                onClick={handleResendOtp}
-                disabled={countdown > 0 || isSubmitting}
-                className="text-xs font-medium text-amber-500 hover:text-amber-400 disabled:text-slate-500 disabled:cursor-not-allowed transition-colors"
-              >
-                {countdown > 0 ? `Kirim ulang (${countdown}s)` : 'Kirim Ulang OTP'}
-              </button>
-            </div>
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-slate-300 mb-2">Password Baru</label>
-            <div className="relative">
-              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <Lock className="h-5 w-5 text-slate-500" />
-              </div>
-              <input
-                type="password"
-                className="input-field pl-10"
-                placeholder="Minimal 6 karakter"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-              />
-            </div>
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-slate-300 mb-2">Konfirmasi Password</label>
-            <div className="relative">
-              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <Lock className="h-5 w-5 text-slate-500" />
-              </div>
-              <input
-                type="password"
-                className="input-field pl-10"
-                placeholder="Ulangi password"
-                value={passwordConfirm}
-                onChange={(e) => setPasswordConfirm(e.target.value)}
-                required
-              />
-            </div>
+            ))}
           </div>
 
           <button
             type="submit"
-            disabled={isSubmitting}
-            className="w-full btn-primary flex justify-center items-center py-3 mt-4 hover:bg-amber-600"
-            style={{ background: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)', boxShadow: '0 4px 14px 0 rgba(245, 158, 11, 0.39)' }}
+            disabled={isSubmitting || otp.join('').length < 6}
+            className="w-full bg-amber-500 text-white py-3.5 md:py-4.5 rounded-xl md:rounded-2xl font-bold text-base md:text-lg shadow-xl shadow-amber-500/20 hover:scale-[1.01] active:scale-[0.99] disabled:opacity-50 disabled:hover:scale-100 disabled:cursor-not-allowed transition-all"
           >
             {isSubmitting ? (
-              <Loader2 className="w-5 h-5 animate-spin" />
+              <Loader2 className="w-6 h-6 animate-spin mx-auto" />
             ) : (
-              'Simpan Password Baru'
+              'Verifikasi Sekarang'
             )}
           </button>
           
-          <button
-            type="button"
-            onClick={() => router.push('/reset-password')}
-            className="w-full text-slate-400 text-sm hover:text-white transition-colors"
-          >
-            Ganti Email / Nomor Telepon
-          </button>
+          <div className="mt-6 pt-6 border-t border-slate-100 text-sm md:text-base text-slate-500 font-medium">
+            Belum menerima kode?{' '}
+            <button 
+              type="button"
+              onClick={handleResendOtp}
+              disabled={countdown > 0 || isSubmitting}
+              className="text-amber-500 font-bold hover:underline disabled:text-slate-400 disabled:no-underline disabled:cursor-not-allowed ml-1"
+            >
+              {countdown > 0 ? `Kirim Ulang (${countdown}s)` : 'Kirim Ulang'}
+            </button>
+          </div>
         </form>
       </div>
     </div>
@@ -178,7 +160,7 @@ function ResetVerifyForm() {
 export default function ResetVerifyPage() {
   return (
     <Suspense fallback={
-      <div className="min-h-screen flex items-center justify-center p-4">
+      <div className="min-h-screen flex items-center justify-center bg-[#f8fafc] p-4">
         <Loader2 className="w-8 h-8 animate-spin text-amber-500" />
       </div>
     }>
