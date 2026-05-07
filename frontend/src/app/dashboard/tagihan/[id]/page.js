@@ -148,7 +148,7 @@ export default function TagihanDetail() {
               <div className="space-y-4 md:space-y-5">
                 {tagihan.items && tagihan.items.map((item, idx) => (
                   <div key={idx} className="flex justify-between items-center text-slate-600 group">
-                    <span className="font-bold text-sm md:text-base group-hover:text-slate-900 transition-colors">{item.nama_iuran}</span>
+                    <span className="font-bold text-sm md:text-base group-hover:text-slate-900 transition-colors">{item.keterangan}</span>
                     <span className="font-black text-sm md:text-base text-slate-900">{formatRupiah(item.nominal)}</span>
                   </div>
                 ))}
