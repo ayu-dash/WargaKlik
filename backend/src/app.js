@@ -3,12 +3,45 @@ const cors = require('cors');
 const helmet = require('helmet');
 const morgan = require('morgan');
 const path = require('path');
+const rateLimit = require('express-rate-limit');
 const env = require('./config/env');
 
 const app = express();
 
 // Security headers
-app.use(helmet());
+app.use(helmet({
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc: ["'self'"],
+      scriptSrc: ["'self'", "'unsafe-inline'"],
+      styleSrc: ["'self'", "'unsafe-inline'"],
+      imgSrc: ["'self'", "data:", "https:"],
+      connectSrc: ["'self'", env.frontendUrl, "https://api.midtrans.com"],
+      fontSrc: ["'self'"],
+      objectSrc: ["'none'"],
+      upgradeInsecureRequests: [],
+    },
+  },
+  crossOriginResourcePolicy: { policy: "cross-origin" }
+}));
+
+// Global Rate Limiting
+const isTest = process.env.NODE_ENV === 'test';
+const globalLimiter = isTest ? (req, res, next) => next() : rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100, // Limit each IP to 100 requests per windowMs
+  message: { success: false, message: 'Terlalu banyak permintaan dari IP ini, silakan coba lagi nanti.' },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+app.use('/api/', globalLimiter);
+
+// Specific limiter for Auth (Brute-force protection)
+const authLimiter = isTest ? (req, res, next) => next() : rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 10, // 10 attempts per 15 minutes
+  message: { success: false, message: 'Terlalu banyak percobaan akses, silakan coba lagi dalam 15 menit.' }
+});
 
 // CORS
 app.use(cors({
@@ -40,7 +73,9 @@ const notifikasiRoutes = require('./routes/notifikasi.routes');
 const laporanRoutes = require('./routes/laporan.routes');
 const wargaIuranRoutes = require('./routes/wargaIuran.routes');
 
-app.use('/api/auth', authRoutes);
+// Apply auth limiter to auth routes
+app.use('/api/auth', authLimiter, authRoutes);
+
 app.use('/api/warga', wargaRoutes);
 app.use('/api/iuran', iuranRoutes);
 app.use('/api/tagihan', tagihanRoutes);
@@ -63,10 +98,15 @@ app.use((req, res) => {
 
 // Global error handler
 app.use((err, req, res, next) => {
-  console.error('Error:', err.stack);
+  // Log full error internally
+  console.error(`[${new Date().toISOString()}] Error ${err.status || 500}:`, err.stack);
+  
+  // Return generic message in production
+  const isDev = process.env.NODE_ENV === 'development';
   res.status(err.status || 500).json({
     success: false,
-    message: process.env.NODE_ENV === 'development' ? err.message : 'Internal Server Error'
+    message: isDev ? err.message : 'Terjadi kesalahan pada server. Silakan hubungi admin.',
+    ...(isDev && { stack: err.stack })
   });
 });
 

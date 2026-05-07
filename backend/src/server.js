@@ -13,7 +13,7 @@ async function start() {
     console.log('✅ Database connected successfully');
 
     // Sync models
-    await sequelize.sync();
+    await sequelize.sync({ alter: true });
     console.log('✅ Database synced');
 
     // Initialize WhatsApp

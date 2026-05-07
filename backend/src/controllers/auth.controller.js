@@ -49,10 +49,30 @@ const login = async (req, res) => {
       return error(res, 'Email/Nomor Telepon atau password salah', 401);
     }
 
+    // Check if account is locked
+    if (user.lock_until && user.lock_until > new Date()) {
+      const remainingMinutes = Math.ceil((user.lock_until - new Date()) / 60000);
+      return error(res, `Akun Anda terkunci. Silakan coba lagi dalam ${remainingMinutes} menit.`, 403);
+    }
+
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
+      // Increment login attempts
+      user.login_attempts += 1;
+      
+      // Lock account if attempts >= 5
+      if (user.login_attempts >= 5) {
+        user.lock_until = new Date(Date.now() + 15 * 60 * 1000); // 15 minutes lockout
+      }
+      
+      await user.save();
       return error(res, 'Email/Nomor Telepon atau password salah', 401);
     }
+
+    // Success - reset attempts
+    user.login_attempts = 0;
+    user.lock_until = null;
+    await user.save();
 
     const tokens = generateTokens(user);
 
@@ -118,6 +138,7 @@ const activate = async (req, res) => {
     const otpCode = generateOtp();
     user.otp_code = otpCode;
     user.otp_expiry = getOtpExpiry();
+    user.otp_attempts = 0; // Reset attempts for new code
     await user.save();
 
     // Send OTP via email and WhatsApp
@@ -154,9 +175,22 @@ const verifyOtp = async (req, res) => {
       } 
     });
     if (!user) return error(res, 'User tidak ditemukan', 404);
+    if (!user.otp_code) return error(res, 'Tidak ada permintaan OTP aktif', 400);
+
+    // Limit to 5 attempts per OTP code
+    if (user.otp_attempts >= 5) {
+      user.otp_code = null;
+      user.otp_expiry = null;
+      user.otp_attempts = 0;
+      await user.save();
+      return error(res, 'Terlalu banyak percobaan yang salah. Silakan minta kode OTP baru.', 400);
+    }
 
     if (user.otp_code !== otp_code) {
-      return error(res, 'Kode OTP salah', 400);
+      user.otp_attempts += 1;
+      await user.save();
+      const remaining = 5 - user.otp_attempts;
+      return error(res, `Kode OTP salah. Sisa percobaan: ${remaining}`, 400);
     }
 
     if (isOtpExpired(user.otp_expiry)) {
@@ -167,6 +201,7 @@ const verifyOtp = async (req, res) => {
     user.password = await bcrypt.hash(password, 10);
     user.otp_code = null;
     user.otp_expiry = null;
+    user.otp_attempts = 0; // Reset attempts
     await user.save();
 
     const tokens = generateTokens(user);
@@ -208,6 +243,7 @@ const forgotPassword = async (req, res) => {
     const otpCode = generateOtp();
     user.otp_code = otpCode;
     user.otp_expiry = getOtpExpiry();
+    user.otp_attempts = 0; // Reset attempts for new code
     await user.save();
 
     try { if (user.email) await mailService.sendOtp(user.email, otpCode, 'reset'); } catch (e) { console.error('Mail error:', e.message); }
@@ -362,9 +398,22 @@ const validateOtp = async (req, res) => {
       } 
     });
     if (!user) return error(res, 'User tidak ditemukan', 404);
+    if (!user.otp_code) return error(res, 'Tidak ada permintaan OTP aktif', 400);
+
+    // Limit to 5 attempts per OTP code
+    if (user.otp_attempts >= 5) {
+      user.otp_code = null;
+      user.otp_expiry = null;
+      user.otp_attempts = 0;
+      await user.save();
+      return error(res, 'Terlalu banyak percobaan yang salah. Silakan minta kode OTP baru.', 400);
+    }
 
     if (user.otp_code !== otp_code) {
-      return error(res, 'Kode OTP salah', 400);
+      user.otp_attempts += 1;
+      await user.save();
+      const remaining = 5 - user.otp_attempts;
+      return error(res, `Kode OTP salah. Sisa percobaan: ${remaining}`, 400);
     }
 
     if (isOtpExpired(user.otp_expiry)) {

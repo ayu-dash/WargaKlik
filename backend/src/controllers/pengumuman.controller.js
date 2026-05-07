@@ -1,6 +1,7 @@
 const { Pengumuman, User } = require('../models');
 const { success, error, paginate } = require('../utils/response');
 const notificationService = require('../services/notification.service');
+const xss = require('xss');
 
 /**
  * GET /api/pengumuman
@@ -45,8 +46,8 @@ const createPengumuman = async (req, res) => {
     const { title, content, type, target_role, is_published } = req.body;
 
     const pengumuman = await Pengumuman.create({
-      title,
-      content,
+      title: xss(title),
+      content: xss(content),
       type: type || 'info',
       target_role: target_role || 'semua',
       author_id: req.user.id,
@@ -83,8 +84,8 @@ const updatePengumuman = async (req, res) => {
     const wasPublished = pengumuman.is_published;
 
     await pengumuman.update({
-      title: title || pengumuman.title,
-      content: content || pengumuman.content,
+      title: title ? xss(title) : pengumuman.title,
+      content: content ? xss(content) : pengumuman.content,
       type: type || pengumuman.type,
       target_role: target_role || pengumuman.target_role,
       is_published: is_published !== undefined ? is_published : pengumuman.is_published

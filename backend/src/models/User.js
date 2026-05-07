@@ -35,6 +35,20 @@ const User = sequelize.define('User', {
   otp_expiry: {
     type: DataTypes.DATE,
     allowNull: true
+  },
+  otp_attempts: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+    defaultValue: 0
+  },
+  login_attempts: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+    defaultValue: 0
+  },
+  lock_until: {
+    type: DataTypes.DATE,
+    allowNull: true
   }
 }, {
   tableName: 'users',
