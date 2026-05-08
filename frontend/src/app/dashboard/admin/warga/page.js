@@ -110,7 +110,7 @@ export default function AdminWarga() {
     setFormData({
       no_rumah: item.no_rumah,
       kepala_keluarga: item.kepala_keluarga,
-      status: item.is_active ? 'aktif' : 'pindah',
+      status: item.is_active ? 'aktif' : 'nonaktif',
       name: item.user?.name || '',
       email: item.user?.email || '',
       no_telepon: item.user?.no_telepon || '',
@@ -233,7 +233,7 @@ export default function AdminWarga() {
                           </span>
                         ) : (
                           <span className="inline-flex items-center gap-1 bg-red-50 text-danger px-3 py-1.5 rounded-full text-[9px] font-black uppercase tracking-widest border border-red-100">
-                            <X className="w-3 h-3" /> Pindah
+                            <X className="w-3 h-3" /> Nonaktif
                           </span>
                         )}
                       </div>
@@ -318,7 +318,7 @@ export default function AdminWarga() {
                                   </span>
                                 ) : (
                                   <span className="inline-flex items-center gap-1.5 bg-red-50 text-danger px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border border-red-100">
-                                     <X className="w-3 h-3" /> Pindah
+                                     <X className="w-3 h-3" /> Nonaktif
                                   </span>
                                 )}
                               </div>
@@ -464,7 +464,7 @@ export default function AdminWarga() {
                     onChange={e => setFormData({...formData, status: e.target.value})}
                   >
                     <option value="aktif">Aktif (Tinggal di Sini)</option>
-                    <option value="pindah">Pindah / Tidak Aktif</option>
+                    <option value="nonaktif">Nonaktif</option>
                   </select>
                 </div>
               )}

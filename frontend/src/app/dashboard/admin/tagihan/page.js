@@ -12,7 +12,7 @@ export default function AdminTagihan() {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [filter, setFilter] = useState('semua');
-  const [activeTab, setActiveTab] = useState('aktif'); // 'aktif' or 'pindah'
+  const [activeTab, setActiveTab] = useState('aktif'); // 'aktif' or 'nonaktif'
   const [stats, setStats] = useState({ total_warga: 0, total_unpaid: 0, efficiency: 0 });
 
   // Modal Generate
@@ -86,7 +86,7 @@ export default function AdminTagihan() {
     // Filter based on activeTab (aktif means warga.is_active is true)
     const isWargaActive = curr.warga?.is_active;
     if (activeTab === 'aktif' && !isWargaActive) return acc;
-    if (activeTab === 'pindah' && isWargaActive) return acc;
+    if (activeTab === 'nonaktif' && isWargaActive) return acc;
 
     if (!acc[key]) {
       acc[key] = {
@@ -99,7 +99,7 @@ export default function AdminTagihan() {
   }, {});
 
   const aktifCount = new Set(tagihan.filter(t => t.warga?.is_active).map(t => t.warga_id)).size;
-  const pindahCount = new Set(tagihan.filter(t => !t.warga?.is_active).map(t => t.warga_id)).size;
+  const nonaktifCount = new Set(tagihan.filter(t => !t.warga?.is_active).map(t => t.warga_id)).size;
 
   return (
     <>
@@ -135,10 +135,10 @@ export default function AdminTagihan() {
             Warga Aktif ({aktifCount})
           </button>
           <button 
-            onClick={() => setActiveTab('pindah')}
-            className={`px-8 py-3 rounded-xl font-black text-sm transition-all ${activeTab === 'pindah' ? 'bg-white text-danger shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
+            onClick={() => setActiveTab('nonaktif')}
+            className={`px-8 py-3 rounded-xl font-black text-sm transition-all ${activeTab === 'nonaktif' ? 'bg-white text-danger shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
           >
-            Warga Pindah ({pindahCount})
+            Warga Non-Aktif ({nonaktifCount})
           </button>
         </div>
 
@@ -280,7 +280,7 @@ export default function AdminTagihan() {
             ) : (
               <div className="col-span-full py-20 text-center bg-white border border-dashed border-slate-200 rounded-[2rem] md:rounded-[3rem]">
                 <Home className="w-16 h-16 text-slate-200 mx-auto mb-4" />
-                <div className="text-lg font-bold text-slate-400">Tidak ada data tagihan di daftar {activeTab === 'aktif' ? 'Warga Aktif' : 'Warga Pindah'}.</div>
+                <div className="text-lg font-bold text-slate-400">Tidak ada data tagihan di daftar {activeTab === 'aktif' ? 'Warga Aktif' : 'Warga Non-Aktif'}.</div>
               </div>
             )}
           </div>

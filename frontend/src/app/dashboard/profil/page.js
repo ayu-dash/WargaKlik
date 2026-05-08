@@ -123,7 +123,7 @@ export default function ProfilPage() {
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 md:gap-10">
         {/* Left Column - Main Profile Info */}
-        <div className="lg:col-span-7 space-y-6 md:space-y-10">
+        <div className={`${user?.role === 'rt' ? 'lg:col-span-12' : 'lg:col-span-7'} space-y-6 md:space-y-10`}>
           {/* User Info Card */}
           <div className="bg-white p-6 md:p-10 rounded-3xl md:rounded-[3rem] border border-slate-100 shadow-xl shadow-slate-200/40 relative overflow-hidden">
             <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-full blur-3xl -mr-16 -mt-16"></div>
@@ -302,18 +302,25 @@ export default function ProfilPage() {
           )}
 
           {/* Help Card */}
-          <div className="bg-emerald-50 border border-emerald-100 p-8 md:p-10 rounded-3xl md:rounded-[3rem] space-y-4 md:space-y-6">
-             <div className="w-12 h-12 md:w-14 md:h-14 bg-white rounded-xl md:rounded-2xl shadow-sm flex items-center justify-center">
-                <AlertCircle className="w-6 h-6 md:w-7 md:h-7 text-primary" />
-             </div>
-             <h4 className="text-lg md:text-xl font-black text-slate-900 tracking-tight">Butuh Bantuan?</h4>
-             <p className="text-sm md:text-base text-slate-600 font-medium leading-relaxed">
-               Jika Anda mengalami kesulitan dalam mengakses akun atau menemukan kendala pada sistem, jangan ragu untuk menghubungi admin.
-             </p>
-             <button className="w-full bg-white text-slate-900 py-3.5 md:py-4 rounded-xl md:rounded-2xl font-black shadow-sm hover:shadow-md transition-all text-sm md:text-base">
-                Hubungi Admin RT
-             </button>
-          </div>
+          {user?.role !== 'rt' && (
+            <div className="bg-emerald-50 border border-emerald-100 p-8 md:p-10 rounded-3xl md:rounded-[3rem] space-y-4 md:space-y-6">
+               <div className="w-12 h-12 md:w-14 md:h-14 bg-white rounded-xl md:rounded-2xl shadow-sm flex items-center justify-center">
+                  <AlertCircle className="w-6 h-6 md:w-7 md:h-7 text-primary" />
+               </div>
+               <h4 className="text-lg md:text-xl font-black text-slate-900 tracking-tight">Butuh Bantuan?</h4>
+               <p className="text-sm md:text-base text-slate-600 font-medium leading-relaxed">
+                  Jika Anda mengalami kesulitan dalam mengakses akun atau menemukan kendala pada sistem, jangan ragu untuk menghubungi admin.
+               </p>
+               <a 
+                 href="https://wa.me/6281234567890" 
+                 target="_blank" 
+                 rel="noopener noreferrer"
+                 className="w-full bg-white text-slate-900 py-3.5 md:py-4 rounded-xl md:rounded-2xl font-black shadow-sm hover:shadow-md transition-all text-sm md:text-base flex items-center justify-center"
+               >
+                  Hubungi Admin RT
+               </a>
+            </div>
+          )}
         </div>
       </div>
     </div>

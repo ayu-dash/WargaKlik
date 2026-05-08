@@ -17,8 +17,12 @@ async function start() {
     console.log('Database synced');
 
     // Initialize WhatsApp
-    waService.init();
-    console.log('WhatsApp service initialized');
+    if (process.env.WHATSAPP_ENABLED === 'true') {
+      waService.init();
+      console.log('WhatsApp service initialized');
+    } else {
+      console.log('WhatsApp service disabled (WHATSAPP_ENABLED=false)');
+    }
 
     // Initialize cron jobs
     require('./jobs');
@@ -47,6 +51,17 @@ async function start() {
 
     process.on('SIGINT', shutdown);
     process.on('SIGTERM', shutdown);
+
+    // Global error handlers to prevent crash
+    process.on('unhandledRejection', (reason, promise) => {
+      console.error('Unhandled Rejection at:', promise, 'reason:', reason);
+    });
+
+    process.on('uncaughtException', (err) => {
+      console.error('Uncaught Exception:', err);
+      // Optional: process.exit(1) if you want to restart, 
+      // but here we want to see if it survives.
+    });
 
   } catch (error) {
     console.error('Failed to start server:', error);

@@ -53,9 +53,29 @@ class WhatsAppService {
       setTimeout(() => this.init(), 10000);
     });
 
-    this.client.initialize().catch(err => {
-      console.error('Failed to initialize WhatsApp client:', err.message);
+    this.client.on('auth_failure', (msg) => {
+      console.error('WhatsApp Authentication failure:', msg);
       this.isInitialized = false;
+    });
+
+    this.client.on('loading_screen', (percent, message) => {
+      console.log('WhatsApp Loading:', percent, message);
+    });
+
+    this.client.initialize().then(() => {
+      console.log('✅ WhatsApp Client initialized successfully');
+    }).catch(err => {
+      console.error('❌ Failed to initialize WhatsApp client:', err.message);
+      this.isInitialized = false;
+      // If lock error, try to clean up
+      if (err.message.includes('already running')) {
+        console.log('💡 Tip: Try killing all chromium processes or deleting .wwebjs_auth directory');
+      }
+    });
+
+    // Handle unexpected browser disconnection
+    this.client.on('change_state', state => {
+      console.log('WhatsApp State Change:', state);
     });
   }
 

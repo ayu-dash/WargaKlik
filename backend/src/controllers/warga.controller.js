@@ -170,27 +170,49 @@ const updateWarga = async (req, res) => {
  * DELETE /api/warga/:id
  */
 const deleteWarga = async (req, res) => {
+  const t = await sequelize.transaction();
   try {
     const warga = await Warga.findByPk(req.params.id);
-    if (!warga) return error(res, 'Warga tidak ditemukan', 404);
-
-    // Check for outstanding bills
-    const outstandingBills = await Tagihan.count({
-      where: {
-        warga_id: warga.id,
-        status: 'belum_bayar'
-      }
-    });
-
-    if (outstandingBills > 0) {
-      return error(res, `Warga ini memiliki ${outstandingBills} tagihan yang belum lunas. Data tidak dapat dihapus sampai semua tunggakan diselesaikan.`, 400);
+    if (!warga) {
+      await t.rollback();
+      return error(res, 'Warga tidak ditemukan', 404);
     }
 
-    // Soft delete via is_active
-    await warga.update({ is_active: false });
+    // Cek apakah ada tagihan yang sudah lunas (riwayat keuangan)
+    const paidBills = await Tagihan.count({
+      where: {
+        warga_id: warga.id,
+        status: 'lunas'
+      },
+      transaction: t
+    });
 
-    return success(res, null, 'Warga berhasil dinonaktifkan');
+    if (paidBills > 0) {
+      // Jika sudah ada transaksi lunas, lakukan soft delete (nonaktifkan)
+      await warga.update({ is_active: false }, { transaction: t });
+      await t.commit();
+      return success(res, null, 'Warga memiliki riwayat pembayaran. Akun telah dinonaktifkan (soft delete).');
+    } else {
+      // Jika BELUM ADA transaksi lunas, hapus permanen (hard delete)
+      const userId = warga.user_id;
+
+      // Hapus data terkait yang merujuk ke warga ini
+      await Tagihan.destroy({ where: { warga_id: warga.id }, transaction: t });
+      await WargaIuran.destroy({ where: { warga_id: warga.id }, transaction: t });
+      
+      // Hapus data warga
+      await warga.destroy({ transaction: t });
+
+      // Hapus data user jika ada
+      if (userId) {
+        await User.destroy({ where: { id: userId }, transaction: t });
+      }
+
+      await t.commit();
+      return success(res, null, 'Data warga salah input berhasil dihapus permanen beserta data terkait.');
+    }
   } catch (err) {
+    await t.rollback();
     console.error('Delete warga error:', err);
     return error(res, 'Gagal menghapus warga', 500);
   }
